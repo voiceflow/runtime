@@ -1,10 +1,10 @@
 {
-  "name": "backend-template",
-  "description": "Template project for creating new backend repos",
+  "name": "controller",
+  "description": "controller for executing voiceflow projects",
   "version": "1.0.0",
   "author": "Voiceflow",
   "bugs": {
-    "url": "https://github.com/voiceflow/backend-template/issues"
+    "url": "https://github.com/voiceflow/controller/issues"
   },
   "config": {
     "commitizen": {
@@ -12,7 +12,8 @@
     }
   },
   "dependencies": {
-    "axios": "^0.19.0"
+    "axios": "^0.19.0",
+    "immer": "^5.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.5",
