@@ -29,6 +29,10 @@ class Stack {
     return frame;
   }
 
+  lift(depth: number = 1): void {
+    this.frames = this.frames.slice(0, this.frames.length - depth);
+  }
+
   push(frame: Frame): void {
     this.frames = [...this.frames, frame];
   }
