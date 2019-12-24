@@ -1,21 +1,21 @@
 import Store from '../../Store';
 
-export interface FrameState {
+export interface FrameState<T, V, S> {
   diagramID: string,
   lineID: string,
-  triggers: object[],
-  variables: object,
-  storage: object,
+  triggers: T[],
+  variables: V,
+  storage: S,
 }
 
-class Frame {
+class Frame<T, V, S> {
   diagramID: string;
   lineID: string;
-  triggers: object[] = [];
-  storage: Store;
-  variables: Store;
+  triggers: T[] = [];
+  storage: Store<S>;
+  variables: Store<V>;
 
-  getState(): FrameState {
+  getState(): FrameState<T, V, S> {
     return {
       diagramID: this.diagramID,
       lineID: this.lineID,
@@ -25,7 +25,7 @@ class Frame {
     }
   }
 
-  constructor(frameState?: FrameState) {
+  constructor(frameState?: FrameState<T, V, S>) {
     this.variables = new Store(frameState.variables);
     this.storage = new Store(frameState.storage);
     this.diagramID = frameState.diagramID;

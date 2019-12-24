@@ -1,43 +1,43 @@
 import _produce, { Draft } from 'immer';
 
-class Storage {
-  private store: object = {};
+class Storage <S extends {readonly [K in keyof S]: S[K]}> {
+  private store: S = {} as S;
 
-  initialize(payload: object): void {
-    this.store = {...payload};
+  initialize(payload: S = {} as S): void {
+    this.store = { ...payload };
   }
 
-  constructor(payload?: object) {
+  constructor(payload: S = {} as S) {
     this.initialize(payload);
   }
 
-  getState(): object {
+  getState(): S {
     return this.store;
   }
 
-  get(key: string): any {
+  get<K extends keyof S>(key: K): S[K] {
     return this.store[key];
   }
 
-  produce(producer: (draft: Draft<object>) => void): void {
+  produce(producer: (draft: any) => void): void {
     this.store = _produce(this.store, producer);
   }
 
-  update(key: string, value: any): void {
-    this.produce((draft: Draft<object>) => {
+  update<K extends keyof S>(key: K, value: any): void {
+    this.produce((draft: Draft<S[K]>) => {
       draft[key] = value;
     });
   };
 
-  merge(payload: object): void {
+  merge(payload: Partial<S>): void {
     this.store = {
       ...this.store,
       ...payload,
     }
   }
 
-  delete(key: string): void {
-    this.produce((draft: Draft<object>) => {
+  delete<K extends keyof S>(key: K): void {
+    this.produce((draft: Draft<S[K]>) => {
       delete draft[key];
     });
   }

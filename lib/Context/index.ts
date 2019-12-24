@@ -1,5 +1,5 @@
 import axios from 'axios';
-import _produce from 'immer';
+import produce, { Draft } from 'immer';
 
 import Lifecycle from '@/lib/Lifecycle';
 import Store from './Store';
@@ -12,27 +12,28 @@ export interface Options {
   handlers: Handler[],
 }
 
-export interface State {
-  storage: object;
-  variables: object;
-  turn?: object;
-  stack: FrameState[];
+interface State<T, S, V, STT, STV, STS> {
+  turn?: T;
+  stack: FrameState<STT, STV, STS>[];
+  storage: S;
+  variables: V;
 }
 
-class Context extends Lifecycle {
-  // storage variables
-  public storage: Store = new Store();
-  // global variables
-  public variables: Store = new Store();
+class Context<T, S, V, STT, STV, STS> extends Lifecycle {
   // temporary turn variables
-  public turn: Store = new Store();
+  public turn: Store<T> = new Store();
+  // storage variables
+  public storage: Store<S> = new Store();
+  // global variables
+  public variables: Store<V> = new Store();
 
-  public stack: Stack = new Stack();
+  public stack: Stack<STT, STV, STS> = new Stack([]);
 
   private hasUpdated: boolean = false;
 
-  constructor(public versionID: string, state: State, private options: Options) {
+  constructor(public versionID: string, state: State<T, S, V, STT, STV, STS>, private options: Options) {
     super();
+
     this.initialize(state);
   }
 
@@ -63,22 +64,22 @@ class Context extends Lifecycle {
     this.hasUpdated = true;
   }
 
-  initialize(state: State): void {
-    this.storage.initialize(state.storage);
+  initialize(state: State<T, S, V, STT, STV, STS>): void {
     this.turn.initialize(state.turn);
-    this.variables.initialize(state.variables);
     this.stack.initialize(state.stack);
+    this.storage.initialize(state.storage);
+    this.variables.initialize(state.variables);
   }
 
-  getState = (): State => ({
+  getState = (): State<T, S, V, STT, STV, STS> => ({
     storage: this.storage.getState(),
     turn: this.turn.getState(),
     variables: this.variables.getState(),
     stack: this.stack.getState(),
   });
 
-  produce(producer): void {
-    this.initialize(_produce(this.getState(), producer));
+  produce(producer: (draft: Draft<State<T, S, V, STT, STV, STS>>) => void): void {
+    this.initialize(produce(this.getState(), producer));
   };
 };
 

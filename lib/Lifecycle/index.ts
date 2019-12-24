@@ -1,7 +1,7 @@
 import Events from '@/lib/events';
 
 class Lifecycle {
-  private events: Object = {};
+  private events: { [key in keyof typeof Events]?: Function} = {};
 
   public setEvent(event: Events, callback: Function) {
     this.events[event] = callback;
