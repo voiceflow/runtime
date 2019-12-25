@@ -20,6 +20,10 @@ class Lifecycle {
   public getEvents(): Events  {
     return this.events;
   }
+
+  public callEvent(event: Event): void {
+    this.getEvent(event)(this);
+  }
 };
 
 export default Lifecycle;
