@@ -6,17 +6,33 @@ import Store from './Store';
 import Handler from '@/lib/Handler';
 import Stack, { FrameState } from './Stack';
 
+import cycleStack from "@/lib/Context/cycleStack";
+
 export interface Options {
   secret: string,
   endpoint: string,
   handlers: Handler[],
 }
 
-interface State<T, S, V, STT, STV, STS> {
-  turn?: T;
+export interface State<T, S, V, STT, STV, STS> {
+  turn: T;
   stack: FrameState<STT, STV, STS>[];
   storage: S;
   variables: V;
+}
+
+export enum ActionType {
+  IDLE,
+  RUNNING,
+  PUSHING,
+  POPPING,
+  ENDING,
+  END,
+}
+
+export interface Action {
+  type: ActionType,
+  payload?: object,
 }
 
 class Context<T, S, V, STT, STV, STS> extends Lifecycle {
@@ -29,12 +45,22 @@ class Context<T, S, V, STT, STV, STS> extends Lifecycle {
 
   public stack: Stack<STT, STV, STS> = new Stack([]);
 
-  private hasUpdated: boolean = false;
+  private action: Action = { type: ActionType.IDLE };
 
   constructor(public versionID: string, state: State<T, S, V, STT, STV, STS>, private options: Options) {
     super();
-
     this.initialize(state);
+  }
+
+  setAction(type: ActionType, payload?: object): void {
+    this.action = {
+      type,
+      payload
+    };
+  }
+
+  getAction(): Action {
+    return this.action;
   }
 
   async fetchMetadata(): Promise<object> {
@@ -58,10 +84,11 @@ class Context<T, S, V, STT, STV, STS> extends Lifecycle {
   }
 
   async update(): Promise<void> {
-    if (this.hasUpdated) {
+    if (this.action.type !== ActionType.IDLE) {
       throw new Error('Context Updated Twice');
     }
-    this.hasUpdated = true;
+    this.setAction(ActionType.RUNNING);
+    await cycleStack(this);
   }
 
   initialize(state: State<T, S, V, STT, STV, STS>): void {

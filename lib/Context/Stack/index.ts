@@ -16,6 +16,10 @@ class Stack<T, V, S> {
     this.initialize(stack);
   }
 
+  getDepth(): number {
+    return this.frames.length;
+  }
+
   top(): Frame<T, V, S> {
     return this.frames[this.frames.length - 1];
   }

@@ -1,4 +1,4 @@
-enum Events {
+enum Event {
   contextWillMount,
   contextWillUnmount,
   contextDidCatch,
@@ -19,4 +19,4 @@ enum Events {
   stackDidPop,
 }
 
-export default Events;
+export default Event;

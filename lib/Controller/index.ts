@@ -3,6 +3,9 @@ import Lifecycle from '@/lib/Lifecycle';
 
 const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';
 
+type ObjectState = State<object, object, object, object, object, object>;
+type ObjectContext = Context<object, object, object, object, object, object>;
+
 class Controller extends Lifecycle {
   private options: Options;
 
@@ -15,8 +18,11 @@ class Controller extends Lifecycle {
     };
   }
 
-  public createContext(versionID: string, { turn, ...state }: State): Context {
-    return new Context(versionID, state, this.options);
+  public createContext(versionID: string, state: ObjectState): ObjectContext  {
+    state.turn = {};
+    const context = new Context(versionID, state, this.options);
+    context.setEvents(this.getEvents());
+    return context;
   }
 }
 
