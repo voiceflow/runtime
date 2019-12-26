@@ -1,46 +1,48 @@
-import _produce, { Draft } from 'immer';
+import produce, { Draft } from 'immer';
 
-class Storage <S extends {readonly [K in keyof S]: S[K]}> {
-  private store: S = {} as S;
+export type State = { readonly [k: string]: any };
 
-  initialize(payload: S = {} as S): void {
+class Storage {
+  private store: State = {};
+
+  constructor(payload: State = {}) {
     this.store = { ...payload };
   }
 
-  constructor(payload: S = {} as S) {
-    this.initialize(payload);
-  }
-
-  getState(): S {
+  getState(): State {
     return this.store;
   }
 
-  get<K extends keyof S>(key: K): S[K] {
+  get<K extends keyof State>(key: K): State[K] {
     return this.store[key];
   }
 
-  produce(producer: (draft: any) => void): void {
-    this.store = _produce(this.store, producer);
-  }
-
-  update<K extends keyof S>(key: K, value: any): void {
-    this.produce((draft: Draft<S[K]>) => {
+  set<K extends keyof State>(key: K, value: any): void {
+    this.produce((draft: Draft<State[K]>) => {
       draft[key] = value;
     });
-  };
+  }
 
-  merge(payload: Partial<S>): void {
+  produce(producer: (draft: any) => void): void {
+    this.update(produce(this.store, producer));
+  }
+
+  update(nextState: State): void {
+    this.store = nextState;
+  }
+
+  merge(payload: Partial<State>): void {
     this.store = {
       ...this.store,
       ...payload,
-    }
+    };
   }
 
-  delete<K extends keyof S>(key: K): void {
-    this.produce((draft: Draft<S[K]>) => {
+  delete<K extends keyof State>(key: K): void {
+    this.produce((draft: Draft<State[K]>) => {
       delete draft[key];
     });
   }
-};
+}
 
 export default Storage;

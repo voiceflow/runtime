@@ -1,33 +1,34 @@
-import Frame, { FrameState } from './Frame';
 import produce from 'immer';
 
-class Stack<T, V, S> {
-  private frames: Frame<T, V, S>[] = [];
+import Frame, { State as FrameState } from './Frame';
 
-  initialize(stack: FrameState<T, V, S>[]) {
-    this.frames = [...stack.map((frameState) => new Frame(frameState))];
+class Stack {
+  private frames: Frame[] = [];
+
+  constructor(stack: FrameState[]) {
+    this.frames = this.getFrames(stack);
   }
 
-  getState(): FrameState<T, V, S>[] {
+  private getFrames(stack: FrameState[]): Frame[] {
+    return [...stack.map((frameState) => new Frame(frameState))];
+  }
+
+  getState(): FrameState[] {
     return this.frames.map((frame) => frame.getState());
-  }
-
-  constructor(stack: FrameState<T, V, S>[]) {
-    this.initialize(stack);
   }
 
   getDepth(): number {
     return this.frames.length;
   }
 
-  top(): Frame<T, V, S> {
+  top(): Frame {
     return this.frames[this.frames.length - 1];
   }
 
-  pop(): Frame<T, V, S> | void {
-    let frame;
+  pop(): Frame | void {
+    let frame: Frame | void;
 
-    this.frames = produce(this.frames, (draft: Frame<T, V, S>[]) => {
+    this.frames = produce(this.frames, (draft: Frame[]) => {
       frame = draft.pop();
     });
 
@@ -38,9 +39,15 @@ class Stack<T, V, S> {
     this.frames = this.frames.slice(0, this.frames.length - depth);
   }
 
-  push(frame: Frame<T, V, S>): void {
+  push(frame: Frame): void {
     this.frames = [...this.frames, frame];
   }
+
+  update(frames: FrameState[]): void {
+    this.frames = this.getFrames(frames);
+  }
 }
+
 export { Frame, FrameState };
+
 export default Stack;

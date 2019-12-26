@@ -1,24 +1,24 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import produce, { Draft } from 'immer';
 
 import Lifecycle from '@/lib/Lifecycle';
-import Store from './Store';
+import Store, { State as StorageState } from './Store';
 import Handler from '@/lib/Handler';
 import Stack, { FrameState } from './Stack';
 
-import cycleStack from "@/lib/Context/cycleStack";
+import cycleStack from '@/lib/Context/cycleStack';
 
 export interface Options {
-  secret: string,
-  endpoint: string,
-  handlers: Handler[],
+  secret: string;
+  endpoint: string;
+  handlers: Handler[];
 }
 
-export interface State<T, S, V, STT, STV, STS> {
-  turn: T;
-  stack: FrameState<STT, STV, STS>[];
-  storage: S;
-  variables: V;
+export interface State {
+  turn: StorageState;
+  stack: FrameState[];
+  storage: StorageState;
+  variables: StorageState;
 }
 
 export enum ActionType {
@@ -31,32 +31,44 @@ export enum ActionType {
 }
 
 export interface Action {
-  type: ActionType,
-  payload?: object,
+  type: ActionType;
+  payload?: object;
 }
 
-class Context<T, S, V, STT, STV, STS> extends Lifecycle {
+class Context extends Lifecycle {
   // temporary turn variables
-  public turn: Store<T> = new Store();
-  // storage variables
-  public storage: Store<S> = new Store();
-  // global variables
-  public variables: Store<V> = new Store();
+  public turn: Store;
 
-  public stack: Stack<STT, STV, STS> = new Stack([]);
+  public stack: Stack;
+
+  // storage variables
+  public storage: Store;
+
+  // global variables
+  public variables: Store;
 
   private action: Action = { type: ActionType.IDLE };
 
-  constructor(public versionID: string, state: State<T, S, V, STT, STV, STS>, private options: Options) {
+  private fetch: AxiosInstance;
+
+  constructor(public versionID: string, state: State, private options: Options) {
     super();
-    this.initialize(state);
+
+    this.turn = new Store(state.turn);
+    this.stack = new Stack(state.stack);
+    this.storage = new Store(state.storage);
+    this.variables = new Store(state.variables);
+
+    this.fetch = axios.create({
+      baseURL: this.options.endpoint,
+      headers: {
+        authorization: this.options.secret,
+      },
+    });
   }
 
   setAction(type: ActionType, payload?: object): void {
-    this.action = {
-      type,
-      payload
-    };
+    this.action = { type, payload };
   }
 
   getAction(): Action {
@@ -64,21 +76,13 @@ class Context<T, S, V, STT, STV, STS> extends Lifecycle {
   }
 
   async fetchMetadata(): Promise<object> {
-    const { body }: { body: object } = await axios.get(`${this.options.endpoint}/metadata/${this.versionID}`, {
-      headers: {
-        authorization: this.options.secret
-      }
-    });
+    const { body }: { body: object } = await this.fetch.get(`/metadata/${this.versionID}`);
 
     return body;
   }
 
   async fetchDiagram(diagramID: string): Promise<object> {
-    const { body }: { body: object } = await axios.get(`${this.options.endpoint}/diagrams/${diagramID}`, {
-      headers: {
-        authorization: this.options.secret
-      }
-    });
+    const { body }: { body: object } = await this.fetch.get(`/diagrams/${diagramID}`);
 
     return body;
   }
@@ -87,27 +91,27 @@ class Context<T, S, V, STT, STV, STS> extends Lifecycle {
     if (this.action.type !== ActionType.IDLE) {
       throw new Error('Context Updated Twice');
     }
+
     this.setAction(ActionType.RUNNING);
+
     await cycleStack(this);
   }
 
-  initialize(state: State<T, S, V, STT, STV, STS>): void {
-    this.turn.initialize(state.turn);
-    this.stack.initialize(state.stack);
-    this.storage.initialize(state.storage);
-    this.variables.initialize(state.variables);
-  }
-
-  getState = (): State<T, S, V, STT, STV, STS> => ({
-    storage: this.storage.getState(),
+  getState = (): State => ({
     turn: this.turn.getState(),
-    variables: this.variables.getState(),
     stack: this.stack.getState(),
+    storage: this.storage.getState(),
+    variables: this.variables.getState(),
   });
 
-  produce(producer: (draft: Draft<State<T, S, V, STT, STV, STS>>) => void): void {
-    this.initialize(produce(this.getState(), producer));
-  };
-};
+  produce(producer: (draft: Draft<State>) => void): void {
+    const { turn, stack, storage, variables } = produce(this.getState(), producer);
+
+    this.turn.update(turn);
+    this.stack.update(stack);
+    this.storage.update(storage);
+    this.variables.update(variables);
+  }
+}
 
 export default Context;

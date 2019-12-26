@@ -1,16 +1,14 @@
-import Context, { State, Options } from '@/lib/Context';
+import Context, { State as ContextState, Options as ContextOptions } from '@/lib/Context';
 import Lifecycle from '@/lib/Lifecycle';
 
 const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';
 
-type ObjectState = State<object, object, object, object, object, object>;
-type ObjectContext = Context<object, object, object, object, object, object>;
-
 class Controller extends Lifecycle {
-  private options: Options;
+  private options: ContextOptions;
 
-  constructor({secret, endpoint = DEFAULT_ENDPOINT, handlers = []}: Options) {
+  constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [] }: ContextOptions) {
     super();
+
     this.options = {
       secret,
       endpoint,
@@ -18,10 +16,11 @@ class Controller extends Lifecycle {
     };
   }
 
-  public createContext(versionID: string, state: ObjectState): ObjectContext  {
-    state.turn = {};
+  public createContext(versionID: string, state: ContextState): Context {
     const context = new Context(versionID, state, this.options);
+
     context.setEvents(this.getEvents());
+
     return context;
   }
 }
