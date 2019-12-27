@@ -3,14 +3,14 @@ import produce from 'immer';
 import Frame, { State as FrameState } from './Frame';
 
 class Stack {
+  static getFrames(stack: FrameState[]): Frame[] {
+    return [...stack.map((frameState) => new Frame(frameState))];
+  }
+
   private frames: Frame[] = [];
 
   constructor(stack: FrameState[]) {
-    this.frames = this.getFrames(stack);
-  }
-
-  private getFrames(stack: FrameState[]): Frame[] {
-    return [...stack.map((frameState) => new Frame(frameState))];
+    this.frames = Stack.getFrames(stack);
   }
 
   getState(): FrameState[] {
@@ -44,7 +44,7 @@ class Stack {
   }
 
   update(frames: FrameState[]): void {
-    this.frames = this.getFrames(frames);
+    this.frames = Stack.getFrames(frames);
   }
 }
 
