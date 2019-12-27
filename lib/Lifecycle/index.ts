@@ -1,6 +1,6 @@
 import Event from '@/lib/event';
 
-export type Events = { [key in keyof typeof Event]?: Function};
+export type Events = { [key in keyof typeof Event]?: Function };
 
 class Lifecycle {
   private events: Events = {};
@@ -15,15 +15,15 @@ class Lifecycle {
 
   public getEvent(event: Event): Function {
     return this.events[event] ?? (() => {});
-  };
+  }
 
-  public getEvents(): Events  {
+  public getEvents(): Events {
     return this.events;
   }
 
   public callEvent(event: Event): void {
     this.getEvent(event)(this);
   }
-};
+}
 
 export default Lifecycle;

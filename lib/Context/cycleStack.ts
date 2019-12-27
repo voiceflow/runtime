@@ -1,31 +1,36 @@
-import Context, {ActionType} from "@/lib/Context";
-import Frame, {FrameState} from "@/lib/Context/Stack/Frame";
+import Context, { ActionType } from '@/lib/Context';
+import Frame, { State as FrameState } from '@/lib/Context/Stack/Frame';
 
 const STACK_OVERFLOW = 60;
 
-const cycleStack = async <T, S, V, STT, STV, STS>(context: Context<T, S, V, STT, STV, STS>, calls: number = 0): Promise<void> => {
-    if(context.stack.getDepth() > STACK_OVERFLOW || this.stack.getDepth() === 0) {
-        context.setAction(ActionType.END);
-        return;
-    }
+type Action = { type: ActionType.ENDING } | { type: ActionType.POPPING } | { type: ActionType.PUSHING; payload: FrameState };
 
-    const currentFrame = context.stack.top();
-    const diagram = await context.fetchDiagram(currentFrame.diagramID);
+const cycleStack = async (context: Context, calls: number = 0): Promise<void> => {
+  if (context.stack.getDepth() > STACK_OVERFLOW || this.stack.getDepth() === 0) {
+    context.setAction(ActionType.END);
+    return;
+  }
 
-    handle(diagram);
+  const currentFrame = context.stack.top();
+  const diagram = await context.fetchDiagram(currentFrame.diagramID);
 
-    const action = context.getAction();
-    switch(action.type) {
-        case ActionType.ENDING:
-            return;
-        case ActionType.POPPING:
-            context.stack.pop();
-            break;
-        case ActionType.PUSHING:
-            context.stack.push(new Frame(<FrameState<STT, STV, STS>> action.payload));
-            break;
-    }
-    await cycleStack(context,calls + 1);
-}
+  // TODO: replace with the handler
+  //  handle(diagram);
+
+  const action = context.getAction() as Action;
+
+  switch (action.type) {
+    case ActionType.ENDING:
+      return;
+    case ActionType.POPPING:
+      context.stack.pop();
+      break;
+    case ActionType.PUSHING:
+      context.stack.push(new Frame(action.payload));
+      break;
+  }
+
+  await cycleStack(context, calls + 1);
+};
 
 export default cycleStack;
