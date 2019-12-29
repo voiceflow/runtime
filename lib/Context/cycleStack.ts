@@ -1,5 +1,6 @@
 import Context, { ActionType } from '@/lib/Context';
 import Frame, { State as FrameState } from '@/lib/Context/Stack/Frame';
+import cycleHandler from './cycleHandler';
 
 const STACK_OVERFLOW = 60;
 
@@ -14,8 +15,7 @@ const cycleStack = async (context: Context, calls: number = 0): Promise<void> =>
   const currentFrame = context.stack.top();
   const diagram = await context.fetchDiagram(currentFrame.diagramID);
 
-  // TODO: replace with the handler
-  //  handle(diagram);
+  await cycleHandler(context, diagram);
 
   const action = context.getAction() as Action;
 
