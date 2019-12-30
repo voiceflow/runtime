@@ -1,7 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
 import produce, { Draft } from 'immer';
 
-import Lifecycle from '@/lib/Lifecycle';
+import Lifecycle, { Event, AbstractLifecycle } from '@/lib/Lifecycle';
+
 import Store, { State as StorageState } from './Store';
 import Handler from '@/lib/Handler';
 import Stack, { FrameState } from './Stack';
@@ -30,12 +31,12 @@ export enum ActionType {
   END,
 }
 
-export interface Action {
+export interface Action<P = object> {
   type: ActionType;
-  payload?: object;
+  payload?: P;
 }
 
-class Context extends Lifecycle {
+class Context extends AbstractLifecycle {
   // temporary turn variables
   public turn: Store;
 
@@ -51,13 +52,28 @@ class Context extends Lifecycle {
 
   private fetch: AxiosInstance;
 
-  constructor(public versionID: string, state: State, private options: Options) {
-    super();
+  constructor(public versionID: string, state: State, private options: Options, events: Lifecycle) {
+    super(events);
 
-    this.turn = new Store(state.turn);
-    this.stack = new Stack(state.stack);
-    this.storage = new Store(state.storage);
-    this.variables = new Store(state.variables);
+    this.stack = new Stack(state.stack, {
+      didPop: (...args) => this.callEvent(Event.stackDidPop, this, ...args),
+      willPop: (...args) => this.callEvent(Event.stackWillPop, this, ...args),
+      didPush: (...args) => this.callEvent(Event.stackDidPush, this, ...args),
+      willPush: (...args) => this.callEvent(Event.stackWillPush, this, ...args),
+    });
+
+    this.turn = new Store(state.turn, {
+      didUpdate: (...args) => this.callEvent(Event.turnDidUpdate, this, ...args),
+      willUpdate: (...args) => this.callEvent(Event.turnWillUpdate, this, ...args),
+    });
+    this.storage = new Store(state.storage, {
+      didUpdate: (...args) => this.callEvent(Event.storageDidUpdate, this, ...args),
+      willUpdate: (...args) => this.callEvent(Event.storageWillUpdate, this, ...args),
+    });
+    this.variables = new Store(state.variables, {
+      didUpdate: (...args) => this.callEvent(Event.variablesDidUpdate, this, ...args),
+      willUpdate: (...args) => this.callEvent(Event.variablesWillUpdate, this, ...args),
+    });
 
     this.fetch = axios.create({
       baseURL: this.options.endpoint,
@@ -67,44 +83,58 @@ class Context extends Lifecycle {
     });
   }
 
-  setAction(type: ActionType, payload?: object): void {
+  public setAction(type: ActionType, payload?: object): void {
     this.action = { type, payload };
   }
 
-  getAction(): Action {
+  public getAction(): Action {
     return this.action;
   }
 
-  async fetchMetadata(): Promise<object> {
-    const { body }: { body: object } = await this.fetch.get(`/metadata/${this.versionID}`);
+  public async fetchMetadata<T = object>(): Promise<T> {
+    const { body }: { body: T } = await this.fetch.get(`/metadata/${this.versionID}`);
 
     return body;
   }
 
-  async fetchDiagram(diagramID: string): Promise<object> {
-    const { body }: { body: object } = await this.fetch.get(`/diagrams/${diagramID}`);
+  public async fetchDiagram<T = object>(diagramID: string): Promise<T> {
+    this.callEvent(Event.diagramWillFetch, this, diagramID);
+
+    const { body }: { body: T } = await this.fetch.get(`/diagrams/${diagramID}`);
+
+    this.callEvent(Event.diagramDidFetch, this, diagramID, body);
 
     return body;
   }
 
-  async update(): Promise<void> {
-    if (this.action.type !== ActionType.IDLE) {
-      throw new Error('Context Updated Twice');
+  public async update(): Promise<void> {
+    try {
+      this.callEvent(Event.updateWillExecute, this);
+
+      if (this.action.type !== ActionType.IDLE) {
+        throw new Error('Context Updated Twice');
+      }
+
+      this.setAction(ActionType.RUNNING);
+
+      await cycleStack(this);
+
+      this.callEvent(Event.updateDidExecute, this);
+    } catch (e) {
+      this.callEvent(Event.updateDidCatch, this, e);
     }
-
-    this.setAction(ActionType.RUNNING);
-
-    await cycleStack(this);
   }
 
-  getState = (): State => ({
-    turn: this.turn.getState(),
-    stack: this.stack.getState(),
-    storage: this.storage.getState(),
-    variables: this.variables.getState(),
-  });
+  public getState(): State {
+    return {
+      turn: this.turn.getState(),
+      stack: this.stack.getState(),
+      storage: this.storage.getState(),
+      variables: this.variables.getState(),
+    };
+  }
 
-  produce(producer: (draft: Draft<State>) => void): void {
+  public produce(producer: (draft: Draft<State>) => void): void {
     const { turn, stack, storage, variables } = produce(this.getState(), producer);
 
     this.turn.update(turn);

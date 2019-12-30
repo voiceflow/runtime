@@ -1,9 +1,9 @@
 import Context, { State as ContextState, Options as ContextOptions } from '@/lib/Context';
-import Lifecycle from '@/lib/Lifecycle';
+import { AbstractLifecycle } from '@/lib/Lifecycle';
 
 const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';
 
-class Controller extends Lifecycle {
+class Controller extends AbstractLifecycle {
   private options: ContextOptions;
 
   constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [] }: ContextOptions) {
@@ -17,9 +17,9 @@ class Controller extends Lifecycle {
   }
 
   public createContext(versionID: string, state: ContextState): Context {
-    const context = new Context(versionID, state, this.options);
+    
 
-    context.setEvents(this.getEvents());
+    const context = new Context(versionID, state, this.options, this.events);
 
     return context;
   }
