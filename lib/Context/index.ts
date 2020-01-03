@@ -55,31 +55,33 @@ class Context extends AbstractLifecycle {
   constructor(public versionID: string, state: State, private options: Options, events: Lifecycle) {
     super(events);
 
+    const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, this, ...args);
+
     this.stack = new Stack(state.stack, {
-      didPop: (...args) => this.callEvent(Event.stackDidPop, this, ...args),
-      willPop: (...args) => this.callEvent(Event.stackWillPop, this, ...args),
-      didPush: (...args) => this.callEvent(Event.stackDidPush, this, ...args),
-      willPush: (...args) => this.callEvent(Event.stackWillPush, this, ...args),
+      didPop: createEvent(Event.stackDidPop),
+      willPop: createEvent(Event.stackWillPop),
+      didPush: createEvent(Event.stackDidPush),
+      willPush: createEvent(Event.stackWillPush),
     });
 
     this.turn = new Store(state.turn, {
-      didUpdate: (...args) => this.callEvent(Event.turnDidUpdate, this, ...args),
-      willUpdate: (...args) => this.callEvent(Event.turnWillUpdate, this, ...args),
+      didUpdate: createEvent(Event.turnDidUpdate),
+      willUpdate: createEvent(Event.turnWillUpdate),
     });
+
     this.storage = new Store(state.storage, {
-      didUpdate: (...args) => this.callEvent(Event.storageDidUpdate, this, ...args),
-      willUpdate: (...args) => this.callEvent(Event.storageWillUpdate, this, ...args),
+      didUpdate: createEvent(Event.storageDidUpdate),
+      willUpdate: createEvent(Event.storageWillUpdate),
     });
+
     this.variables = new Store(state.variables, {
-      didUpdate: (...args) => this.callEvent(Event.variablesDidUpdate, this, ...args),
-      willUpdate: (...args) => this.callEvent(Event.variablesWillUpdate, this, ...args),
+      didUpdate: createEvent(Event.variablesDidUpdate),
+      willUpdate: createEvent(Event.variablesWillUpdate),
     });
 
     this.fetch = axios.create({
       baseURL: this.options.endpoint,
-      headers: {
-        authorization: this.options.secret,
-      },
+      headers: { authorization: this.options.secret },
     });
   }
 
