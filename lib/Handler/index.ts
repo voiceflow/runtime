@@ -1,8 +1,8 @@
 import Context from '@/lib/Context';
 
 interface Handler {
-  canHandle: (context: Context) => boolean,
-  handle: (context: Context) => any,
-};
+  handle: (context: Context) => any;
+  canHandle: (context: Context) => boolean;
+}
 
 export default Handler;

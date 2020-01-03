@@ -1,28 +1,61 @@
-import Event from '@/lib/event';
+import Context from '@/lib/Context';
 
-export type Events = { [key in keyof typeof Event]?: Function };
+export enum Event {
+  contextWillMount,
+  contextWillUnmount,
+  contextDidCatch,
+  updateWillExecute,
+  updateDidExecute,
+  updateDidCatch,
+  diagramWillFetch,
+  diagramDidFetch,
+  stackWillPush,
+  stackDidPush,
+  stateWillExecute,
+  stateDidExecute,
+  stateDidCatch,
+  handlerWillHandle,
+  handlerDidHandler,
+  handlerDidCatch,
+  stackWillPop,
+  stackDidPop,
+  storageWillUpdate,
+  storageDidUpdate,
+  turnWillUpdate,
+  turnDidUpdate,
+  variablesWillUpdate,
+  variablesDidUpdate,
+}
+
+export type Callback = (context: Context, ...args: any[]) => any | Promise<any>;
+
+export type Events = { [key in keyof typeof Event]?: Callback };
 
 class Lifecycle {
   private events: Events = {};
 
-  public setEvents(events: Events): void {
-    this.events = events;
-  }
-
-  public setEvent(event: Event, callback: Function) {
+  public setEvent(event: Event, callback: Callback) {
     this.events[event] = callback;
   }
 
-  public getEvent(event: Event): Function {
+  public getEvent(event: Event): Callback {
     return this.events[event] ?? (() => {});
   }
 
-  public getEvents(): Events {
-    return this.events;
+  public async callEvent(event: Event, context: Context, ...args: any[]): Promise<any> {
+    return this.getEvent(event)(context, ...args);
+  }
+}
+
+export abstract class AbstractLifecycle {
+  constructor(protected events: Lifecycle = new Lifecycle()) {}
+
+  public setEvent(event: Event, callback: Callback) {
+    this.events.setEvent(event, callback);
   }
 
-  public callEvent(event: Event): void {
-    this.getEvent(event)(this);
+  public async callEvent(event: Event, context: Context, ...args: any[]): Promise<any> {
+    return this.events.callEvent(event, context, ...args);
   }
 }
 

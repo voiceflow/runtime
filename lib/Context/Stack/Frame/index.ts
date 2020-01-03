@@ -17,7 +17,16 @@ class Frame {
   triggers: { [key: string]: any }[] = [];
   variables: Store;
 
-  getState(): State {
+  constructor(frameState?: State) {
+    this.lineID = frameState.lineID ?? null;
+    this.diagramID = frameState.diagramID;
+
+    this.storage = new Store(frameState.storage);
+    this.triggers = frameState.triggers;
+    this.variables = new Store(frameState.variables);
+  }
+
+  public getState(): State {
     return {
       lineID: this.lineID,
       diagramID: this.diagramID,
@@ -26,15 +35,6 @@ class Frame {
       triggers: this.triggers,
       variables: this.variables.getState(),
     };
-  }
-
-  constructor(frameState?: State) {
-    this.lineID = frameState.lineID ?? null;
-    this.diagramID = frameState.diagramID;
-
-    this.storage = new Store(frameState.storage);
-    this.triggers = frameState.triggers;
-    this.variables = new Store(frameState.variables);
   }
 }
 

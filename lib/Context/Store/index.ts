@@ -2,43 +2,54 @@ import produce, { Draft } from 'immer';
 
 export type State = { readonly [k: string]: any };
 
+type DidUpdate = (prevState: State, state: State) => void;
+type WillUpdate = (state: State, nextState: State) => void;
+
 class Storage {
   private store: State = {};
+  private didUpdate: DidUpdate;
+  private willUpdate: WillUpdate;
 
-  constructor(payload: State = {}) {
+  constructor(payload: State = {}, { didUpdate, willUpdate }: { didUpdate: DidUpdate; willUpdate: WillUpdate }) {
     this.store = { ...payload };
+
+    this.didUpdate = didUpdate;
+    this.willUpdate = willUpdate;
   }
 
-  getState(): State {
+  public getState(): State {
     return this.store;
   }
 
-  get<K extends keyof State>(key: K): State[K] {
+  public get<K extends keyof State>(key: K): State[K] {
     return this.store[key];
   }
 
-  set<K extends keyof State>(key: K, value: any): void {
+  public update(nextState: State): void {
+    const prevState = this.store;
+
+    this.willUpdate(this.store, nextState);
+
+    this.store = nextState;
+
+    this.didUpdate(prevState, this.store);
+  }
+
+  public produce(producer: (draft: any) => void): void {
+    this.update(produce(this.store, producer));
+  }
+
+  public merge(payload: Partial<State>): void {
+    this.produce((draft: Draft<State>) => Object.assign(draft, payload));
+  }
+
+  public set<K extends keyof State>(key: K, value: any): void {
     this.produce((draft: Draft<State[K]>) => {
       draft[key] = value;
     });
   }
 
-  produce(producer: (draft: any) => void): void {
-    this.update(produce(this.store, producer));
-  }
-
-  update(nextState: State): void {
-    this.store = nextState;
-  }
-
-  merge(payload: Partial<State>): void {
-    this.store = {
-      ...this.store,
-      ...payload,
-    };
-  }
-
-  delete<K extends keyof State>(key: K): void {
+  public delete<K extends keyof State>(key: K): void {
     this.produce((draft: Draft<State[K]>) => {
       delete draft[key];
     });
