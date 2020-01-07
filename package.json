@@ -1,5 +1,5 @@
 {
-  "name": "controller",
+  "name": "@voiceflow/client",
   "description": "controller for executing voiceflow projects",
   "version": "1.0.0",
   "author": "Voiceflow",
