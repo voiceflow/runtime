@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import produce, { Draft } from 'immer';
+// import produce, { Draft } from 'immer';
 
 import Lifecycle, { Event, AbstractLifecycle } from '@/lib/Lifecycle';
 
@@ -19,7 +19,7 @@ export interface Options {
 }
 
 export interface State {
-  turn: StorageState;
+  turn?: StorageState;
   stack: FrameState[];
   storage: StorageState;
   variables: StorageState;
@@ -144,23 +144,35 @@ class Context extends AbstractLifecycle {
     }
   }
 
-  public getState(): State {
+  public getFinalState(): State {
+    if (this.action === Action.IDLE) {
+      throw new Error('Context Not Updated');
+    }
+
     return {
-      turn: this.turn.getState(),
       stack: this.stack.getState(),
       storage: this.storage.getState(),
       variables: this.variables.getState(),
-    };
+    }
   }
 
-  public produce(producer: (draft: Draft<State>) => void): void {
-    const { turn, stack, storage, variables } = produce(this.getState(), producer);
+  // public getState(): State {
+  //   return {
+  //     turn: this.turn.getState(),
+  //     stack: this.stack.getState(),
+  //     storage: this.storage.getState(),
+  //     variables: this.variables.getState(),
+  //   };
+  // }
 
-    this.turn.update(turn);
-    this.stack.update(stack);
-    this.storage.update(storage);
-    this.variables.update(variables);
-  }
+  // public produce(producer: (draft: Draft<State>) => void): void {
+  //   const { turn, stack, storage, variables } = produce(this.getState(), producer);
+  //
+  //   this.turn.update(turn);
+  //   this.stack.update(stack);
+  //   this.storage.update(storage);
+  //   this.variables.update(variables);
+  // }
 
   public getHandlers(): Handler[] {
     return this.options.handlers;

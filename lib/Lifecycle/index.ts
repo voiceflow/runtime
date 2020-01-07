@@ -1,9 +1,6 @@
 import Context from '@/lib/Context';
 
 export enum Event {
-  contextWillMount,
-  contextWillUnmount,
-  contextDidCatch,
   updateWillExecute,
   updateDidExecute,
   updateDidCatch,
