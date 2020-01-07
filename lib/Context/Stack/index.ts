@@ -61,6 +61,10 @@ class Stack {
   public update(frames: FrameState[]): void {
     this.frames = Stack.getFrames(frames);
   }
+
+  public getFrames(): Frame[] {
+    return this.frames;
+  }
 }
 
 export { Frame, FrameState };

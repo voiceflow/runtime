@@ -10,7 +10,7 @@ export const createVariables = (context: Context, referenceFrame: Frame): Store 
   });
 };
 
-export const saveVariables = (context: Context, variableState, referenceFrame: Frame) => {
+export const saveVariables = (variableState: Store, context: Context, referenceFrame: Frame) => {
   context.variables.merge(
     context.variables.keys().reduce((global, variable) => {
       if (variable in variableState) {

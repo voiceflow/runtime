@@ -1,4 +1,4 @@
-import Context, { Action } from '@/lib/Context';
+import Context from '@/lib/Context';
 import cycleHandler from './cycleHandler';
 import { createVariables, saveVariables } from './variable';
 import { Event } from '@/lib/Lifecycle';
@@ -7,33 +7,36 @@ const STACK_OVERFLOW = 60;
 
 const cycleStack = async (context: Context, calls: number = 0): Promise<void> => {
   if (context.stack.getSize() === 0 || calls > STACK_OVERFLOW) {
-    context.setAction(Action.END);
+    context.end();
     return;
   }
 
   const currentFrame = context.stack.top();
-  const currentSize = context.stack.getSize();
+  const currentFrames = context.stack.getFrames();
 
   const diagram = await context.fetchDiagram(currentFrame.diagramID);
-  // TODO: update frame with diagram properties
+  // update frame with diagram properties
+  currentFrame.update(diagram);
 
+  // generate combined variable state (local/global)
   const variableState = createVariables(context, currentFrame);
+
   try {
-    context.callEvent(Event.stateWillExecute, diagram);
-
+    await context.callEvent(Event.stateWillExecute, diagram);
     await cycleHandler(context, diagram, variableState);
-
-    context.callEvent(Event.stateDidExecute, diagram);
+    await context.callEvent(Event.stateDidExecute, diagram);
   } catch (error) {
-    context.callEvent(Event.stateDidCatch, error);
+    await context.callEvent(Event.stateDidCatch, error);
   }
 
-  saveVariables(context, variableState, currentFrame);
+  // deconstruct variable state and save to stores
+  saveVariables(variableState, context, currentFrame);
 
-  if ([Action.PROMPT, Action.END].includes(context.getAction())) {
+  // Action.END allows you to stay on the same frame and return a response
+  if (context.hasEnded()) {
     return;
   }
-  if (context.stack.getSize() === currentSize && context.stack.top() === currentFrame) {
+  if (currentFrames === context.stack.getFrames()) {
     context.stack.pop();
     // TODO: map variables from popped diagram
   }

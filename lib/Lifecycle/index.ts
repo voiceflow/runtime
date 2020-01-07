@@ -15,7 +15,7 @@ export enum Event {
   stateDidExecute,
   stateDidCatch,
   handlerWillHandle,
-  handlerDidHandler,
+  handlerDidHandle,
   handlerDidCatch,
   stackWillPop,
   stackDidPop,
