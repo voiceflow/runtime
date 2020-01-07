@@ -4,8 +4,10 @@ import produce, { Draft } from 'immer';
 import Lifecycle, { Event, AbstractLifecycle } from '@/lib/Lifecycle';
 
 import Store, { State as StorageState } from './Store';
-import Handler from '@/lib/Handler';
+import Handler, { StateHandler } from '@/lib/Handler';
 import Stack, { FrameState } from './Stack';
+
+import Diagram from '@/lib/Diagram';
 
 import cycleStack from '@/lib/Context/cycleStack';
 
@@ -13,27 +15,27 @@ export interface Options {
   secret: string;
   endpoint: string;
   handlers: Handler[];
+  stateHandlers: StateHandler[],
 }
 
 export interface State {
+  output: string;
   turn: StorageState;
   stack: FrameState[];
   storage: StorageState;
   variables: StorageState;
 }
 
-export enum ActionType {
-  IDLE,
-  RUNNING,
-  PUSHING,
-  POPPING,
-  ENDING,
-  END,
+export interface Request {
+  type: string;
+  payload: object;
 }
 
-export interface Action<P = object> {
-  type: ActionType;
-  payload?: P;
+export enum Action {
+  IDLE,
+  RUNNING,
+  PROMPT,
+  END,
 }
 
 class Context extends AbstractLifecycle {
@@ -48,14 +50,16 @@ class Context extends AbstractLifecycle {
   // global variables
   public variables: Store;
 
-  private action: Action = { type: ActionType.IDLE };
+  private action: Action = Action.IDLE;
 
   private fetch: AxiosInstance;
 
-  constructor(public versionID: string, state: State, private options: Options, events: Lifecycle) {
+  public output: string;
+
+  constructor(public versionID: string, state: State, private request: Request, private options: Options, events: Lifecycle) {
     super(events);
 
-    const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, this, ...args);
+    const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
 
     this.stack = new Stack(state.stack, {
       didPop: createEvent(Event.stackDidPop),
@@ -85,8 +89,12 @@ class Context extends AbstractLifecycle {
     });
   }
 
-  public setAction(type: ActionType, payload?: object): void {
-    this.action = { type, payload };
+  getRequest(): Request {
+    return this.request;
+  }
+
+  public setAction(type: Action): void {
+    this.action = type;
   }
 
   public getAction(): Action {
@@ -99,36 +107,42 @@ class Context extends AbstractLifecycle {
     return body;
   }
 
-  public async fetchDiagram<T = object>(diagramID: string): Promise<T> {
-    this.callEvent(Event.diagramWillFetch, this, diagramID);
+  async callEvent(event: Event, ...args): Promise<any> {
+    return super.callEvent(event, this, ...args);
+  }
 
-    const { body }: { body: T } = await this.fetch.get(`/diagrams/${diagramID}`);
+  public async fetchDiagram(diagramID: string): Promise<Diagram> {
+    this.callEvent(Event.diagramWillFetch, diagramID);
 
-    this.callEvent(Event.diagramDidFetch, this, diagramID, body);
+    const { body }: { body: object } = await this.fetch.get(`/diagrams/${diagramID}`);
 
-    return body;
+    let diagram = new Diagram(body);
+
+    this.callEvent(Event.diagramDidFetch, diagramID, diagram);
+
+    return diagram;
   }
 
   public async update(): Promise<void> {
     try {
-      this.callEvent(Event.updateWillExecute, this);
+      this.callEvent(Event.updateWillExecute);
 
-      if (this.action.type !== ActionType.IDLE) {
+      if (this.action !== Action.IDLE) {
         throw new Error('Context Updated Twice');
       }
 
-      this.setAction(ActionType.RUNNING);
-
+      this.setAction(Action.RUNNING);
       await cycleStack(this);
 
-      this.callEvent(Event.updateDidExecute, this);
-    } catch (e) {
-      this.callEvent(Event.updateDidCatch, this, e);
+      this.callEvent(Event.updateDidExecute);
+    } catch (error) {
+      this.callEvent(Event.updateDidCatch, error);
     }
   }
 
   public getState(): State {
     return {
+      output: this.output,
       turn: this.turn.getState(),
       stack: this.stack.getState(),
       storage: this.storage.getState(),
@@ -143,6 +157,14 @@ class Context extends AbstractLifecycle {
     this.stack.update(stack);
     this.storage.update(storage);
     this.variables.update(variables);
+  }
+
+  public getHandlers(): Handler[] {
+    return this.options.handlers;
+  }
+
+  public getStateHandlers(): StateHandler[] {
+    return this.options.stateHandlers;
   }
 }
 

@@ -10,7 +10,7 @@ class Storage {
   private didUpdate: DidUpdate;
   private willUpdate: WillUpdate;
 
-  constructor(payload: State = {}, { didUpdate, willUpdate }: { didUpdate: DidUpdate; willUpdate: WillUpdate }) {
+  constructor(payload: State = {}, { didUpdate, willUpdate }: { didUpdate?: DidUpdate; willUpdate?: WillUpdate } = {}) {
     this.store = { ...payload };
 
     this.didUpdate = didUpdate;
@@ -53,6 +53,10 @@ class Storage {
     this.produce((draft: Draft<State[K]>) => {
       delete draft[key];
     });
+  }
+
+  public keys(): string[] {
+    return Object.keys(this.store);
   }
 }
 

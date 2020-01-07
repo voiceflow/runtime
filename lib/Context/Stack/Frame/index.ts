@@ -1,7 +1,7 @@
 import Store, { State as StoreState } from '../../Store';
 
 export interface State {
-  lineID?: string;
+  blockID?: string;
   diagramID: string;
 
   storage: StoreState;
@@ -10,7 +10,7 @@ export interface State {
 }
 
 class Frame {
-  lineID: string;
+  blockID: string = null;
   diagramID: string;
 
   storage: Store;
@@ -18,7 +18,7 @@ class Frame {
   variables: Store;
 
   constructor(frameState?: State) {
-    this.lineID = frameState.lineID ?? null;
+    this.blockID = frameState.blockID ?? null;
     this.diagramID = frameState.diagramID;
 
     this.storage = new Store(frameState.storage);
@@ -28,13 +28,21 @@ class Frame {
 
   public getState(): State {
     return {
-      lineID: this.lineID,
+      blockID: this.blockID,
       diagramID: this.diagramID,
 
       storage: this.storage.getState(),
       triggers: this.triggers,
       variables: this.variables.getState(),
     };
+  }
+
+  public getBlockID(): string {
+    return this.blockID;
+  }
+
+  public setBlockID(blockID: string): void {
+    this.blockID = blockID;
   }
 }
 
