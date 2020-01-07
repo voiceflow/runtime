@@ -3,8 +3,8 @@ import Diagram from '@/lib/Diagram';
 import Store from "@/lib/Context/Store";
 
 export interface Handler {
-  canHandle: (block, diagram: Diagram, context: Context, variables: Store) => boolean;
-  handle: (block, diagram: Diagram, context: Context, variables: Store) => string;
+  canHandle: (block, context: Context, variables: Store, diagram: Diagram) => boolean;
+  handle: (block, context: Context, variables: Store, diagram: Diagram) => string;
 }
 
 export default Handler;

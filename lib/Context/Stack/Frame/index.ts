@@ -5,9 +5,9 @@ export interface State {
   blockID?: string;
   diagramID: string;
 
-  storage: StoreState;
-  requests: object;
-  variables: StoreState;
+  storage?: StoreState;
+  requests?: object;
+  variables?: StoreState;
 }
 
 class Frame {

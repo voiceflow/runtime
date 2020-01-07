@@ -79,6 +79,7 @@
       "git add"
     ]
   },
+  "main": "build/index.js",
   "prettier": "@voiceflow/prettier-config",
   "release": {
     "branch": "production"
@@ -94,7 +95,9 @@
     "gen-certs": "scripts/generate_certs.sh",
     "local": "NODE_ENV=local ts-node -r tsconfig-paths/register start.ts",
     "local:watch": "NODE_ENV=local forever --watch -c \"ts-node -r tsconfig-paths/register\" start.ts",
+    "prepare": "npm run build",
     "start": "NODE_ENV=production node --max-old-space-size=8192 build/start.js",
     "test": "NODE_ENV=test nyc ts-mocha --paths --opts mocha.opts"
-  }
+  },
+  "types": "build/index.d.ts"
 }

@@ -27,9 +27,9 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
         // state handlers
         const handlers = [...context.getStateHandlers(), ...context.getHandlers()];
         for (const handler of handlers) {
-          if (handler.canHandle(block, diagram, context, variableState)) {
+          if (handler.canHandle(block, context, variableState, diagram)) {
             await context.callEvent(Event.handlerWillHandle, context);
-            nextID = await handler.handle(block, diagram, context, variableState);
+            nextID = await handler.handle(block, context, variableState, diagram);
             await context.callEvent(Event.handlerDidHandle, context);
             break;
           }
