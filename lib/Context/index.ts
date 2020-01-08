@@ -1,11 +1,13 @@
 import axios, { AxiosInstance } from 'axios';
-import produce, { Draft } from 'immer';
+// import produce, { Draft } from 'immer';
 
 import Lifecycle, { Event, AbstractLifecycle } from '@/lib/Lifecycle';
 
 import Store, { State as StorageState } from './Store';
-import Handler from '@/lib/Handler';
+import { Handler } from '@/lib/Handler';
 import Stack, { FrameState } from './Stack';
+
+import Diagram, { DiagramBody } from '@/lib/Diagram';
 
 import cycleStack from '@/lib/Context/cycleStack';
 
@@ -13,27 +15,25 @@ export interface Options {
   secret: string;
   endpoint: string;
   handlers: Handler[];
+  stateHandlers: Handler[];
 }
 
 export interface State {
-  turn: StorageState;
+  turn?: StorageState;
   stack: FrameState[];
   storage: StorageState;
   variables: StorageState;
 }
 
-export enum ActionType {
-  IDLE,
-  RUNNING,
-  PUSHING,
-  POPPING,
-  ENDING,
-  END,
+export interface Request {
+  type: string;
+  payload: object;
 }
 
-export interface Action<P = object> {
-  type: ActionType;
-  payload?: P;
+export enum Action {
+  IDLE,
+  RUNNING,
+  END,
 }
 
 class Context extends AbstractLifecycle {
@@ -48,14 +48,14 @@ class Context extends AbstractLifecycle {
   // global variables
   public variables: Store;
 
-  private action: Action = { type: ActionType.IDLE };
+  private action: Action = Action.IDLE;
 
   private fetch: AxiosInstance;
 
-  constructor(public versionID: string, state: State, private options: Options, events: Lifecycle) {
+  constructor(public versionID: string, state: State, private request: Request, private options: Options, events: Lifecycle) {
     super(events);
 
-    const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, this, ...args);
+    const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
 
     this.stack = new Stack(state.stack, {
       didPop: createEvent(Event.stackDidPop),
@@ -85,12 +85,24 @@ class Context extends AbstractLifecycle {
     });
   }
 
-  public setAction(type: ActionType, payload?: object): void {
-    this.action = { type, payload };
+  getRequest(): Request {
+    return this.request;
+  }
+
+  public setAction(type: Action): void {
+    this.action = type;
   }
 
   public getAction(): Action {
     return this.action;
+  }
+
+  public end(): void {
+    this.setAction(Action.END);
+  }
+
+  public hasEnded(): boolean {
+    return this.getAction() === Action.END;
   }
 
   public async fetchMetadata<T = object>(): Promise<T> {
@@ -99,50 +111,75 @@ class Context extends AbstractLifecycle {
     return body;
   }
 
-  public async fetchDiagram<T = object>(diagramID: string): Promise<T> {
-    this.callEvent(Event.diagramWillFetch, this, diagramID);
+  async callEvent(event: Event, ...args): Promise<any> {
+    return super.callEvent(event, this, ...args);
+  }
 
-    const { body }: { body: T } = await this.fetch.get(`/diagrams/${diagramID}`);
+  public async fetchDiagram(diagramID: string): Promise<Diagram> {
+    this.callEvent(Event.diagramWillFetch, diagramID);
 
-    this.callEvent(Event.diagramDidFetch, this, diagramID, body);
+    const { body }: { body: DiagramBody } = await this.fetch.get(`/diagrams/${diagramID}`);
 
-    return body;
+    let diagram = new Diagram(body);
+
+    this.callEvent(Event.diagramDidFetch, diagramID, diagram);
+
+    return diagram;
   }
 
   public async update(): Promise<void> {
     try {
-      this.callEvent(Event.updateWillExecute, this);
+      await this.callEvent(Event.updateWillExecute);
 
-      if (this.action.type !== ActionType.IDLE) {
+      if (this.action !== Action.IDLE) {
         throw new Error('Context Updated Twice');
       }
 
-      this.setAction(ActionType.RUNNING);
-
+      this.setAction(Action.RUNNING);
       await cycleStack(this);
 
-      this.callEvent(Event.updateDidExecute, this);
-    } catch (e) {
-      this.callEvent(Event.updateDidCatch, this, e);
+      await this.callEvent(Event.updateDidExecute);
+    } catch (error) {
+      await this.callEvent(Event.updateDidCatch, error);
     }
   }
 
-  public getState(): State {
+  public getFinalState(): State {
+    if (this.action === Action.IDLE) {
+      throw new Error('Context Not Updated');
+    }
+
     return {
-      turn: this.turn.getState(),
       stack: this.stack.getState(),
       storage: this.storage.getState(),
       variables: this.variables.getState(),
     };
   }
 
-  public produce(producer: (draft: Draft<State>) => void): void {
-    const { turn, stack, storage, variables } = produce(this.getState(), producer);
+  // public getState(): State {
+  //   return {
+  //     turn: this.turn.getState(),
+  //     stack: this.stack.getState(),
+  //     storage: this.storage.getState(),
+  //     variables: this.variables.getState(),
+  //   };
+  // }
 
-    this.turn.update(turn);
-    this.stack.update(stack);
-    this.storage.update(storage);
-    this.variables.update(variables);
+  // public produce(producer: (draft: Draft<State>) => void): void {
+  //   const { turn, stack, storage, variables } = produce(this.getState(), producer);
+  //
+  //   this.turn.update(turn);
+  //   this.stack.update(stack);
+  //   this.storage.update(storage);
+  //   this.variables.update(variables);
+  // }
+
+  public getHandlers(): Handler[] {
+    return this.options.handlers;
+  }
+
+  public getStateHandlers(): Handler[] {
+    return this.options.stateHandlers;
   }
 }
 

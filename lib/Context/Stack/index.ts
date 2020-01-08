@@ -24,7 +24,7 @@ class Stack {
     return this.frames.map((frame) => frame.getState());
   }
 
-  public getDepth(): number {
+  public getSize(): number {
     return this.frames.length;
   }
 
@@ -60,6 +60,10 @@ class Stack {
 
   public update(frames: FrameState[]): void {
     this.frames = Stack.getFrames(frames);
+  }
+
+  public getFrames(): Frame[] {
+    return this.frames;
   }
 }
 

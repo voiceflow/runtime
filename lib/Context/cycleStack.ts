@@ -1,31 +1,44 @@
-import Context, { ActionType } from '@/lib/Context';
-import Frame, { State as FrameState } from '@/lib/Context/Stack/Frame';
+import Context from '@/lib/Context';
 import cycleHandler from './cycleHandler';
+import { createCombinedVariables, saveCombinedVariables } from './utils/variables';
+import { Event } from '@/lib/Lifecycle';
 
 const STACK_OVERFLOW = 60;
 
 const cycleStack = async (context: Context, calls: number = 0): Promise<void> => {
-  if (context.stack.getDepth() === 0 || calls > STACK_OVERFLOW) {
-    context.setAction(ActionType.END);
+  if (context.stack.getSize() === 0 || calls > STACK_OVERFLOW) {
+    context.end();
     return;
   }
 
   const currentFrame = context.stack.top();
-  const diagram = await context.fetchDiagram(currentFrame.diagramID);
+  const currentFrames = context.stack.getFrames();
 
-  await cycleHandler(context, diagram);
+  const diagram = await context.fetchDiagram(currentFrame.getDiagramID());
+  // update frame with diagram properties
+  currentFrame.update(diagram);
 
-  const action = context.getAction();
+  // generate combined variable state (global/local)
+  const combinedVariables = createCombinedVariables(context.variables, currentFrame.variables);
 
-  switch (action.type) {
-    case ActionType.ENDING:
-      return;
-    case ActionType.POPPING:
-      context.stack.pop();
-      break;
-    case ActionType.PUSHING:
-      context.stack.push(new Frame(action.payload as FrameState));
-      break;
+  try {
+    await context.callEvent(Event.stateWillExecute, diagram);
+    await cycleHandler(context, diagram, combinedVariables);
+    await context.callEvent(Event.stateDidExecute, diagram);
+  } catch (error) {
+    await context.callEvent(Event.stateDidCatch, error);
+  }
+
+  // deconstruct variable state and save to stores
+  saveCombinedVariables(combinedVariables, context.variables, currentFrame.variables);
+
+  // Action.END allows you to stay on the same frame and return a response
+  if (context.hasEnded()) {
+    return;
+  }
+  if (currentFrames === context.stack.getFrames()) {
+    context.stack.pop();
+    // TODO: map variables from popped diagram
   }
 
   await cycleStack(context, calls + 1);

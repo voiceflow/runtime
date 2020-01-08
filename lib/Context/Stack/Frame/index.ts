@@ -1,40 +1,81 @@
 import Store, { State as StoreState } from '../../Store';
+import Diagram from '@/lib/Diagram';
 
 export interface State {
-  lineID?: string;
+  blockID?: string;
   diagramID: string;
 
-  storage: StoreState;
-  triggers: { [key: string]: any }[];
-  variables: StoreState;
+  storage?: StoreState;
+  requests?: object;
+  variables?: StoreState;
 }
 
 class Frame {
-  lineID: string;
-  diagramID: string;
+  private updated: boolean = false;
 
-  storage: Store;
-  triggers: { [key: string]: any }[] = [];
-  variables: Store;
+  private blockID: string = null;
+  private startBlockID: string = null;
+  private diagramID: string;
+  private requests: object = {};
+
+  public storage: Store;
+  public variables: Store;
 
   constructor(frameState?: State) {
-    this.lineID = frameState.lineID ?? null;
+    this.blockID = frameState.blockID ?? null;
     this.diagramID = frameState.diagramID;
 
     this.storage = new Store(frameState.storage);
-    this.triggers = frameState.triggers;
+    this.requests = frameState.requests;
     this.variables = new Store(frameState.variables);
   }
 
   public getState(): State {
     return {
-      lineID: this.lineID,
+      blockID: this.blockID,
       diagramID: this.diagramID,
 
       storage: this.storage.getState(),
-      triggers: this.triggers,
+      requests: this.requests,
       variables: this.variables.getState(),
     };
+  }
+
+  public update(diagram: Diagram): void {
+    if (this.updated) {
+      return;
+    }
+
+    this.updated = true;
+
+    this.requests = diagram.getRequests();
+    this.startBlockID = diagram.getStartBlockID();
+
+    this.variables.initialize(diagram.getVariables(), 0);
+
+    if (!this.blockID) {
+      this.blockID = this.startBlockID;
+    }
+  }
+
+  public getBlockID(): string {
+    return this.blockID;
+  }
+
+  public setBlockID(blockID: string): void {
+    this.blockID = blockID;
+  }
+
+  public getDiagramID(): string {
+    return this.diagramID;
+  }
+
+  public setDiagramID(diagramID: string): void {
+    this.diagramID = diagramID;
+  }
+
+  public getRequests(): object {
+    return this.requests;
   }
 }
 
