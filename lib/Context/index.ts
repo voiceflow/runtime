@@ -15,7 +15,7 @@ export interface Options {
   secret: string;
   endpoint: string;
   handlers: Handler[];
-  stateHandlers: Handler[],
+  stateHandlers: Handler[];
 }
 
 export interface State {
@@ -153,7 +153,7 @@ class Context extends AbstractLifecycle {
       stack: this.stack.getState(),
       storage: this.storage.getState(),
       variables: this.variables.getState(),
-    }
+    };
   }
 
   // public getState(): State {

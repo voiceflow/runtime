@@ -1,7 +1,7 @@
 import Context from '@/lib/Context';
 import Diagram from '@/lib/Diagram';
-import Storage from "@/lib/Context/Store";
-import {Event} from "@/lib/Lifecycle";
+import Storage from '@/lib/Context/Store';
+import { Event } from '@/lib/Lifecycle';
 
 const HANDLER_OVERFLOW = 400;
 
@@ -26,16 +26,17 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
       try {
         // state handlers
         const handlers = [...context.getStateHandlers(), ...context.getHandlers()];
-        for (const handler of handlers) {
-          if (handler.canHandle(block, context, variableState, diagram)) {
-            await context.callEvent(Event.handlerWillHandle, context);
-            nextID = await handler.handle(block, context, variableState, diagram);
-            await context.callEvent(Event.handlerDidHandle, context);
-            break;
-          }
+        const handler = handlers.find((handler) => handler.canHandle(block, context, variableState, diagram));
+
+        if (handler) {
+          await context.callEvent(Event.handlerWillHandle, context);
+
+          nextID = await handler.handle(block, context, variableState, diagram);
+
+          await context.callEvent(Event.handlerDidHandle, context);
         }
       } catch (error) {
-       await context.callEvent(Event.handlerDidCatch, error);
+        await context.callEvent(Event.handlerDidCatch, error);
       }
 
       // if a block has decided to stop on itself

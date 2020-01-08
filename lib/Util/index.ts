@@ -1,4 +1,4 @@
-import Context from "@/lib/Context";
+import Context from '@/lib/Context';
 
 export const extractRequest = (request: string, context: Context) => {
   // iterate from top forwards
@@ -6,7 +6,8 @@ export const extractRequest = (request: string, context: Context) => {
 
   for (let i = stack.length - 1; i >= 0; i--) {
     const frame = stack[i];
-    if (request in frame.getRequests()) {
+
+    if (frame.getRequests().hasOwnProperty(request)) {
       context.stack.lift();
     }
   }

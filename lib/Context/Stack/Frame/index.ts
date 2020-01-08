@@ -1,5 +1,5 @@
 import Store, { State as StoreState } from '../../Store';
-import Diagram from "@/lib/Diagram";
+import Diagram from '@/lib/Diagram';
 
 export interface State {
   blockID?: string;
@@ -11,15 +11,15 @@ export interface State {
 }
 
 class Frame {
-  updated: boolean = false;
+  private updated: boolean = false;
 
-  blockID: string = null;
-  startBlockID: string = null;
-  diagramID: string;
+  private blockID: string = null;
+  private startBlockID: string = null;
+  private diagramID: string;
+  private requests: object = {};
 
-  storage: Store;
-  requests: object = {};
-  variables: Store;
+  public storage: Store;
+  public variables: Store;
 
   constructor(frameState?: State) {
     this.blockID = frameState.blockID ?? null;
@@ -45,10 +45,12 @@ class Frame {
     if (this.updated) {
       return;
     }
+
     this.updated = true;
 
     this.requests = diagram.getRequests();
     this.startBlockID = diagram.getStartBlockID();
+
     this.variables.initialize(diagram.getVariables(), 0);
 
     if (!this.blockID) {
@@ -64,8 +66,16 @@ class Frame {
     this.blockID = blockID;
   }
 
+  public getDiagramID(): string {
+    return this.diagramID;
+  }
+
+  public setDiagramID(diagramID: string): void {
+    this.diagramID = diagramID;
+  }
+
   public getRequests(): object {
-    return this.requests
+    return this.requests;
   }
 }
 
