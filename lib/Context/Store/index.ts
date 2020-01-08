@@ -10,6 +10,10 @@ class Store {
   private readonly didUpdate: DidUpdate;
   private readonly willUpdate: WillUpdate;
 
+  static merge(store1: Store, store2: Store): Store {
+    return new Store({ ...store1.getState(), ...store2.getState() });
+  }
+
   constructor(payload: State = {}, { didUpdate, willUpdate }: { didUpdate?: DidUpdate; willUpdate?: WillUpdate } = {}) {
     this.store = { ...payload };
 
@@ -18,13 +22,13 @@ class Store {
   }
 
   // initialize all provided variables
-  public initialize(keys: string[], value: any = 0 ) {
-    this.produce((store: object) => {
+  public initialize(keys: string[], value: any = 0) {
+    this.produce((store: Draft<State>) => {
       keys.forEach((key) => {
         if (store[key] === undefined) {
           store[key] = value;
         }
-      })
+      });
     });
   }
 
@@ -34,6 +38,10 @@ class Store {
 
   public get<K extends keyof State>(key: K): State[K] {
     return this.store[key];
+  }
+
+  public has<K extends keyof State>(key: K): boolean {
+    return this.store.hasOwnProperty(key);
   }
 
   public update(nextState: State): void {
@@ -46,7 +54,7 @@ class Store {
     this.didUpdate(prevState, this.store);
   }
 
-  public produce(producer: (draft: any) => void): void {
+  public produce(producer: (draft: Draft<State>) => void): void {
     this.update(produce(this.store, producer));
   }
 
@@ -68,6 +76,18 @@ class Store {
 
   public keys(): string[] {
     return Object.keys(this.store);
+  }
+
+  public reduce<T>(callback: (acc: T, value: { key: string; value: any }, index: number) => T, initial: T): T {
+    return this.keys().reduce((acc, key, i) => callback(acc, { key, value: this.get(key) }, i), initial);
+  }
+
+  public map<T>(callback: (value: { key: string; value: any }, index: number) => T): T[] {
+    return this.reduce<T[]>((acc, ...args) => [...acc, callback(...args)], []);
+  }
+
+  public forEach(callback: (value: { key: string; value: any }, index: number) => void) {
+    this.reduce<void[]>((_, ...args) => [callback(...args)], []);
   }
 }
 

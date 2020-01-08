@@ -1,6 +1,6 @@
 import Context from '@/lib/Context';
 import cycleHandler from './cycleHandler';
-import { createVariables, saveVariables } from './variable';
+import { createCombinedVariables, saveCombinedVariables } from './utils/variables';
 import { Event } from '@/lib/Lifecycle';
 
 const STACK_OVERFLOW = 60;
@@ -14,23 +14,23 @@ const cycleStack = async (context: Context, calls: number = 0): Promise<void> =>
   const currentFrame = context.stack.top();
   const currentFrames = context.stack.getFrames();
 
-  const diagram = await context.fetchDiagram(currentFrame.diagramID);
+  const diagram = await context.fetchDiagram(currentFrame.getDiagramID());
   // update frame with diagram properties
   currentFrame.update(diagram);
 
-  // generate combined variable state (local/global)
-  const variableState = createVariables(context, currentFrame);
+  // generate combined variable state (global/local)
+  const combinedVariables = createCombinedVariables(context.variables, currentFrame.variables);
 
   try {
     await context.callEvent(Event.stateWillExecute, diagram);
-    await cycleHandler(context, diagram, variableState);
+    await cycleHandler(context, diagram, combinedVariables);
     await context.callEvent(Event.stateDidExecute, diagram);
   } catch (error) {
     await context.callEvent(Event.stateDidCatch, error);
   }
 
   // deconstruct variable state and save to stores
-  saveVariables(variableState, context, currentFrame);
+  saveCombinedVariables(combinedVariables, context.variables, currentFrame.variables);
 
   // Action.END allows you to stay on the same frame and return a response
   if (context.hasEnded()) {
