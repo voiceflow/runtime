@@ -17,7 +17,7 @@ class Controller extends AbstractLifecycle {
     };
   }
 
-  public createContext(versionID: string, state: ContextState, request: Request): Context {
+  public createContext(versionID: string, state: ContextState, request?: Request): Context {
     const context = new Context(versionID, state, request, this.options, this.events);
 
     return context;

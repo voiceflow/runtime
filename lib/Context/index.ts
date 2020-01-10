@@ -12,10 +12,10 @@ import Diagram, { DiagramBody } from '@/lib/Diagram';
 import cycleStack from '@/lib/Context/cycleStack';
 
 export interface Options {
-  secret: string;
-  endpoint: string;
-  handlers: Handler[];
-  stateHandlers: Handler[];
+  secret?: string;
+  endpoint?: string;
+  handlers?: Handler[];
+  stateHandlers?: Handler[];
 }
 
 export interface State {
@@ -52,7 +52,7 @@ class Context extends AbstractLifecycle {
 
   private fetch: AxiosInstance;
 
-  constructor(public versionID: string, state: State, private request: Request, private options: Options, events: Lifecycle) {
+  constructor(public versionID: string, state: State, private request: Request = null, private options: Options, events: Lifecycle) {
     super(events);
 
     const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
