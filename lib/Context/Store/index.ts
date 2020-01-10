@@ -47,11 +47,11 @@ class Store {
   public update(nextState: State): void {
     const prevState = this.store;
 
-    this.willUpdate(this.store, nextState);
+    this.willUpdate?.(this.store, nextState);
 
     this.store = nextState;
 
-    this.didUpdate(prevState, this.store);
+    this.didUpdate?.(prevState, this.store);
   }
 
   public produce(producer: (draft: Draft<State>) => void): void {

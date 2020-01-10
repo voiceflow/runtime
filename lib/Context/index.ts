@@ -7,7 +7,7 @@ import Store, { State as StorageState } from './Store';
 import { Handler } from '@/lib/Handler';
 import Stack, { FrameState } from './Stack';
 
-import Diagram, { DiagramBody } from '@/lib/Diagram';
+import Diagram from '@/lib/Diagram';
 
 import cycleStack from '@/lib/Context/cycleStack';
 
@@ -118,9 +118,13 @@ class Context extends AbstractLifecycle {
   public async fetchDiagram(diagramID: string): Promise<Diagram> {
     this.callEvent(Event.diagramWillFetch, diagramID);
 
-    const { data }: { data: DiagramBody } = await this.fetch.get(`/diagrams/${diagramID}`);
+    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
 
-    let diagram = new Diagram(data);
+    let diagram = new Diagram({
+      startBlockID: data.startId,
+      variables: data.variables,
+      blocks: data.lines,
+    });
 
     this.callEvent(Event.diagramDidFetch, diagramID, diagram);
 
