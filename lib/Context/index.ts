@@ -81,7 +81,7 @@ class Context extends AbstractLifecycle {
 
     this.fetch = axios.create({
       baseURL: this.options.endpoint,
-      headers: { authorization: this.options.secret },
+      headers: { authorization: `Bearer ${this.options.secret}` },
     });
   }
 
@@ -106,9 +106,9 @@ class Context extends AbstractLifecycle {
   }
 
   public async fetchMetadata<T = object>(): Promise<T> {
-    const { body }: { body: T } = await this.fetch.get(`/metadata/${this.versionID}`);
+    const { data }: { data: T } = await this.fetch.get(`/metadata/${this.versionID}`);
 
-    return body;
+    return data;
   }
 
   async callEvent(event: Event, ...args): Promise<any> {
@@ -118,9 +118,9 @@ class Context extends AbstractLifecycle {
   public async fetchDiagram(diagramID: string): Promise<Diagram> {
     this.callEvent(Event.diagramWillFetch, diagramID);
 
-    const { body }: { body: DiagramBody } = await this.fetch.get(`/diagrams/${diagramID}`);
+    const { data }: { data: DiagramBody } = await this.fetch.get(`/diagrams/${diagramID}`);
 
-    let diagram = new Diagram(body);
+    let diagram = new Diagram(data);
 
     this.callEvent(Event.diagramDidFetch, diagramID, diagram);
 

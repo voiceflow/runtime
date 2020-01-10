@@ -16,9 +16,9 @@ class Stack {
 
   private frames: Frame[] = [];
 
-  constructor(stack: FrameState[], private handlers: Handlers) {
+  constructor(stack: FrameState[] = [], private handlers: Handlers) {
     this.frames = Stack.getFrames(stack);
-  }
+  };
 
   public getState(): FrameState[] {
     return this.frames.map((frame) => frame.getState());
