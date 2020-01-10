@@ -89,6 +89,10 @@ class Store {
   public forEach(callback: (value: { key: string; value: any }, index: number) => void) {
     this.reduce<void[]>((_, ...args) => [callback(...args)], []);
   }
+
+  public flush(): void {
+    this.update({});
+  }
 }
 
 export default Store;

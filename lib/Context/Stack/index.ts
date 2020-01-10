@@ -65,6 +65,14 @@ class Stack {
   public getFrames(): Frame[] {
     return this.frames;
   }
+
+  public isEmpty(): boolean {
+    return this.getSize() === 0;
+  }
+
+  public flush(): void {
+    this.frames = [];
+  }
 }
 
 export { Frame, FrameState };
