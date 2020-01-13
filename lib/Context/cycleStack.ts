@@ -37,20 +37,16 @@ const cycleStack = async (context: Context, calls: number = 0): Promise<void> =>
     return;
   }
   if (currentFrames === context.stack.getFrames()) {
+    // pop frame
     const poppedFrame = context.stack.pop();
     const topFrame = context.stack.top();
 
     if (poppedFrame && topFrame) {
       const newCombinedVariables = createCombinedVariables(context.variables, topFrame.variables);
 
-      poppedFrame.storage.get('outputMap')?.forEach((values) => {
-        console.log('poppedFrame out mappiungs', values);
-        const newVal = values[0];
-        const currentVal = values[1];
+      poppedFrame.storage.get('outputMap')?.forEach(([newVal, currentVal]) => {
         newCombinedVariables.set(newVal, poppedFrame.variables.get(currentVal));
       });
-
-      console.log('NEW COMBINED', newCombinedVariables);
 
       saveCombinedVariables(newCombinedVariables, context.variables, topFrame.variables);
     }
