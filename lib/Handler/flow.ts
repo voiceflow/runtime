@@ -11,7 +11,7 @@ const FlowHandler: Handler = {
     // map block variable map input to frame
     newFrame.variables.produce((draft) => {
       block.variable_map.inputs?.forEach(([currentVal, newVal]) => {
-        draft[newVal] = variables.getState()[currentVal];
+        draft[newVal] = variables.get(currentVal);
       });
     });
     // attach block variable map outputs to frame
