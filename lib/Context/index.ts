@@ -27,7 +27,7 @@ export interface State {
 
 export interface Request {
   type: string;
-  payload: object;
+  payload: Record<string, any>;
 }
 
 export enum Action {
