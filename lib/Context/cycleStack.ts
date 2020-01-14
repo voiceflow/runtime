@@ -2,6 +2,7 @@ import Context from '@/lib/Context';
 import cycleHandler from './cycleHandler';
 import { createCombinedVariables, saveCombinedVariables } from './utils/variables';
 import { Event } from '@/lib/Lifecycle';
+import { S } from '@/lib/Constants';
 
 const STACK_OVERFLOW = 60;
 
@@ -37,8 +38,20 @@ const cycleStack = async (context: Context, calls: number = 0): Promise<void> =>
     return;
   }
   if (currentFrames === context.stack.getFrames()) {
-    context.stack.pop();
-    // TODO: map variables from popped diagram
+    // pop frame
+    const poppedFrame = context.stack.pop();
+
+    const topFrame = context.stack.top();
+
+    if (poppedFrame?.storage.get(S.OUTPUT_MAP) && topFrame) {
+      const newCombinedVariables = createCombinedVariables(context.variables, topFrame.variables);
+
+      poppedFrame.storage.get(S.OUTPUT_MAP).forEach(([newVal, currentVal]) => {
+        newCombinedVariables.set(newVal, poppedFrame.variables.get(currentVal));
+      });
+
+      saveCombinedVariables(newCombinedVariables, context.variables, topFrame.variables);
+    }
   }
 
   await cycleStack(context, calls + 1);

@@ -32,8 +32,8 @@ class Stack {
     return this.frames[this.frames.length - 1];
   }
 
-  public pop(): Frame | void {
-    let frame: Frame | void;
+  public pop(): Frame {
+    let frame: Frame = null;
 
     this.handlers?.willPop(this.frames);
 

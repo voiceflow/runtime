@@ -1,12 +1,27 @@
 import Frame from '@/lib/Context/Stack/Frame';
 import Handler from './index';
+import { S } from '@/lib/Constants';
 
 const FlowHandler: Handler = {
   canHandle: (block) => {
     return block.diagram_id;
   },
-  handle: (block, context) => {
-    context.stack.push(new Frame({ diagramID: block.diagram_id }));
+  handle: (block, context, variables) => {
+    const newFrame = new Frame({ diagramID: block.diagram_id });
+
+    // map block variable map input to frame
+    newFrame.variables.produce((draft) => {
+      block.variable_map.inputs?.forEach(([currentVal, newVal]) => {
+        draft[newVal] = variables.get(currentVal);
+      });
+    });
+    // attach block variable map outputs to frame
+    newFrame.storage.set(S.OUTPUT_MAP, block.variable_map.outputs);
+
+    const topFrame = context.stack.top();
+    topFrame.setBlockID(block.nextId ?? false);
+
+    context.stack.push(newFrame);
     return null;
   },
 };
