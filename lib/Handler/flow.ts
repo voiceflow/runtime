@@ -1,5 +1,6 @@
 import Frame from '@/lib/Context/Stack/Frame';
 import Handler from './index';
+import { S } from '@/lib/Constants';
 
 const FlowHandler: Handler = {
   canHandle: (block) => {
@@ -15,7 +16,7 @@ const FlowHandler: Handler = {
       });
     });
     // attach block variable map outputs to frame
-    newFrame.storage.set('outputMap', block.variable_map.outputs);
+    newFrame.storage.set(S.OUTPUT_MAP, block.variable_map.outputs);
 
     const topFrame = context.stack.top();
     topFrame.setBlockID(block.nextId ?? false);
