@@ -1,4 +1,5 @@
-import Context, { State as ContextState, Options as ContextOptions, Request } from '@/lib/Context';
+import Context, { State as ContextState, Options as ContextOptions } from '@/lib/Context';
+import Request from '@/lib/Context/Request';
 import { DefaultHandlers } from '@/lib/Handler';
 import { AbstractLifecycle } from '@/lib/Lifecycle';
 

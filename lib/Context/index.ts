@@ -4,6 +4,7 @@ import axios, { AxiosInstance } from 'axios';
 import Lifecycle, { Event, AbstractLifecycle } from '@/lib/Lifecycle';
 
 import Store, { State as StorageState } from './Store';
+import Request from './Request';
 import { Handler } from '@/lib/Handler';
 import Stack, { FrameState } from './Stack';
 
@@ -23,11 +24,6 @@ export interface State {
   stack: FrameState[];
   storage: StorageState;
   variables: StorageState;
-}
-
-export interface Request {
-  type: string;
-  payload: Record<string, any>;
 }
 
 export enum Action {
