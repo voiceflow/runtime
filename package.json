@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "axios": "^0.19.0",
+    "clj-fuzzy": "^0.4.1",
     "immer": "^5.1.0"
   },
   "devDependencies": {
