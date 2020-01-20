@@ -2,7 +2,7 @@ import Context from '@/lib/Context';
 import Diagram from '@/lib/Diagram';
 import Storage from '@/lib/Context/Store';
 import { Event } from '@/lib/Lifecycle';
-import { transformInput } from './utils/transform';
+// import { transformInput } from './utils/transform';
 
 const HANDLER_OVERFLOW = 400;
 
