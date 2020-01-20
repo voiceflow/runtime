@@ -26,7 +26,7 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
     if (block) {
       try {
         // transform input
-        transformInput(context.getRequest());
+        // transformInput(context.getRequest());
 
         // state handlers
         const handlers = [...context.getStateHandlers(), ...context.getHandlers()];
