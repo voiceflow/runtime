@@ -2,7 +2,6 @@ import Context from '@/lib/Context';
 import Diagram from '@/lib/Diagram';
 import Storage from '@/lib/Context/Store';
 import { Event } from '@/lib/Lifecycle';
-// import { transformInput } from './utils/transform';
 
 const HANDLER_OVERFLOW = 400;
 
@@ -25,9 +24,6 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
 
     if (block) {
       try {
-        // transform input
-        // transformInput(context.getRequest());
-
         // state handlers
         const handlers = [...context.getStateHandlers(), ...context.getHandlers()];
         const handler = handlers.find((handler) => handler.canHandle(block, context, variableState, diagram));

@@ -2174,11 +2174,6 @@ cliui@^6.0.0:
     strip-ansi "^6.0.0"
     wrap-ansi "^6.2.0"
 
-clj-fuzzy@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/clj-fuzzy/-/clj-fuzzy-0.4.1.tgz#76571277c2433cd4d380f756c89b5e0fdb68f281"
-  integrity sha512-5CapOxRK3au0Dcbu8xYx6sLO2m86iOkY+IKnPZFo7SAofhPWDaOF4BdV3Ad7gouYiR14OhmWYQs39QxYrmkZVw==
-
 clone@^1.0.2:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
