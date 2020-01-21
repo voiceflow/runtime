@@ -10,7 +10,7 @@ const codeHandler: Handler = {
     try {
       const result = await axios.post('https://cjpsnfbb56.execute-api.us-east-1.amazonaws.com/dev/code/execute', {
         code: block.code,
-        variables: variables,
+        variables: variables.getState(),
       });
       variables.produce((draft) => {
         Object.assign(draft, result.data);
