@@ -5,7 +5,8 @@ const EndHandler: Handler = {
     return block.end;
   },
   handle: (_, context) => {
-    context.turn.set('stop', true);
+    context.stack.pop();
+    context.turn.set('end', true);
     context.end();
 
     return null;
