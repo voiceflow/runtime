@@ -5,5 +5,6 @@ export { default as Request } from '@/lib/Context/Request';
 export { default as Context, State } from '@/lib/Context';
 export { default as Handler } from '@/lib/Handler';
 export { Event } from '@/lib/Lifecycle';
+export * from '@/lib/Util';
 
 export { default } from '@/lib/Client';

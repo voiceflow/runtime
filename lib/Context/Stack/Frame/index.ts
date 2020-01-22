@@ -6,7 +6,7 @@ export interface State {
   diagramID: string;
 
   storage?: StoreState;
-  requests?: object;
+  commands?: object[];
   variables?: StoreState;
 }
 
@@ -16,7 +16,7 @@ class Frame {
   private blockID: string = null;
   private startBlockID: string = null;
   private diagramID: string;
-  private requests: object = {};
+  private commands: object[] = [];
 
   public storage: Store;
   public variables: Store;
@@ -26,7 +26,7 @@ class Frame {
     this.diagramID = frameState.diagramID;
 
     this.storage = new Store(frameState.storage);
-    this.requests = frameState.requests;
+    this.commands = frameState.commands;
     this.variables = new Store(frameState.variables);
   }
 
@@ -36,7 +36,7 @@ class Frame {
       diagramID: this.diagramID,
 
       storage: this.storage.getState(),
-      requests: this.requests,
+      commands: this.commands,
       variables: this.variables.getState(),
     };
   }
@@ -48,7 +48,7 @@ class Frame {
 
     this.updated = true;
 
-    this.requests = diagram.getRequests();
+    this.commands = diagram.getCommands();
     this.startBlockID = diagram.getStartBlockID();
 
     this.variables.initialize(diagram.getVariables(), 0);
@@ -74,8 +74,8 @@ class Frame {
     this.diagramID = diagramID;
   }
 
-  public getRequests(): object {
-    return this.requests;
+  public getCommands(): object[] {
+    return this.commands;
   }
 }
 

@@ -1,14 +1,16 @@
-import Context from '@/lib/Context';
+import Stack from '../Context/Stack';
 
-export const extractRequest = (request: string, context: Context) => {
+export const extractFrameCommand = (stack: Stack, matcher: (object, any?) => boolean, match?: any): { index: number, command: any } => {
+  const frames = stack.getFrames();
   // iterate from top forwards
-  const stack = context.stack.getFrames();
+  for (let index = frames.length - 1; index >= 0; index--) {
+    const frame = frames[index];
 
-  for (let i = stack.length - 1; i >= 0; i--) {
-    const frame = stack[i];
-
-    if (frame.getRequests().hasOwnProperty(request)) {
-      context.stack.lift();
+    const matched = frame.getCommands().find((command) => matcher(command, match));
+    if (matched) {
+      return { index, command: matched};
     }
   }
+
+  return { index: null, command: null };
 };
