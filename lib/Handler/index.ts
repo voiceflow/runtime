@@ -7,6 +7,7 @@ import CodeHandler from './code';
 import EndHandler from './end';
 import FlowHandler from './flow';
 import StartHandler from './start';
+import RandomHandler from './random';
 
 type Block = Record<string, any>;
 
@@ -15,6 +16,6 @@ export interface Handler {
   handle: (block: Block, context: Context, variables: Store, diagram: Diagram) => string | Promise<string>;
 }
 
-export const DefaultHandlers = [CodeHandler, EndHandler, FlowHandler, StartHandler];
+export const DefaultHandlers = [CodeHandler, EndHandler, FlowHandler, StartHandler, RandomHandler];
 
 export default Handler;
