@@ -1,7 +1,7 @@
 import Handler from './index';
 import { S } from '@/lib/Constants';
 
-const codeHandler: Handler = {
+const randomHandler: Handler = {
   canHandle: (block) => {
     return block.random;
   },
@@ -48,4 +48,4 @@ const codeHandler: Handler = {
   },
 };
 
-export default codeHandler;
+export default randomHandler;
