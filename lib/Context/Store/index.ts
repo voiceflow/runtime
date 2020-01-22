@@ -21,17 +21,6 @@ class Store {
     this.willUpdate = willUpdate;
   }
 
-  // initialize all provided variables
-  public initialize(keys: string[], value: any = 0) {
-    this.produce((store: Draft<State>) => {
-      keys.forEach((key) => {
-        if (store[key] === undefined) {
-          store[key] = value;
-        }
-      });
-    });
-  }
-
   public getState(): State {
     return this.store;
   }

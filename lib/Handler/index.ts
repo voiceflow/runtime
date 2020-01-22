@@ -13,6 +13,8 @@ type Block = Record<string, any>;
 export interface Handler {
   canHandle: (block: Block, context: Context, variables: Store, diagram: Diagram) => boolean;
   handle: (block: Block, context: Context, variables: Store, diagram: Diagram) => string | Promise<string>;
+  afterHandle?: (block: Block, context: Context, variables: Store, diagram: Diagram) => void | Promise<void>;
+  beforeHandle?: (block: Block, context: Context, variables: Store, diagram: Diagram) => void | Promise<void>;
 }
 
 export const DefaultHandlers = [CodeHandler, EndHandler, FlowHandler, StartHandler];

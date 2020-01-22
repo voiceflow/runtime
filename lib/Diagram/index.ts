@@ -1,12 +1,21 @@
+export interface RawBlock {
+  [key: string]: any;
+}
+
+export interface Block extends RawBlock {
+  nextId?: string;
+  blockID: string;
+}
+
 export interface DiagramBody {
-  blocks: object;
+  blocks: Record<string, RawBlock>;
   requests?: object;
   startBlockID: string;
   variables?: string[];
 }
 
 class Diagram {
-  private blocks: object;
+  private blocks: Record<string, RawBlock>;
   private requests: object = {};
   private variables: string[] = [];
   private startBlockID: string = null;
@@ -18,7 +27,7 @@ class Diagram {
     this.startBlockID = startBlockID;
   }
 
-  public getBlock(blockID: string): object {
+  public getBlock(blockID: string): Block {
     return {
       ...this.blocks[blockID],
       blockID,

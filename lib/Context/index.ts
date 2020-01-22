@@ -111,7 +111,7 @@ class Context extends AbstractLifecycle {
     return data;
   }
 
-  async callEvent(event: Event, ...args): Promise<any> {
+  async callEvent(event: Event, ...args: any[]): Promise<any> {
     return super.callEvent(event, this, ...args);
   }
 
