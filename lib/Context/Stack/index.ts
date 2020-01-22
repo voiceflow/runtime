@@ -18,7 +18,7 @@ class Stack {
 
   constructor(stack: FrameState[] = [], private handlers: Handlers) {
     this.frames = Stack.getFrames(stack);
-  };
+  }
 
   public getState(): FrameState[] {
     return this.frames.map((frame) => frame.getState());
@@ -44,6 +44,11 @@ class Stack {
     this.handlers?.didPop(this.frames, frame);
 
     return frame;
+  }
+
+  // pops all frames until index
+  public popTo(index: number): void {
+    this.frames = this.frames.slice(index, this.frames.length);
   }
 
   public lift(depth: number = 1): void {
