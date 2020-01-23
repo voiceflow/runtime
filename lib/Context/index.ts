@@ -120,7 +120,7 @@ class Context extends AbstractLifecycle {
       startBlockID: data.startId,
       variables: data.variables,
       blocks: data.lines,
-      requests: data.commands,
+      commands: data.commands,
     });
 
     this.callEvent(Event.diagramDidFetch, diagramID, diagram);

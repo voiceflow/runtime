@@ -28,6 +28,10 @@ class Stack {
     return this.frames.length;
   }
 
+  public get(index: number): Frame {
+    return this.frames[index];
+  }
+
   public top(): Frame {
     return this.frames[this.frames.length - 1];
   }
