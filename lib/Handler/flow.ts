@@ -1,56 +1,36 @@
 import Frame from '@/lib/Context/Stack/Frame';
+import { S } from '@/lib/Constants';
+import { mapInputsVariables } from '@/lib/Context/utils/variables';
+
 import Handler from './index';
 
-import { createCombinedVariables } from '../Context/utils/variables';
-import { Block } from '@/lib/Diagram';
-
-type FlowBlock = Block & {
+export type FlowBlock = {
   diagram_id: string;
   variable_map?: {
-    inputs: [string, string][];
-    outputs: [string, string][];
+    inputs?: [string, string][];
+    outputs?: [string, string][];
   };
 };
 
-const FlowHandler: Handler = {
-  canHandle: (block: FlowBlock) => {
+const FlowHandler: Handler<FlowBlock> = {
+  canHandle: (block) => {
     return !!block.diagram_id;
   },
-
-  beforeHandle: (block: FlowBlock, context, variables) => {
-    const topFrame = context.stack.top();
-
-    const combinedVariables = createCombinedVariables(context.variables, variables);
-
-    const frame = new Frame({ diagramID: block.diagram_id, variables: combinedVariables.getState() });
+  handle: (block, context, variables) => {
+    const newFrame = new Frame({ diagramID: block.diagram_id });
 
     // map block variable map input to frame
-    frame.variables.produce((draft) => {
-      block.variable_map.inputs?.forEach(([currentVal, newVal]) => {
-        draft[newVal] = context.variables.get(currentVal);
-      });
-    });
+    mapInputsVariables(block?.variable_map?.inputs || [], variables, newFrame.variables);
 
-    topFrame.storage.set('frame', frame);
-  },
+    // attach block variable map outputs to frame
+    newFrame.storage.set(S.OUTPUT_MAP, block?.variable_map?.outputs);
 
-  handle: (block: FlowBlock, context) => {
     const topFrame = context.stack.top();
 
     topFrame.setBlockID(block.nextId ?? null);
 
-    context.stack.push(topFrame.storage.get('frame'));
-
+    context.stack.push(newFrame);
     return null;
-  },
-
-  afterHandle: (block: FlowBlock, context) => {
-    const topFrame = context.stack.top();
-    const frame = topFrame.storage.get('frame');
-
-    block.variable_map.outputs.forEach(([newVal, currentVal]) => {
-      context.variables.set(newVal, frame.variables.get(currentVal));
-    });
   },
 };
 

@@ -7,8 +7,8 @@ type WillUpdate = (state: State, nextState: State) => void;
 
 class Store {
   private store: State = {};
-  private readonly didUpdate: DidUpdate;
-  private readonly willUpdate: WillUpdate;
+  private readonly didUpdate?: DidUpdate;
+  private readonly willUpdate?: WillUpdate;
 
   static merge(store1: Store, store2: Store): Store {
     return new Store({ ...store1.getState(), ...store2.getState() });
@@ -52,13 +52,13 @@ class Store {
   }
 
   public set<K extends keyof State>(key: K, value: any): void {
-    this.produce((draft: Draft<State[K]>) => {
+    this.produce((draft: Draft<State>) => {
       draft[key] = value;
     });
   }
 
   public delete<K extends keyof State>(key: K): void {
-    this.produce((draft: Draft<State[K]>) => {
+    this.produce((draft: Draft<State>) => {
       delete draft[key];
     });
   }

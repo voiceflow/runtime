@@ -3,7 +3,16 @@ import { initializeVariables } from '../../utils/variables';
 import Diagram from '@/lib/Diagram';
 
 export interface State {
-  blockID?: string;
+  blockID: string | null;
+  diagramID: string;
+
+  storage: StoreState;
+  requests?: object;
+  variables: StoreState;
+}
+
+export interface Options {
+  blockID?: string | null;
   diagramID: string;
 
   storage?: StoreState;
@@ -14,20 +23,20 @@ export interface State {
 class Frame {
   private updated: boolean = false;
 
-  private blockID?: string = null;
-  private startBlockID: string = null;
+  private blockID: string | null;
+  private startBlockID: string | null = null;
   private diagramID: string;
   private requests: object = {};
 
   public storage: Store;
   public variables: Store;
 
-  constructor(frameState?: State) {
+  constructor(frameState: Options) {
     this.blockID = frameState.blockID ?? null;
     this.diagramID = frameState.diagramID;
 
     this.storage = new Store(frameState.storage);
-    this.requests = frameState.requests;
+    this.requests = frameState.requests ?? {};
     this.variables = new Store(frameState.variables);
   }
 
@@ -42,7 +51,7 @@ class Frame {
     };
   }
 
-  public update(diagram: Diagram): void {
+  public update<B>(diagram: Diagram<B>): void {
     if (this.updated) {
       return;
     }
@@ -59,11 +68,11 @@ class Frame {
     }
   }
 
-  public getBlockID(): string {
+  public getBlockID(): string | null {
     return this.blockID;
   }
 
-  public setBlockID(blockID?: string): void {
+  public setBlockID(blockID: string | null): void {
     this.blockID = blockID;
   }
 

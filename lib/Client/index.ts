@@ -1,25 +1,29 @@
 import Context, { State as ContextState, Options as ContextOptions, Request } from '@/lib/Context';
-import { DefaultHandlers } from '@/lib/Handler';
+import { DefaultHandlers, DefaultBlock } from '@/lib/Handler';
 import { AbstractLifecycle } from '@/lib/Lifecycle';
+import { Handler } from '@/lib/Handler';
 
 const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';
 
-class Controller extends AbstractLifecycle {
-  private options: ContextOptions;
+class Controller<B extends { [key: string]: any } = {}> extends AbstractLifecycle {
+  private options: ContextOptions<B> & {
+    handlers: Handler<B>[] & Handler<DefaultBlock>[];
+  };
 
-  constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [], stateHandlers = [] }: ContextOptions) {
+  constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [], stateHandlers = [] }: ContextOptions<B>) {
     super();
 
     this.options = {
       secret,
       endpoint,
+      // @ts-ignore
       handlers: [...handlers, ...DefaultHandlers],
       stateHandlers,
     };
   }
 
-  public createContext(versionID: string, state: ContextState, request?: Request): Context {
-    const context = new Context(versionID, state, request, this.options, this.events);
+  public createContext(versionID: string, state: ContextState, request?: Request): Context<B | DefaultBlock> {
+    const context = new Context<DefaultBlock>(versionID, state, request, this.options, this.events);
 
     return context;
   }

@@ -18,7 +18,7 @@ class Stack {
 
   constructor(stack: FrameState[] = [], private handlers: Handlers) {
     this.frames = Stack.getFrames(stack);
-  };
+  }
 
   public getState(): FrameState[] {
     return this.frames.map((frame) => frame.getState());
@@ -32,16 +32,16 @@ class Stack {
     return this.frames[this.frames.length - 1];
   }
 
-  public pop(): Frame {
-    let frame: Frame = null;
+  public pop(): Frame | undefined {
+    let frame: Frame | undefined;
 
-    this.handlers?.willPop(this.frames);
+    this.handlers?.willPop?.(this.frames);
 
     this.frames = produce(this.frames, (draft: Frame[]) => {
       frame = draft.pop();
     });
 
-    this.handlers?.didPop(this.frames, frame);
+    this.handlers?.didPop?.(this.frames, frame);
 
     return frame;
   }
@@ -51,11 +51,11 @@ class Stack {
   }
 
   public push(frame: Frame): void {
-    this.handlers?.willPush(this.frames, frame);
+    this.handlers?.willPush?.(this.frames, frame);
 
     this.frames = [...this.frames, frame];
 
-    this.handlers?.didPush(this.frames);
+    this.handlers?.didPush?.(this.frames);
   }
 
   public update(frames: FrameState[]): void {

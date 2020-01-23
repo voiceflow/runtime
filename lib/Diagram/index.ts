@@ -1,33 +1,37 @@
-export interface RawBlock {
+export type RawBlock<B> = B & {
   [key: string]: any;
-}
+};
 
-export interface Block extends RawBlock {
+export type Block<T extends {} = {}> = T & {
   nextId?: string;
   blockID: string;
-}
+};
 
-export interface DiagramBody {
-  blocks: Record<string, RawBlock>;
+export interface DiagramBody<B> {
+  blocks: Record<string, RawBlock<B>>;
   requests?: object;
-  startBlockID: string;
   variables?: string[];
+  startBlockID: string;
 }
 
-class Diagram {
-  private blocks: Record<string, RawBlock>;
+class Diagram<B> {
+  private blocks: Record<string, RawBlock<B>>;
   private requests: object = {};
   private variables: string[] = [];
-  private startBlockID: string = null;
+  private startBlockID: string;
 
-  constructor({ blocks, variables, requests, startBlockID }: DiagramBody) {
+  constructor({ blocks, variables, requests, startBlockID }: DiagramBody<B>) {
     this.blocks = blocks;
-    this.requests = requests;
-    this.variables = variables;
+    this.requests = requests ?? {};
+    this.variables = variables ?? [];
     this.startBlockID = startBlockID;
   }
 
-  public getBlock(blockID: string): Block {
+  public getBlock(blockID: string | null): Block<B> | null {
+    if (!blockID || !this.blocks[blockID]) {
+      return null;
+    }
+
     return {
       ...this.blocks[blockID],
       blockID,
