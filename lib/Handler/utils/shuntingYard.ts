@@ -14,6 +14,7 @@ const evalExpression = async (expression: string, variables: Record<string, any>
 
 class Stack {
   public data: Array<string> = [];
+
   public top = 0;
 
   public push(element: string) {
@@ -118,14 +119,14 @@ const evaluate = (operand1: number, operand2: number, operator: string) => {
 const evaluatePostfix = (postfixExpression: Array<string>) => {
   try {
     const tokenStack = new Stack();
+    // eslint-disable-next-line no-restricted-syntax
     for (const i in postfixExpression) {
       if (typeof postfixExpression[i] === 'string' && postfixExpression[i].match(/^(\+|-|\*|\/|\^|==|&&|\|\||>|>=|<|<=|!|!=)$/)) {
         // postfixExpression is an operator
 
         const operand2 = tokenStack.pop();
-        let operand1: null | string;
         // If operator is !(not), there is no operand1
-        operand1 = postfixExpression[i] === '!' ? null : tokenStack.pop();
+        const operand1: null | string = postfixExpression[i] === '!' ? null : tokenStack.pop();
 
         const result = evaluate(operand1 as any, operand2 as any, postfixExpression[i]);
         tokenStack.push(result);
@@ -151,7 +152,7 @@ const popOpStackUntil = (
   operatorStack: Stack,
   addToRPN: boolean,
   condition: (operator: string) => boolean | RegExpMatchArray,
-  isRightBracket: boolean = false
+  isRightBracket = false
 ) => {
   let topOp = operatorStack.peek();
   let poppedCount = 0;
@@ -212,6 +213,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       // Matched a function/special operator
       if (currToken === '|' || currToken === '&' || currToken === '=') {
         // Peek ahead and check for validity
+        // eslint-disable-next-line max-depth
         if (expression[i + 1] === currToken) {
           // operators ||, &&, ==
           operatorStack.push(`${currToken}${currToken}`);
@@ -300,6 +302,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       const scope = _.cloneDeep(variables);
       Object.defineProperty(scope, 'v', { writable: false });
       // user input in tool is 'expression' type. need to evaluate that with mathjs before pushing to RPN
+      // eslint-disable-next-line no-await-in-loop
       RPN.push(await evalExpression(stringVal, scope));
     } else if (!!currToken && currToken !== ' ') {
       // Encountering a variable or truth literal
@@ -345,6 +348,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
   return RPN;
 };
 
+// eslint-disable-next-line import/prefer-default-export
 export const evaluateExpression = async (expression: string | number, variables: Record<string, any>) => {
   try {
     const RPN = await shuntingYard(expression.toString(), variables);

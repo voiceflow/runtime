@@ -1,5 +1,6 @@
-import Handler from './index';
 import { S } from '@/lib/Constants';
+
+import Handler from './index';
 
 const randomHandler: Handler = {
   canHandle: (block) => {

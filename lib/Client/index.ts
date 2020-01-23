@@ -1,4 +1,4 @@
-import Context, { State as ContextState, Options as ContextOptions } from '@/lib/Context';
+import Context, { Options as ContextOptions, State as ContextState } from '@/lib/Context';
 import Request from '@/lib/Context/Request';
 import { DefaultHandlers } from '@/lib/Handler';
 import { AbstractLifecycle } from '@/lib/Lifecycle';
@@ -20,9 +20,7 @@ class Controller extends AbstractLifecycle {
   }
 
   public createContext(versionID: string, state: ContextState, request?: Request): Context {
-    const context = new Context(versionID, state, request, this.options, this.events);
-
-    return context;
+    return new Context(versionID, state, request, this.options, this.events);
   }
 }
 

@@ -1,12 +1,13 @@
+import { S } from '@/lib/Constants';
 import Context from '@/lib/Context';
+import { Event } from '@/lib/Lifecycle';
+
 import cycleHandler from './cycleHandler';
 import { createCombinedVariables, saveCombinedVariables } from './utils/variables';
-import { Event } from '@/lib/Lifecycle';
-import { S } from '@/lib/Constants';
 
 const STACK_OVERFLOW = 60;
 
-const cycleStack = async (context: Context, calls: number = 0): Promise<void> => {
+const cycleStack = async (context: Context, calls = 0): Promise<void> => {
   if (context.stack.getSize() === 0 || calls > STACK_OVERFLOW) {
     context.end();
     return;

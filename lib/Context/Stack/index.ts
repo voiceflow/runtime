@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+
 import produce from 'immer';
 
 import Frame, { State as FrameState } from './Frame';
@@ -55,7 +57,7 @@ class Stack {
     this.frames = this.frames.slice(index, this.frames.length);
   }
 
-  public lift(depth: number = 1): void {
+  public lift(depth = 1): void {
     this.frames = this.frames.slice(0, this.frames.length - depth);
   }
 

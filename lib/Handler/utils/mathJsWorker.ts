@@ -1,5 +1,5 @@
+import { all, create } from 'mathjs';
 import workerpool from 'workerpool';
-import { create, all } from 'mathjs';
 
 const math = create(all, {});
 const limitedEvaluate = math.evaluate;

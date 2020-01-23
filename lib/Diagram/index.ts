@@ -7,8 +7,11 @@ export interface DiagramBody {
 
 class Diagram {
   private blocks: object;
+
   private commands: object[] = [];
+
   private variables: string[] = [];
+
   private startBlockID: string = null;
 
   constructor({ blocks, variables, commands, startBlockID }: DiagramBody) {

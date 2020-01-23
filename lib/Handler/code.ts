@@ -1,6 +1,6 @@
-import Handler from './index';
+import axios from 'axios';
 
-const axios = require('axios');
+import Handler from './index';
 
 const codeHandler: Handler = {
   canHandle: (block) => {

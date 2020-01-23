@@ -1,6 +1,7 @@
+/* eslint-disable no-await-in-loop */
 import Context from '@/lib/Context';
-import Diagram from '@/lib/Diagram';
 import Storage from '@/lib/Context/Store';
+import Diagram from '@/lib/Diagram';
 import { Event } from '@/lib/Lifecycle';
 
 const HANDLER_OVERFLOW = 400;
@@ -9,7 +10,7 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
   const referenceFrame = context.stack.top();
 
   let nextID: string = null;
-  let i: number = 0;
+  let i = 0;
   let block = diagram.getBlock(referenceFrame.getBlockID());
 
   do {
@@ -26,7 +27,8 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
       try {
         // state handlers
         const handlers = [...context.getStateHandlers(), ...context.getHandlers()];
-        const handler = handlers.find((handler) => handler.canHandle(block, context, variableState, diagram));
+        // eslint-disable-next-line no-loop-func
+        const handler = handlers.find((h) => h.canHandle(block, context, variableState, diagram));
 
         if (handler) {
           await context.callEvent(Event.handlerWillHandle, context);

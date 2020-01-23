@@ -1,6 +1,7 @@
-import Frame from '@/lib/Context/Stack/Frame';
-import Handler from './index';
 import { S } from '@/lib/Constants';
+import Frame from '@/lib/Context/Stack/Frame';
+
+import Handler from './index';
 
 const FlowHandler: Handler = {
   canHandle: (block) => {
@@ -11,6 +12,7 @@ const FlowHandler: Handler = {
 
     // map block variable map input to frame
     newFrame.variables.produce((draft) => {
+      // eslint-disable-next-line no-unused-expressions
       block.variable_map.inputs?.forEach(([currentVal, newVal]) => {
         draft[newVal] = variables.get(currentVal);
       });

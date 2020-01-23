@@ -1,16 +1,14 @@
 import axios, { AxiosInstance } from 'axios';
-// import produce, { Draft } from 'immer';
-
-import Lifecycle, { Event, AbstractLifecycle } from '@/lib/Lifecycle';
-
-import Store, { State as StorageState } from './Store';
-import Request from './Request';
-import { Handler } from '@/lib/Handler';
-import Stack, { FrameState } from './Stack';
-
-import Diagram from '@/lib/Diagram';
 
 import cycleStack from '@/lib/Context/cycleStack';
+import Diagram from '@/lib/Diagram';
+import Handler from '@/lib/Handler';
+// import produce, { Draft } from 'immer';
+import Lifecycle, { AbstractLifecycle, Event } from '@/lib/Lifecycle';
+
+import Request from './Request';
+import Stack, { FrameState } from './Stack';
+import Store, { State as StorageState } from './Store';
 
 export interface Options {
   secret?: string;
@@ -116,7 +114,7 @@ class Context extends AbstractLifecycle {
 
     const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
 
-    let diagram = new Diagram({
+    const diagram = new Diagram({
       startBlockID: data.startId,
       variables: data.variables,
       blocks: data.lines,

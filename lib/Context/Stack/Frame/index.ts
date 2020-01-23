@@ -1,5 +1,6 @@
-import Store, { State as StoreState } from '../../Store';
 import Diagram from '@/lib/Diagram';
+
+import Store, { State as StoreState } from '../../Store';
 
 export interface State {
   blockID?: string;
@@ -11,14 +12,18 @@ export interface State {
 }
 
 class Frame {
-  private updated: boolean = false;
+  private updated = false;
 
   private blockID: string = null;
+
   private startBlockID: string = null;
+
   private diagramID: string;
+
   private commands: object[] = [];
 
   public storage: Store;
+
   public variables: Store;
 
   constructor(frameState?: State) {
