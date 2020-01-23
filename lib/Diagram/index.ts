@@ -1,4 +1,5 @@
 export interface DiagramBody {
+  id: string,
   blocks: object;
   commands?: object[];
   startBlockID: string;
@@ -6,16 +7,22 @@ export interface DiagramBody {
 }
 
 class Diagram {
+  private id: string;
   private blocks: object;
   private commands: object[] = [];
   private variables: string[] = [];
   private startBlockID: string = null;
 
-  constructor({ blocks, variables, commands, startBlockID }: DiagramBody) {
+  constructor({ id, blocks, variables, commands, startBlockID }: DiagramBody) {
+    this.id = id;
     this.blocks = blocks;
     this.commands = commands;
     this.variables = variables;
     this.startBlockID = startBlockID;
+  }
+
+  public getID(): string {
+    return this.id;
   }
 
   public getBlock(blockID: string): object {
