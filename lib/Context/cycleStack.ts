@@ -3,11 +3,16 @@ import cycleHandler from './cycleHandler';
 import { createCombinedVariables, saveCombinedVariables } from './utils/variables';
 import { Event } from '@/lib/Lifecycle';
 import { S } from '@/lib/Constants';
+import Diagram from '../Diagram';
 
 const STACK_OVERFLOW = 60;
+interface cycleContext {
+  diagram?: Diagram;
+  depth: number;
+}
 
-const cycleStack = async (context: Context, calls: number = 0): Promise<void> => {
-  if (context.stack.getSize() === 0 || calls > STACK_OVERFLOW) {
+const cycleStack = async (context: Context, { diagram, depth }: cycleContext = { depth: 0, diagram: null }): Promise<void> => {
+  if (context.stack.getSize() === 0 || depth > STACK_OVERFLOW) {
     context.end();
     return;
   }
@@ -15,7 +20,10 @@ const cycleStack = async (context: Context, calls: number = 0): Promise<void> =>
   const currentFrame = context.stack.top();
   const currentFrames = context.stack.getFrames();
 
-  const diagram = await context.fetchDiagram(currentFrame.getDiagramID());
+  if (diagram?.getID() !== currentFrame.getDiagramID()) {
+    diagram = await context.fetchDiagram(currentFrame.getDiagramID());
+  }
+
   // update frame with diagram properties
   currentFrame.update(diagram);
 
@@ -54,7 +62,7 @@ const cycleStack = async (context: Context, calls: number = 0): Promise<void> =>
     }
   }
 
-  await cycleStack(context, calls + 1);
+  await cycleStack(context, { depth: depth + 1, diagram });
 };
 
 export default cycleStack;

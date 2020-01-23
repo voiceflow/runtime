@@ -117,6 +117,7 @@ class Context extends AbstractLifecycle {
     const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
 
     let diagram = new Diagram({
+      id: diagramID,
       startBlockID: data.startId,
       variables: data.variables,
       blocks: data.lines,
