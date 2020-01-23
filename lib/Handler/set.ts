@@ -1,4 +1,4 @@
-const Promise = require('bluebird');
+import Promise from 'bluebird';
 import { Event } from '@/lib/Lifecycle';
 import { evaluateExpression } from './utils/shuntingYard';
 
