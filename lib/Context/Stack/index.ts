@@ -54,7 +54,7 @@ class Stack {
 
   // pops all frames until index
   public popTo(index: number): void {
-    this.frames = this.frames.slice(index, this.frames.length);
+    this.frames = this.frames.slice(0, index);
   }
 
   public lift(depth = 1): void {
