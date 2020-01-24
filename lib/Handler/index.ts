@@ -1,22 +1,22 @@
 import Context from '@/lib/Context';
-import Diagram from '@/lib/Diagram';
+import Diagram, { Block } from '@/lib/Diagram';
 import Store from '@/lib/Context/Store';
 
 // handlers
-import CodeHandler from './code';
-import EndHandler from './end';
-import FlowHandler from './flow';
+import CodeHandler, { CodeBlock } from './code';
+import EndHandler, { EndBlock } from './end';
+import FlowHandler, { FlowBlock } from './flow';
 import StartHandler from './start';
 import RandomHandler from './random';
 import IfHandler from './if';
 import SetHandler from './set';
 
-type Block = Record<string, any>;
-
-export interface Handler {
-  canHandle: (block: Block, context: Context, variables: Store, diagram: Diagram) => boolean;
-  handle: (block: Block, context: Context, variables: Store, diagram: Diagram) => string | Promise<string>;
+export interface Handler<B> {
+  canHandle: (block: Block<B>, context: Context<B>, variables: Store, diagram: Diagram<B>) => boolean;
+  handle: (block: Block<B>, context: Context<B>, variables: Store, diagram: Diagram<B>) => null | string | Promise<string | null>;
 }
+
+export type DefaultBlock = FlowBlock | CodeBlock | EndBlock;
 
 export const DefaultHandlers = [CodeHandler, EndHandler, FlowHandler, StartHandler, RandomHandler, SetHandler, IfHandler];
 

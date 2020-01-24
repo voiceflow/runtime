@@ -1,19 +1,30 @@
-export interface DiagramBody {
+export type RawBlock<B> = B & {
+  [key: string]: any;
+};
+
+export type Block<T extends {} = {}> = T & {
+  nextId?: string;
+  blockID: string;
+};
+
+export type Command = { [key: string]: any };
+
+export interface DiagramBody<B> {
   id: string,
-  blocks: object;
-  commands?: object[];
-  startBlockID: string;
+  blocks: Record<string, RawBlock<B>>;
+  commands?: Command[];
   variables?: string[];
+  startBlockID: string;
 }
 
-class Diagram {
+class Diagram<B> {
   private id: string;
-  private blocks: object;
-  private commands: object[] = [];
+  private blocks: Record<string, RawBlock<B>>;
+  private commands: Command[] = [];
   private variables: string[] = [];
-  private startBlockID: string = null;
+  private startBlockID: string;
 
-  constructor({ id, blocks, variables, commands, startBlockID }: DiagramBody) {
+  constructor({ id, blocks, variables = [], commands = [], startBlockID }: DiagramBody<B>) {
     this.id = id;
     this.blocks = blocks;
     this.commands = commands;
@@ -25,14 +36,18 @@ class Diagram {
     return this.id;
   }
 
-  public getBlock(blockID: string): object {
+  public getBlock(blockID: string | null): Block<B> | null {
+    if (!(blockID && this.blocks.hasOwnProperty(blockID))) {
+      return null;
+    }
+
     return {
       ...this.blocks[blockID],
       blockID,
     };
   }
 
-  public getCommands(): object[] {
+  public getCommands(): Command[] {
     return this.commands;
   }
 

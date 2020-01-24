@@ -1,11 +1,17 @@
 import Handler from './index';
 import { S } from '@/lib/Constants';
 
-const randomHandler: Handler = {
+export type RandomBlock = {
+  blockID: string;
+  random?: number;
+  nextIds: string[];
+};
+
+const randomHandler: Handler<RandomBlock> = {
   canHandle: (block) => {
-    return block.random;
+    return !!block.random;
   },
-  handle: async (block, context, _) => {
+  handle: async (block, context) => {
     let nextId: string;
 
     if (!block.nextIds.length) return null;
@@ -22,11 +28,11 @@ const randomHandler: Handler = {
         storage.set(S.RANDOMS, {});
       }
 
-      if (storage.get(S.RANDOMS)[block.id]?.length) {
-        used = new Set(storage.get(S.RANDOMS)[block.id]);
+      if (storage.get(S.RANDOMS)[block.blockID]?.length) {
+        used = new Set(storage.get(S.RANDOMS)[block.blockID]);
       } else {
         used = new Set();
-        storage.set(S.RANDOMS, { ...storage.get(S.RANDOMS), [block.id]: [] });
+        storage.set(S.RANDOMS, { ...storage.get(S.RANDOMS), [block.blockID]: [] });
       }
 
       // get all unused choices
@@ -35,11 +41,11 @@ const randomHandler: Handler = {
         // all choices have been used
         choices = block.nextIds;
         // reset used choices
-        storage.set(S.RANDOMS, { ...storage.get(S.RANDOMS), [block.id]: [] });
+        storage.set(S.RANDOMS, { ...storage.get(S.RANDOMS), [block.blockID]: [] });
       }
 
       nextId = choices[Math.floor(Math.random() * choices.length)];
-      storage.set(S.RANDOMS, { ...storage.get(S.RANDOMS), [block.id]: [...storage.get(S.RANDOMS)[block.id], nextId] });
+      storage.set(S.RANDOMS, { ...storage.get(S.RANDOMS), [block.blockID]: [...storage.get(S.RANDOMS)[block.blockID], nextId] });
     } else {
       nextId = block.nextIds[Math.floor(Math.random() * block.nextIds.length)];
     }

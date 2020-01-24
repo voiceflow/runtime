@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "axios": "^0.19.0",
+    "bluebird": "^3.7.2",
     "immer": "^5.1.0",
     "mathjs": "^6.5.0",
     "workerpool": "^5.0.4"

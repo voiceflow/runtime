@@ -24,34 +24,34 @@ export enum Event {
   variablesDidUpdate,
 }
 
-export type Callback = (context: Context, ...args: any[]) => any | Promise<any>;
+export type Callback<B> = (context: Context<B>, ...args: any[]) => any | Promise<any>;
 
-export type Events = { [key in keyof typeof Event]?: Callback };
+export type Events<B> = { [key in keyof typeof Event]?: Callback<B> };
 
-class Lifecycle {
-  private events: Events = {};
+class Lifecycle<B> {
+  private events: Events<B> = {};
 
-  public setEvent(event: Event, callback: Callback) {
+  public setEvent(event: Event, callback: Callback<B>) {
     this.events[event] = callback;
   }
 
-  public getEvent(event: Event): Callback {
+  public getEvent(event: Event): Callback<B> {
     return this.events[event] ?? (() => {});
   }
 
-  public async callEvent(event: Event, context: Context, ...args: any[]): Promise<any> {
+  public async callEvent(event: Event, context: Context<B>, ...args: any[]): Promise<any> {
     return this.getEvent(event)(context, ...args);
   }
 }
 
-export abstract class AbstractLifecycle {
-  constructor(protected events: Lifecycle = new Lifecycle()) {}
+export abstract class AbstractLifecycle<B> {
+  constructor(protected events: Lifecycle<B> = new Lifecycle()) {}
 
-  public setEvent(event: Event, callback: Callback) {
+  public setEvent(event: Event, callback: Callback<B>) {
     this.events.setEvent(event, callback);
   }
 
-  public async callEvent(event: Event, context: Context, ...args: any[]): Promise<any> {
+  public async callEvent(event: Event, context: Context<B>, ...args: any[]): Promise<any> {
     return this.events.callEvent(event, context, ...args);
   }
 }
