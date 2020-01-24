@@ -1,13 +1,14 @@
 import Promise from 'bluebird';
+
 import { Event } from '@/lib/Lifecycle';
-import { evaluateExpression } from './utils/shuntingYard';
 
 import Handler from './index';
+import { evaluateExpression } from './utils/shuntingYard';
 
 export type SetBlock = {
-  sets: string[],
-  nextId?: string,
-}
+  sets: string[];
+  nextId?: string;
+};
 
 const setHandler: Handler<SetBlock> = {
   canHandle: (block) => {
@@ -18,7 +19,7 @@ const setHandler: Handler<SetBlock> = {
       try {
         const evaluated = (await evaluateExpression(set.expression, { v: variables.getState() })) as any;
         // assign only if number or true
-        variables.set(set.variable, !isNaN(evaluated) || !!evaluated ? evaluated : undefined);
+        variables.set(set.variable, !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined);
       } catch (err) {
         await context.callEvent(Event.handlerDidCatch, err);
       }

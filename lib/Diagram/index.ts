@@ -10,7 +10,7 @@ export type Block<T extends {} = {}> = T & {
 export type Command = { [key: string]: any };
 
 export interface DiagramBody<B> {
-  id: string,
+  id: string;
   blocks: Record<string, RawBlock<B>>;
   commands?: Command[];
   variables?: string[];
@@ -19,9 +19,13 @@ export interface DiagramBody<B> {
 
 class Diagram<B> {
   private id: string;
+
   private blocks: Record<string, RawBlock<B>>;
+
   private commands: Command[] = [];
+
   private variables: string[] = [];
+
   private startBlockID: string;
 
   constructor({ id, blocks, variables = [], commands = [], startBlockID }: DiagramBody<B>) {
@@ -37,6 +41,7 @@ class Diagram<B> {
   }
 
   public getBlock(blockID: string | null): Block<B> | null {
+    // eslint-disable-next-line no-prototype-builtins
     if (!(blockID && this.blocks.hasOwnProperty(blockID))) {
       return null;
     }

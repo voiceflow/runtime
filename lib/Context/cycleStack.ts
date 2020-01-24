@@ -1,17 +1,18 @@
-import Context from '@/lib/Context';
-import cycleHandler from './cycleHandler';
-import { createCombinedVariables, saveCombinedVariables, mapStores } from './utils/variables';
-import { Event } from '@/lib/Lifecycle';
 import { S } from '@/lib/Constants';
+import Context from '@/lib/Context';
+import { Event } from '@/lib/Lifecycle';
+
 import Diagram from '../Diagram';
+import cycleHandler from './cycleHandler';
+import { createCombinedVariables, mapStores, saveCombinedVariables } from './utils/variables';
 
 const STACK_OVERFLOW = 60;
-interface cycleContext<B> {
+interface CycleContext<B> {
   diagram?: Diagram<B> | null;
   depth: number;
 }
 
-const cycleStack = async <B>(context: Context<B>, { diagram, depth }: cycleContext<B> = { depth: 0, diagram: null }): Promise<void> => {
+const cycleStack = async <B>(context: Context<B>, { diagram, depth }: CycleContext<B> = { depth: 0, diagram: null }): Promise<void> => {
   if (context.stack.getSize() === 0 || depth > STACK_OVERFLOW) {
     context.end();
     return;

@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+
 import produce, { Draft } from 'immer';
 
 export type State = { readonly [k: string]: any };
@@ -7,7 +9,9 @@ type WillUpdate = (state: State, nextState: State) => void;
 
 class Store {
   private store: State = {};
+
   private readonly didUpdate?: DidUpdate;
+
   private readonly willUpdate?: WillUpdate;
 
   static initialize = (store: Store, keys: string[], initialValue: any = 0): void => {
@@ -15,10 +19,10 @@ class Store {
       if (store.get(key) === undefined) {
         acc[key] = initialValue;
       }
-  
+
       return acc;
     }, {} as Record<string, any>);
-  
+
     store.merge(keysToMerge);
   };
 
@@ -42,6 +46,7 @@ class Store {
   }
 
   public has<K extends keyof State>(key: K): boolean {
+    // eslint-disable-next-line no-prototype-builtins
     return this.store.hasOwnProperty(key);
   }
 

@@ -29,4 +29,4 @@ export const mapStores = (map: [string, string][], from: Store, to: Store): void
       draft[newVal] = from.get(currentVal);
     });
   });
-}
+};

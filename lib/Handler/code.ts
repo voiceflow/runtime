@@ -1,6 +1,6 @@
-import Handler from './index';
-
 import axios from 'axios';
+
+import Handler from './index';
 
 export type CodeBlock = {
   code?: string;
