@@ -16,6 +16,8 @@ class Controller<B extends { [key: string]: any } = {}> extends AbstractLifecycl
     this.options = {
       secret,
       endpoint,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
       handlers: [...handlers, ...DefaultHandlers],
       stateHandlers,
     };
