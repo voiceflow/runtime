@@ -1,11 +1,11 @@
 import Handler from './index';
 
-const StartHandler: Handler = {
+const StartHandler: Handler<{}> = {
   canHandle: (block) => {
-    return Object.keys(block).length === 2 && block.nextId;
+    return Object.keys(block).length === 2 && !!block.nextId;
   },
   handle: (block) => {
-    return block.nextId;
+    return block.nextId ?? null;
   },
 };
 

@@ -1,23 +1,32 @@
 import Store from '@/lib/Context/Store';
 
-export const initializeVariables = (variables: Store, keys: string[], initialValue: any = 0) => {
-  keys.forEach((key) => {
-    if (variables.get(key) === undefined) {
-      variables.set(key, initialValue);
-    }
-  });
+export const createCombinedVariables = (global: Store, local: Store): Store => {
+  return Store.merge(global, local);
 };
 
-export const createCombinedVariables = (contextVariables: Store, frameVariables: Store): Store => {
-  return Store.merge(contextVariables, frameVariables);
-};
+export const saveCombinedVariables = (combined: Store, global: Store, local: Store) => {
+  const updatedLocal: Record<string, any> = {};
+  const updatedGlobal: Record<string, any> = {};
 
-export const saveCombinedVariables = (combinedVariables: Store, contextVariables: Store, frameVariables: Store) => {
-  combinedVariables.forEach(({ key, value }) => {
-    if (contextVariables.has(key)) {
-      contextVariables.set(key, value);
+  combined.forEach(({ key, value }) => {
+    if (local.has(key)) {
+      updatedLocal[key] = value;
+    } else if (global.has(key)) {
+      updatedGlobal[key] = value;
     } else {
-      frameVariables.set(key, value);
+      // leftover/newly introduced variables saved locally to prevent pollution of global space
+      updatedLocal[key] = value;
     }
   });
+
+  local.merge(updatedLocal);
+  global.merge(updatedGlobal);
 };
+
+export const mapStores = (map: [string, string][], from: Store, to: Store): void => {
+  to.produce((draft) => {
+    map.forEach(([currentVal, newVal]) => {
+      draft[newVal] = from.get(currentVal);
+    });
+  });
+}

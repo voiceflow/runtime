@@ -4,7 +4,12 @@ import { evaluateExpression } from './utils/shuntingYard';
 
 import Handler from './index';
 
-const setHandler: Handler = {
+export type SetBlock = {
+  sets: string[],
+  nextId?: string,
+}
+
+const setHandler: Handler<SetBlock> = {
   canHandle: (block) => {
     return block.sets && block.sets.length < 21;
   },
@@ -19,7 +24,7 @@ const setHandler: Handler = {
       }
     });
 
-    return block.nextId;
+    return block.nextId || null;
   },
 };
 

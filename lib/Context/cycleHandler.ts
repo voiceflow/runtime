@@ -1,14 +1,14 @@
 import Context from '@/lib/Context';
-import Diagram from '@/lib/Diagram';
+import Diagram, { Block } from '@/lib/Diagram';
 import Storage from '@/lib/Context/Store';
 import { Event } from '@/lib/Lifecycle';
 
 const HANDLER_OVERFLOW = 400;
 
-const cycleHandler = async (context: Context, diagram: Diagram, variableState: Storage): Promise<void> => {
+const cycleHandler = async <B>(context: Context<B>, diagram: Diagram<B>, variableState: Storage): Promise<void> => {
   const referenceFrame = context.stack.top();
 
-  let nextID: string = null;
+  let nextID: string | null = null;
   let i: number = 0;
   let block = diagram.getBlock(referenceFrame.getBlockID());
 
@@ -22,11 +22,11 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
       nextID = null;
     }
 
-    if (block) {
+    if (block !== null) {
       try {
         // state handlers
         const handlers = [...context.getStateHandlers(), ...context.getHandlers()];
-        const handler = handlers.find((handler) => handler.canHandle(block, context, variableState, diagram));
+        const handler = handlers.find((handler) => handler.canHandle(block as Block<B>, context, variableState, diagram));
 
         if (handler) {
           await context.callEvent(Event.handlerWillHandle, context);

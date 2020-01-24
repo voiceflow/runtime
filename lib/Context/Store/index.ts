@@ -7,8 +7,20 @@ type WillUpdate = (state: State, nextState: State) => void;
 
 class Store {
   private store: State = {};
-  private readonly didUpdate: DidUpdate;
-  private readonly willUpdate: WillUpdate;
+  private readonly didUpdate?: DidUpdate;
+  private readonly willUpdate?: WillUpdate;
+
+  static initialize = (store: Store, keys: string[], initialValue: any = 0): void => {
+    const keysToMerge = keys.reduce((acc, key) => {
+      if (store.get(key) === undefined) {
+        acc[key] = initialValue;
+      }
+  
+      return acc;
+    }, {} as Record<string, any>);
+  
+    store.merge(keysToMerge);
+  };
 
   static merge(store1: Store, store2: Store): Store {
     return new Store({ ...store1.getState(), ...store2.getState() });
@@ -19,17 +31,6 @@ class Store {
 
     this.didUpdate = didUpdate;
     this.willUpdate = willUpdate;
-  }
-
-  // initialize all provided variables
-  public initialize(keys: string[], value: any = 0) {
-    this.produce((store: Draft<State>) => {
-      keys.forEach((key) => {
-        if (store[key] === undefined) {
-          store[key] = value;
-        }
-      });
-    });
   }
 
   public getState(): State {
@@ -63,13 +64,13 @@ class Store {
   }
 
   public set<K extends keyof State>(key: K, value: any): void {
-    this.produce((draft: Draft<State[K]>) => {
+    this.produce((draft: Draft<State>) => {
       draft[key] = value;
     });
   }
 
   public delete<K extends keyof State>(key: K): void {
-    this.produce((draft: Draft<State[K]>) => {
+    this.produce((draft: Draft<State>) => {
       delete draft[key];
     });
   }

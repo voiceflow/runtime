@@ -1,17 +1,17 @@
 import Context from '@/lib/Context';
 import cycleHandler from './cycleHandler';
-import { createCombinedVariables, saveCombinedVariables } from './utils/variables';
+import { createCombinedVariables, saveCombinedVariables, mapStores } from './utils/variables';
 import { Event } from '@/lib/Lifecycle';
 import { S } from '@/lib/Constants';
 import Diagram from '../Diagram';
 
 const STACK_OVERFLOW = 60;
-interface cycleContext {
-  diagram?: Diagram;
+interface cycleContext<B> {
+  diagram?: Diagram<B> | null;
   depth: number;
 }
 
-const cycleStack = async (context: Context, { diagram, depth }: cycleContext = { depth: 0, diagram: null }): Promise<void> => {
+const cycleStack = async <B>(context: Context<B>, { diagram, depth }: cycleContext<B> = { depth: 0, diagram: null }): Promise<void> => {
   if (context.stack.getSize() === 0 || depth > STACK_OVERFLOW) {
     context.end();
     return;
@@ -25,14 +25,14 @@ const cycleStack = async (context: Context, { diagram, depth }: cycleContext = {
   }
 
   // update frame with diagram properties
-  currentFrame.update(diagram);
+  currentFrame.update<B>(diagram);
 
   // generate combined variable state (global/local)
   const combinedVariables = createCombinedVariables(context.variables, currentFrame.variables);
 
   try {
     await context.callEvent(Event.stateWillExecute, diagram);
-    await cycleHandler(context, diagram, combinedVariables);
+    await cycleHandler<B>(context, diagram, combinedVariables);
     await context.callEvent(Event.stateDidExecute, diagram);
   } catch (error) {
     await context.callEvent(Event.stateDidCatch, error);
@@ -45,6 +45,7 @@ const cycleStack = async (context: Context, { diagram, depth }: cycleContext = {
   if (context.hasEnded()) {
     return;
   }
+
   if (currentFrames === context.stack.getFrames()) {
     // pop frame
     const poppedFrame = context.stack.pop();
@@ -52,17 +53,11 @@ const cycleStack = async (context: Context, { diagram, depth }: cycleContext = {
     const topFrame = context.stack.top();
 
     if (poppedFrame?.storage.get(S.OUTPUT_MAP) && topFrame) {
-      const newCombinedVariables = createCombinedVariables(context.variables, topFrame.variables);
-
-      poppedFrame.storage.get(S.OUTPUT_MAP).forEach(([newVal, currentVal]) => {
-        newCombinedVariables.set(newVal, poppedFrame.variables.get(currentVal));
-      });
-
-      saveCombinedVariables(newCombinedVariables, context.variables, topFrame.variables);
+      mapStores(poppedFrame.storage.get(S.OUTPUT_MAP), combinedVariables, topFrame.variables);
     }
   }
 
-  await cycleStack(context, { depth: depth + 1, diagram });
+  await cycleStack<B>(context, { depth: depth + 1, diagram });
 };
 
 export default cycleStack;

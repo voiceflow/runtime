@@ -2,7 +2,14 @@ import { Event } from '@/lib/Lifecycle';
 import { evaluateExpression } from './utils/shuntingYard';
 import Handler from './index';
 
-const ifHandler: Handler = {
+export type IfBlock = {
+  blockID: string;
+  expressions: string[];
+  nextIds: string[];
+  elseId?: string;
+};
+
+const ifHandler: Handler<IfBlock> = {
   canHandle: (block) => {
     return block.expressions && block.expressions.length < 101;
   },
@@ -25,7 +32,7 @@ const ifHandler: Handler = {
       }
     }
 
-    return path || block.elseId;
+    return path || block.elseId || null;
   },
 };
 

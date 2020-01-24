@@ -1,6 +1,9 @@
 import Stack from '../Context/Stack';
+import { Command } from '../Diagram';
 
-export const extractFrameCommand = (stack: Stack, matcher: (object, any?) => boolean, match?: any): { index: number, command: any } => {
+type Matcher = (command: Command, match?: any) => boolean; 
+
+export const extractFrameCommand = (stack: Stack, matcher: Matcher, match?: any): { index: number | null, command: Command | null } => {
   const frames = stack.getFrames();
   // iterate from top forwards
   for (let index = frames.length - 1; index >= 0; index--) {

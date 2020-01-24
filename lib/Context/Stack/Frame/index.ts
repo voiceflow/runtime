@@ -2,7 +2,16 @@ import Store, { State as StoreState } from '../../Store';
 import Diagram from '@/lib/Diagram';
 
 export interface State {
-  blockID?: string;
+  blockID: string | null;
+  diagramID: string;
+
+  storage: StoreState;
+  commands?: object[];
+  variables: StoreState;
+}
+
+export interface Options {
+  blockID?: string | null;
   diagramID: string;
 
   storage?: StoreState;
@@ -13,20 +22,20 @@ export interface State {
 class Frame {
   private updated: boolean = false;
 
-  private blockID: string = null;
-  private startBlockID: string = null;
+  private blockID: string | null = null;
+  private startBlockID: string | null = null;
   private diagramID: string;
   private commands: object[] = [];
 
   public storage: Store;
   public variables: Store;
 
-  constructor(frameState?: State) {
+  constructor(frameState: Options) {
     this.blockID = frameState.blockID ?? null;
     this.diagramID = frameState.diagramID;
 
     this.storage = new Store(frameState.storage);
-    this.commands = frameState.commands;
+    this.commands = frameState.commands ?? [];
     this.variables = new Store(frameState.variables);
   }
 
@@ -41,7 +50,7 @@ class Frame {
     };
   }
 
-  public update(diagram: Diagram): void {
+  public update<B>(diagram: Diagram<B>): void {
     if (this.updated) {
       return;
     }
@@ -51,18 +60,18 @@ class Frame {
     this.commands = diagram.getCommands();
     this.startBlockID = diagram.getStartBlockID();
 
-    this.variables.initialize(diagram.getVariables(), 0);
+    Store.initialize(this.variables, diagram.getVariables(), 0);
 
     if (!this.blockID) {
       this.blockID = this.startBlockID;
     }
   }
 
-  public getBlockID(): string {
+  public getBlockID(): string | null {
     return this.blockID;
   }
 
-  public setBlockID(blockID: string): void {
+  public setBlockID(blockID: string | null): void {
     this.blockID = blockID;
   }
 
