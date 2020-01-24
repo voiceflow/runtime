@@ -5,8 +5,13 @@ import { Event } from '@/lib/Lifecycle';
 import Handler from './index';
 import { evaluateExpression } from './utils/shuntingYard';
 
+type SetStep = {
+  expression: string;
+  variable: string;
+};
+
 export type SetBlock = {
-  sets: string[];
+  sets: Array<SetStep>;
   nextId?: string;
 };
 
@@ -15,7 +20,7 @@ const setHandler: Handler<SetBlock> = {
     return block.sets && block.sets.length < 21;
   },
   handle: async (block, context, variables) => {
-    await Promise.each(block.sets, async (set: { expression: string; variable: string }) => {
+    await Promise.each<SetStep>(block.sets, async (set) => {
       try {
         const evaluated = (await evaluateExpression(set.expression, { v: variables.getState() })) as any;
         // assign only if number or true

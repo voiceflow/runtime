@@ -15,28 +15,24 @@ const evalExpression = async (expression: string, variables: Record<string, any>
 class Stack {
   public data: Array<string> = [];
 
-  public top = 0;
-
   public push(element: string) {
     this.data.push(element);
-    this.top++;
   }
 
   public pop() {
-    this.top--;
     return this.data.pop();
   }
 
   public peek() {
-    return this.data[this.top - 1];
+    return this.data[this.data.length - 1];
   }
 
   public length() {
-    return this.top;
+    return this.data.length;
   }
 }
 
-const operatorAttributes = {
+const operatorAttributes: Record<string, { prec: number; assoc: string }> = {
   '^': {
     prec: 4,
     assoc: 'R',
@@ -128,9 +124,9 @@ const evaluatePostfix = (postfixExpression: Array<string>) => {
 
         const operand2 = tokenStack.pop();
         // If operator is !(not), there is no operand1
-        const operand1: null | string = postfixExpression[i] === '!' ? null : tokenStack.pop();
+        const operand1: null | undefined | string = postfixExpression[i] === '!' ? null : tokenStack.pop();
 
-        const result = evaluate(operand1 as any, operand2 as any, postfixExpression[i]);
+        const result = evaluate(operand1 as any, operand2 as any, postfixExpression[i]) as any;
         tokenStack.push(result);
       } else {
         // postfixExpression is an operand
@@ -162,7 +158,7 @@ const popOpStackUntil = (
   while (condition(topOp)) {
     poppedCount++;
     if (addToRPN) {
-      RPN.push(operatorStack.pop());
+      RPN.push(operatorStack.pop() as any);
     } else {
       operatorStack.pop();
       break;
@@ -241,7 +237,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
         operatorStack,
         true,
         (topOp) => {
-          return topOp && topOp !== '(';
+          return topOp !== '(';
         },
         true
       );
@@ -252,7 +248,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
         operatorStack,
         false,
         (topOp) => {
-          return topOp && topOp === '(';
+          return topOp === '(';
         },
         true
       );

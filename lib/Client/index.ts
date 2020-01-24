@@ -1,6 +1,6 @@
 import Context, { Options as ContextOptions, State as ContextState } from '@/lib/Context';
 import Request from '@/lib/Context/Request';
-import { DefaultBlock, DefaultHandlers, Handler } from '@/lib/Handler';
+import Handler, { DefaultBlock, DefaultHandlers } from '@/lib/Handler';
 import { AbstractLifecycle } from '@/lib/Lifecycle';
 
 const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';

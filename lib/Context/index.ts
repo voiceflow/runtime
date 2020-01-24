@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 
 import cycleStack from '@/lib/Context/cycleStack';
 import Diagram from '@/lib/Diagram';
-import { Handler } from '@/lib/Handler';
+import Handler from '@/lib/Handler';
 // import produce, { Draft } from 'immer';
 import Lifecycle, { AbstractLifecycle, Event } from '@/lib/Lifecycle';
 
