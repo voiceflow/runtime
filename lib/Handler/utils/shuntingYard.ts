@@ -7,7 +7,7 @@ const evalExpression = async (expression: string, variables: Record<string, any>
   // start js script as dedicated worker
   const mathJsWorkerPool = workerpool.pool(`${__dirname}/mathJsWorker.js`, { maxWorkers: 1 });
   // evaluate expressions in a separate worker to prevent memory overflow of main thread
-  const result = await mathJsWorkerPool.exec('evaluate', [exp, variables]).timeout(800);
+  const result = await mathJsWorkerPool.exec('evaluate', [exp, variables]).timeout(500);
   await mathJsWorkerPool.terminate();
   return result;
 };
