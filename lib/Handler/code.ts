@@ -14,6 +14,7 @@ const codeHandler: Handler<CodeBlock> = {
   },
   handle: async (block, _, variables) => {
     try {
+      // TODO: move url to configs
       const result = await axios.post('https://cjpsnfbb56.execute-api.us-east-1.amazonaws.com/dev/code/execute', {
         code: block.code,
         variables: variables.getState(),

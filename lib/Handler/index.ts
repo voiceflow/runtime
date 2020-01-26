@@ -7,6 +7,7 @@ import CodeHandler, { CodeBlock } from './code';
 import EndHandler, { EndBlock } from './end';
 import FlowHandler, { FlowBlock } from './flow';
 import IfHandler from './if';
+import IntegrationsHandler from './integrations';
 import RandomHandler from './random';
 import SetHandler from './set';
 import StartHandler from './start';
@@ -18,4 +19,4 @@ export default interface Handler<B> {
 
 export type DefaultBlock = FlowBlock | CodeBlock | EndBlock;
 
-export const DefaultHandlers = [CodeHandler, EndHandler, FlowHandler, StartHandler, RandomHandler, SetHandler, IfHandler];
+export const DefaultHandlers = [CodeHandler, EndHandler, FlowHandler, StartHandler, RandomHandler, SetHandler, IfHandler, IntegrationsHandler];
