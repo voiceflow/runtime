@@ -7,35 +7,32 @@ const evalExpression = async (expression: string, variables: Record<string, any>
   // start js script as dedicated worker
   const mathJsWorkerPool = workerpool.pool(`${__dirname}/mathJsWorker.js`, { maxWorkers: 1 });
   // evaluate expressions in a separate worker to prevent memory overflow of main thread
-  const result = await mathJsWorkerPool.exec('evaluate', [exp, variables]).timeout(800);
+  const result = await mathJsWorkerPool.exec('evaluate', [exp, variables]).timeout(500);
   await mathJsWorkerPool.terminate();
   return result;
 };
 
 class Stack {
   public data: Array<string> = [];
-  public top = 0;
 
   public push(element: string) {
     this.data.push(element);
-    this.top++;
   }
 
   public pop() {
-    this.top--;
     return this.data.pop();
   }
 
   public peek() {
-    return this.data[this.top - 1];
+    return this.data[this.data.length - 1];
   }
 
   public length() {
-    return this.top;
+    return this.data.length;
   }
 }
 
-const operatorAttributes = {
+const operatorAttributes: Record<string, { prec: number; assoc: string }> = {
   '^': {
     prec: 4,
     assoc: 'R',
@@ -79,6 +76,7 @@ const evaluate = (operand1: number, operand2: number, operator: string) => {
       total = operand1 / operand2;
       break;
     case '==':
+      // eslint-disable-next-line eqeqeq
       total = operand1 == operand2;
       break;
     case '||':
@@ -103,6 +101,7 @@ const evaluate = (operand1: number, operand2: number, operator: string) => {
       total = operand1 >= operand2;
       break;
     case '!=':
+      // eslint-disable-next-line eqeqeq
       total = operand1 != operand2;
       break;
     case '!':
@@ -118,16 +117,16 @@ const evaluate = (operand1: number, operand2: number, operator: string) => {
 const evaluatePostfix = (postfixExpression: Array<string>) => {
   try {
     const tokenStack = new Stack();
+    // eslint-disable-next-line no-restricted-syntax
     for (const i in postfixExpression) {
       if (typeof postfixExpression[i] === 'string' && postfixExpression[i].match(/^(\+|-|\*|\/|\^|==|&&|\|\||>|>=|<|<=|!|!=)$/)) {
         // postfixExpression is an operator
 
         const operand2 = tokenStack.pop();
-        let operand1: null | string;
         // If operator is !(not), there is no operand1
-        operand1 = postfixExpression[i] === '!' ? null : tokenStack.pop();
+        const operand1: null | undefined | string = postfixExpression[i] === '!' ? null : tokenStack.pop();
 
-        const result = evaluate(operand1 as any, operand2 as any, postfixExpression[i]);
+        const result = evaluate(operand1 as any, operand2 as any, postfixExpression[i]) as any;
         tokenStack.push(result);
       } else {
         // postfixExpression is an operand
@@ -151,7 +150,7 @@ const popOpStackUntil = (
   operatorStack: Stack,
   addToRPN: boolean,
   condition: (operator: string) => boolean | RegExpMatchArray,
-  isRightBracket: boolean = false
+  isRightBracket = false
 ) => {
   let topOp = operatorStack.peek();
   let poppedCount = 0;
@@ -159,7 +158,7 @@ const popOpStackUntil = (
   while (condition(topOp)) {
     poppedCount++;
     if (addToRPN) {
-      RPN.push(operatorStack.pop());
+      RPN.push(operatorStack.pop() as any);
     } else {
       operatorStack.pop();
       break;
@@ -196,9 +195,8 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
         num += expression[i];
         i++;
 
-        if (expression[i] === '.') {
-          dotCount++;
-        }
+        // eslint-disable-next-line max-depth
+        if (expression[i] === '.') dotCount++;
       }
 
       // Can only have one decimal
@@ -212,6 +210,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       // Matched a function/special operator
       if (currToken === '|' || currToken === '&' || currToken === '=') {
         // Peek ahead and check for validity
+        // eslint-disable-next-line max-depth
         if (expression[i + 1] === currToken) {
           // operators ||, &&, ==
           operatorStack.push(`${currToken}${currToken}`);
@@ -238,7 +237,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
         operatorStack,
         true,
         (topOp) => {
-          return topOp && topOp !== '(';
+          return topOp !== '(';
         },
         true
       );
@@ -249,7 +248,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
         operatorStack,
         false,
         (topOp) => {
-          return topOp && topOp === '(';
+          return topOp === '(';
         },
         true
       );
@@ -300,6 +299,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       const scope = _.cloneDeep(variables);
       Object.defineProperty(scope, 'v', { writable: false });
       // user input in tool is 'expression' type. need to evaluate that with mathjs before pushing to RPN
+      // eslint-disable-next-line no-await-in-loop
       RPN.push(await evalExpression(stringVal, scope));
     } else if (!!currToken && currToken !== ' ') {
       // Encountering a variable or truth literal
@@ -345,6 +345,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
   return RPN;
 };
 
+// eslint-disable-next-line import/prefer-default-export
 export const evaluateExpression = async (expression: string | number, variables: Record<string, any>) => {
   try {
     const RPN = await shuntingYard(expression.toString(), variables);

@@ -1,5 +1,6 @@
-import Handler from './index';
 import { S } from '@/lib/Constants';
+
+import Handler from './index';
 
 export type RandomBlock = {
   blockID: string;

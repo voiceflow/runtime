@@ -1,6 +1,7 @@
 import { Event } from '@/lib/Lifecycle';
-import { evaluateExpression } from './utils/shuntingYard';
+
 import Handler from './index';
+import { evaluateExpression } from './utils/shuntingYard';
 
 export type IfBlock = {
   blockID: string;
@@ -19,15 +20,17 @@ const ifHandler: Handler<IfBlock> = {
 
     for (let i = 0; i < block.expressions.length; i++) {
       try {
-        const evaluated = await evaluateExpression(block.expressions[i], {
+        // eslint-disable-next-line no-await-in-loop
+        const evaluated = (await evaluateExpression(block.expressions[i], {
           v: variables.getState(),
-        }) as any;
+        })) as any;
 
         if (evaluated || evaluated === 0) {
           path = block.nextIds[i];
           break;
         }
       } catch (err) {
+        // eslint-disable-next-line no-await-in-loop
         await context.callEvent(Event.handlerDidCatch, err);
       }
     }

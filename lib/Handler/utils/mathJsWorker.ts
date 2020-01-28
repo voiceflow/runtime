@@ -1,10 +1,10 @@
+import { all, create } from 'mathjs';
 import workerpool from 'workerpool';
-import { create, all } from 'mathjs';
 
 const math = create(all, {});
 const limitedEvaluate = math.evaluate;
 
-math.import(
+math.import!(
   {
     // disable possible vulnerable functions
     import: () => {
@@ -32,7 +32,7 @@ math.import(
 
 const evaluate = (expressions: string, variables: Record<string, any>) => {
   try {
-    return limitedEvaluate(expressions, variables).pop();
+    return limitedEvaluate!(expressions, variables).pop();
   } catch (e) {
     return e.message;
   }

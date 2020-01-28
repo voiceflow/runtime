@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+
 import produce from 'immer';
 
 import Frame, { State as FrameState } from './Frame';
@@ -52,10 +54,10 @@ class Stack {
 
   // pops all frames until index
   public popTo(index: number): void {
-    this.frames = this.frames.slice(index, this.frames.length);
+    this.frames = this.frames.slice(0, index);
   }
 
-  public lift(depth: number = 1): void {
+  public lift(depth = 1): void {
     this.frames = this.frames.slice(0, this.frames.length - depth);
   }
 
