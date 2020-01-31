@@ -155,14 +155,14 @@ class Context<B> extends AbstractLifecycle<B> {
     };
   }
 
-  // public getState(): State {
-  //   return {
-  //     turn: this.turn.getState(),
-  //     stack: this.stack.getState(),
-  //     storage: this.storage.getState(),
-  //     variables: this.variables.getState(),
-  //   };
-  // }
+  public getRawState(): State {
+    return {
+      turn: this.turn.getState(),
+      stack: this.stack.getState(),
+      storage: this.storage.getState(),
+      variables: this.variables.getState(),
+    };
+  }
 
   // public produce(producer: (draft: Draft<State>) => void): void {
   //   const { turn, stack, storage, variables } = produce(this.getState(), producer);
