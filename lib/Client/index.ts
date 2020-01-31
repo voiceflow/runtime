@@ -10,7 +10,7 @@ class Controller<B extends { [key: string]: any } = {}> extends AbstractLifecycl
     handlers: Handler<B>[] & Handler<DefaultBlock>[];
   };
 
-  constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [], stateHandlers = [] }: ContextOptions<B>) {
+  constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [] }: ContextOptions<B>) {
     super();
 
     this.options = {
@@ -19,7 +19,6 @@ class Controller<B extends { [key: string]: any } = {}> extends AbstractLifecycl
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
       handlers: [...handlers, ...DefaultHandlers],
-      stateHandlers,
     };
   }
 
