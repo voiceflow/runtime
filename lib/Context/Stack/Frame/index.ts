@@ -1,4 +1,4 @@
-import Diagram from '@/lib/Diagram';
+import Diagram, { Command } from '@/lib/Diagram';
 
 import Store, { State as StoreState } from '../../Store';
 
@@ -7,7 +7,7 @@ export interface State {
   diagramID: string;
 
   storage: StoreState;
-  commands?: object[];
+  commands?: Command[];
   variables: StoreState;
 }
 
@@ -16,7 +16,7 @@ export interface Options {
   diagramID: string;
 
   storage?: StoreState;
-  commands?: object[];
+  commands?: Command[];
   variables?: StoreState;
 }
 
@@ -29,7 +29,7 @@ class Frame {
 
   private diagramID: string;
 
-  private commands: object[] = [];
+  private commands: Command[] = [];
 
   public storage: Store;
 
@@ -88,7 +88,7 @@ class Frame {
     this.diagramID = diagramID;
   }
 
-  public getCommands(): object[] {
+  public getCommands(): Command[] {
     return this.commands;
   }
 }

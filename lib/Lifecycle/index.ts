@@ -36,7 +36,7 @@ class Lifecycle<B> {
   }
 
   public getEvent(event: Event): Callback<B> {
-    return this.events[event] ?? (() => {});
+    return this.events[event] ?? (() => null);
   }
 
   public async callEvent(event: Event, context: Context<B>, ...args: any[]): Promise<any> {

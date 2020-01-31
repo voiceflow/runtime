@@ -37,9 +37,9 @@ export const ENDPOINTS_MAP: Record<string, Record<string, string>> = {
 
 export type IntegrationBlock = {
   type: string;
-  selected_integration?: string;
-  selected_action?: string;
-  fail_id: string;
-  success_id: string;
+  fail_id?: string;
+  success_id?: string;
   action_data?: any;
+  selected_action?: string;
+  selected_integration?: string;
 };

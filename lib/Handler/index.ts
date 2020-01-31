@@ -17,6 +17,15 @@ export default interface Handler<B> {
   handle: (block: Block<B>, context: Context<B>, variables: Store, diagram: Diagram<B>) => null | string | Promise<string | null>;
 }
 
-export type DefaultBlock = FlowBlock | CodeBlock | EndBlock;
+export type DefaultBlock = CodeBlock | EndBlock | FlowBlock;
 
-export const DefaultHandlers = [CodeHandler, EndHandler, FlowHandler, StartHandler, RandomHandler, SetHandler, IfHandler, IntegrationsHandler];
+export const DefaultHandlers = [
+  CodeHandler,
+  EndHandler,
+  FlowHandler,
+  StartHandler,
+  RandomHandler,
+  SetHandler,
+  IfHandler,
+  IntegrationsHandler,
+] as Handler<DefaultBlock>[];

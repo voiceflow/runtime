@@ -2,12 +2,21 @@ export type RawBlock<B> = B & {
   [key: string]: any;
 };
 
+export type Mapping = { variable: string; slot: string };
+
 export type Block<T extends {} = {}> = T & {
   nextId?: string;
   blockID: string;
 };
 
-export type Command = { [key: string]: any };
+export type Command = {
+  next?: string;
+  intent?: string;
+  return?: boolean;
+  mappings?: Array<Mapping>;
+  diagram_id?: string;
+  [key: string]: any;
+};
 
 export interface DiagramBody<B> {
   id: string;
