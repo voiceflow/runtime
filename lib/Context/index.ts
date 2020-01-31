@@ -14,7 +14,6 @@ export interface Options<B> {
   secret?: string;
   endpoint?: string;
   handlers?: Handler<B>[];
-  stateHandlers?: Handler<B>[];
 }
 
 export interface State {
@@ -176,10 +175,6 @@ class Context<B> extends AbstractLifecycle<B> {
 
   public getHandlers(): Handler<B>[] {
     return this.options.handlers ?? [];
-  }
-
-  public getStateHandlers(): Handler<B>[] {
-    return this.options.stateHandlers ?? [];
   }
 }
 

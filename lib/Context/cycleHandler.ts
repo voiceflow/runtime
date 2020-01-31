@@ -26,10 +26,8 @@ const cycleHandler = async <B>(context: Context<B>, diagram: Diagram<B>, variabl
 
     if (block !== null) {
       try {
-        // state handlers
-        const handlers = [...context.getStateHandlers(), ...context.getHandlers()];
         // eslint-disable-next-line no-loop-func
-        const handler = handlers.find((h) => h.canHandle(block as Block<B>, context, variableState, diagram));
+        const handler = context.getHandlers().find((h) => h.canHandle(block as Block<B>, context, variableState, diagram));
 
         if (handler) {
           await context.callEvent(Event.handlerWillHandle, context);
