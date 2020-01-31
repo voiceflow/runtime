@@ -2,7 +2,7 @@
 
 import Context from '@/lib/Context';
 import Storage from '@/lib/Context/Store';
-import Diagram, { Block } from '@/lib/Diagram';
+import Diagram from '@/lib/Diagram';
 import { Event } from '@/lib/Lifecycle';
 
 const HANDLER_OVERFLOW = 400;
@@ -25,7 +25,7 @@ const cycleHandler = async <B>(context: Context<B>, diagram: Diagram<B>, variabl
     }
 
     if (block !== null) {
-      const _block = block; // needs for TS
+      const _block = block; // needed for TS
 
       try {
         // eslint-disable-next-line no-loop-func
