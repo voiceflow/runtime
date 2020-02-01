@@ -14,9 +14,12 @@ const IntegrationsHandler: Handler<IntegrationBlock> = {
     return block.type === 'integrations';
   },
   handle: async (block, _context, variables) => {
-    if (!block.selected_integration || !block.selected_action) return block.fail_id;
+    if (!block.selected_integration || !block.selected_action) {
+      return block.fail_id ?? null;
+    }
 
-    let nextId: string;
+    let nextId: string | null = null;
+
     try {
       const { selected_action: selectedAction, selected_integration: selectedIntegration } = block;
 
@@ -31,10 +34,13 @@ const IntegrationsHandler: Handler<IntegrationBlock> = {
       variables.merge(mappedVariables);
 
       // if custom api returned error http status nextId to fail port, otherwise success
-      if (selectedIntegration === CUSTOM_API && data.response.status >= 400) nextId = block.fail_id;
-      else nextId = block.success_id;
+      if (selectedIntegration === CUSTOM_API && data.response.status >= 400) {
+        nextId = block.fail_id ?? null;
+      } else {
+        nextId = block.success_id ?? null;
+      }
     } catch (err) {
-      nextId = block.fail_id;
+      nextId = block.fail_id ?? null;
     }
 
     return nextId;

@@ -2,7 +2,7 @@
 
 import Context from '@/lib/Context';
 import Storage from '@/lib/Context/Store';
-import Diagram, { Block } from '@/lib/Diagram';
+import Diagram from '@/lib/Diagram';
 import { Event } from '@/lib/Lifecycle';
 
 const HANDLER_OVERFLOW = 400;
@@ -25,14 +25,16 @@ const cycleHandler = async <B>(context: Context<B>, diagram: Diagram<B>, variabl
     }
 
     if (block !== null) {
+      const _block = block; // needed for TS
+
       try {
         // eslint-disable-next-line no-loop-func
-        const handler = context.getHandlers().find((h) => h.canHandle(block as Block<B>, context, variableState, diagram));
+        const handler = context.getHandlers().find((h) => h.canHandle(_block, context, variableState, diagram));
 
         if (handler) {
           await context.callEvent(Event.handlerWillHandle, context);
 
-          nextID = await handler.handle(block, context, variableState, diagram);
+          nextID = await handler.handle(_block, context, variableState, diagram);
 
           await context.callEvent(Event.handlerDidHandle, context);
         }

@@ -5,9 +5,11 @@ import { AbstractLifecycle } from '@/lib/Lifecycle';
 
 const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';
 
-class Controller<B extends { [key: string]: any } = {}> extends AbstractLifecycle<B | DefaultBlock> {
-  private options: ContextOptions<B> & {
-    handlers: Handler<B>[] & Handler<DefaultBlock>[];
+class Controller<B extends {} | {}> extends AbstractLifecycle<B | DefaultBlock> {
+  private options: {
+    secret?: string;
+    endpoint?: string;
+    handlers: Handler<B | DefaultBlock>[];
   };
 
   constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [] }: ContextOptions<B>) {
@@ -16,14 +18,12 @@ class Controller<B extends { [key: string]: any } = {}> extends AbstractLifecycl
     this.options = {
       secret,
       endpoint,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      handlers: [...handlers, ...DefaultHandlers],
+      handlers: [...handlers, ...DefaultHandlers] as Handler<B | DefaultBlock>[],
     };
   }
 
-  public createContext(versionID: string, state: ContextState, request?: Request): Context<B | DefaultBlock> {
-    return new Context<DefaultBlock>(versionID, state, request, this.options, this.events);
+  public createContext(versionID: string, state: ContextState, request?: Request) {
+    return new Context<B | DefaultBlock>(versionID, state, request, this.options, this.events);
   }
 }
 
