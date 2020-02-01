@@ -1,13 +1,6 @@
 import { Block } from '../Handler';
 
-export type Mapping = { variable: string; slot: string };
-
-export type Command = {
-  next?: string;
-  intent?: string;
-  return?: boolean;
-  mappings?: Array<Mapping>;
-  diagram_id?: string;
+export type Command<C = {}> = C & {
   [key: string]: any;
 };
 
