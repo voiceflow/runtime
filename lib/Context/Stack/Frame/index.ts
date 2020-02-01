@@ -55,7 +55,7 @@ class Frame {
     };
   }
 
-  public update<B>(diagram: Diagram<B>): void {
+  public update(diagram: Diagram): void {
     if (this.updated) {
       return;
     }

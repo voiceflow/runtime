@@ -1,4 +1,4 @@
-import { Block } from '@/lib/Diagram';
+import { Block } from '@/lib/Handler';
 
 import { CUSTOM_API, GOOGLE_SHEETS, IntegrationBlock, ZAPIER } from './constants';
 

@@ -7,12 +7,12 @@ import cycleHandler from './cycleHandler';
 import { createCombinedVariables, mapStores, saveCombinedVariables } from './utils/variables';
 
 const STACK_OVERFLOW = 60;
-interface CycleContext<B> {
-  diagram?: Diagram<B> | null;
+interface CycleContext {
+  diagram?: Diagram | null;
   depth: number;
 }
 
-const cycleStack = async <B>(context: Context<B>, { diagram, depth }: CycleContext<B> = { depth: 0, diagram: null }): Promise<void> => {
+const cycleStack = async (context: Context, { diagram, depth }: CycleContext = { depth: 0, diagram: null }): Promise<void> => {
   if (context.stack.getSize() === 0 || depth > STACK_OVERFLOW) {
     context.end();
     return;
@@ -26,14 +26,14 @@ const cycleStack = async <B>(context: Context<B>, { diagram, depth }: CycleConte
   }
 
   // update frame with diagram properties
-  currentFrame.update<B>(diagram);
+  currentFrame.update(diagram);
 
   // generate combined variable state (global/local)
   const combinedVariables = createCombinedVariables(context.variables, currentFrame.variables);
 
   try {
     await context.callEvent(Event.stateWillExecute, diagram);
-    await cycleHandler<B>(context, diagram, combinedVariables);
+    await cycleHandler(context, diagram, combinedVariables);
     await context.callEvent(Event.stateDidExecute, diagram);
   } catch (error) {
     await context.callEvent(Event.stateDidCatch, error);
@@ -58,7 +58,7 @@ const cycleStack = async <B>(context: Context<B>, { diagram, depth }: CycleConte
     }
   }
 
-  await cycleStack<B>(context, { depth: depth + 1, diagram });
+  await cycleStack(context, { depth: depth + 1, diagram });
 };
 
 export default cycleStack;
