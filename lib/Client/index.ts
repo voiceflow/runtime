@@ -1,6 +1,6 @@
 import Context, { Options as ContextOptions, State as ContextState } from '@/lib/Context';
 import Request from '@/lib/Context/Request';
-import Handler, { Block, DefaultHandlers } from '@/lib/Handler';
+import Handler, { DefaultHandlers } from '@/lib/Handler';
 import { AbstractLifecycle } from '@/lib/Lifecycle';
 
 const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';
@@ -9,7 +9,7 @@ class Controller extends AbstractLifecycle {
   private options: {
     secret?: string;
     endpoint?: string;
-    handlers: Handler<Block>[];
+    handlers: Handler<any>[];
   };
 
   constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [] }: ContextOptions) {
@@ -18,7 +18,7 @@ class Controller extends AbstractLifecycle {
     this.options = {
       secret,
       endpoint,
-      handlers: [...handlers, ...DefaultHandlers] as Handler<Block>[],
+      handlers: [...handlers, ...DefaultHandlers],
     };
   }
 

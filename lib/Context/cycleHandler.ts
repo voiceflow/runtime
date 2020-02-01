@@ -25,7 +25,7 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
     }
 
     if (block !== null) {
-      const _block = block; // needed for TS
+      const _block = block; // resolve TS type
 
       try {
         // eslint-disable-next-line no-loop-func

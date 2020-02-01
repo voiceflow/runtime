@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 
 import cycleStack from '@/lib/Context/cycleStack';
 import Diagram from '@/lib/Diagram';
-import Handler, { Block } from '@/lib/Handler';
+import Handler from '@/lib/Handler';
 // import produce, { Draft } from 'immer';
 import Lifecycle, { AbstractLifecycle, Event } from '@/lib/Lifecycle';
 
@@ -13,7 +13,7 @@ import Store, { State as StorageState } from './Store';
 export interface Options {
   secret?: string;
   endpoint?: string;
-  handlers?: Handler<Block>[];
+  handlers?: Handler<any>[];
 }
 
 export interface State {
@@ -173,7 +173,7 @@ class Context extends AbstractLifecycle {
   //   this.variables.update(variables);
   // }
 
-  public getHandlers(): Handler<Block>[] {
+  public getHandlers(): Handler<any>[] {
     return this.options.handlers ?? [];
   }
 }

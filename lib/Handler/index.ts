@@ -14,7 +14,6 @@ import StartHandler from './start';
 
 export type Block<B = {}> = B & {
   blockID: string;
-  [key: string]: any;
 };
 
 export default interface Handler<B> {
@@ -22,13 +21,4 @@ export default interface Handler<B> {
   handle: (block: Block<B>, context: Context, variables: Store, diagram: Diagram) => null | string | Promise<string | null>;
 }
 
-export const DefaultHandlers = [
-  CodeHandler,
-  EndHandler,
-  FlowHandler,
-  StartHandler,
-  RandomHandler,
-  SetHandler,
-  IfHandler,
-  IntegrationsHandler,
-] as Handler<Block>[];
+export const DefaultHandlers = [CodeHandler, EndHandler, FlowHandler, StartHandler, RandomHandler, SetHandler, IfHandler, IntegrationsHandler];

@@ -1,6 +1,10 @@
 import Handler from './index';
 
-const StartHandler: Handler<{}> = {
+export type Start = {
+  nextId?: string;
+};
+
+const StartHandler: Handler<Start> = {
   canHandle: (block) => {
     return Object.keys(block).length === 2 && !!block.nextId;
   },
