@@ -86,7 +86,7 @@
   "main": "build/index.js",
   "prettier": "@voiceflow/prettier-config",
   "release": {
-    "branch": "production"
+    "branch": "master"
   },
   "repository": {
     "type": "git",
