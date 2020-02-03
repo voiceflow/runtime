@@ -1,9 +1,11 @@
 version: 2.1
+
 executors:
   build-executor: 
     docker: 
       - image: circleci/node:12
-    resource_class: medium
+    resource_class: small
+
 jobs:
   release:
     executor: build-executor
