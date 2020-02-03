@@ -1,16 +1,33 @@
 version: 2.1
+executors:
+  build-executor: 
+    docker: 
+      - image: circleci/node:12
+    resource_class: medium
 jobs:
   release:
-    docker:
-      - image: node:11
+    executor: build-executor
     steps:
       - checkout
-      - run: npm i -g semantic-release@15
-      - run: semantic-release
+      - run: npx semantic-release@15
+  build: 
+    executor: build-executor
+    steps: 
+      - checkout
+      - run: 
+          name: "Build package"
+          command: |
+            yarn install
+            yarn build
+
 workflows:
-  test-and-build:
+  test-and-release:
     jobs:
       - release:
+          requires:
+            - build
           filters:
             branches:
-              only: master
+              only: production
+      - build  # Run on all branches
+
