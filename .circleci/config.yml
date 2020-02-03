@@ -27,6 +27,7 @@ jobs:
     executor: build-executor
     steps:
       - checkout
+      - install_node_modules
       - run: npx semantic-release@15
   build: 
     executor: build-executor
