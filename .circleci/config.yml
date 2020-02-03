@@ -46,6 +46,6 @@ workflows:
             - build
           filters:
             branches:
-              only: master
+              only: production
       - build  # Run on all branches
 

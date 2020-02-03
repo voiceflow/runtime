@@ -86,11 +86,11 @@
   "main": "build/index.js",
   "prettier": "@voiceflow/prettier-config",
   "release": {
-    "branch": "master"
+    "branch": "production"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/voiceflow/backend-template.git"
+    "url": "git+https://github.com/voiceflow/client.git"
   },
   "scripts": {
     "build": "npm run clean && ttsc --project ./tsconfig.build.json",
