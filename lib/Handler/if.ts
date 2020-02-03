@@ -4,7 +4,6 @@ import Handler from './index';
 import { evaluateExpression } from './utils/shuntingYard';
 
 export type IfBlock = {
-  blockID: string;
   expressions: string[];
   nextIds: string[];
   elseId?: string;

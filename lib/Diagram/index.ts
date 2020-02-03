@@ -1,35 +1,21 @@
-export type RawBlock<B> = B & {
+import { Block } from '../Handler';
+
+export type Command<C = {}> = C & {
   [key: string]: any;
 };
 
-export type Mapping = { variable: string; slot: string };
-
-export type Block<T extends {} = {}> = T & {
-  nextId?: string;
-  blockID: string;
-};
-
-export type Command = {
-  next?: string;
-  intent?: string;
-  return?: boolean;
-  mappings?: Array<Mapping>;
-  diagram_id?: string;
-  [key: string]: any;
-};
-
-export interface DiagramBody<B> {
+export interface DiagramBody {
   id: string;
-  blocks: Record<string, RawBlock<B>>;
+  blocks: Record<string, Block>;
   commands?: Command[];
   variables?: string[];
   startBlockID: string;
 }
 
-class Diagram<B> {
+class Diagram {
   private id: string;
 
-  private blocks: Record<string, RawBlock<B>>;
+  private blocks: Record<string, Block>;
 
   private commands: Command[] = [];
 
@@ -37,7 +23,7 @@ class Diagram<B> {
 
   private startBlockID: string;
 
-  constructor({ id, blocks, variables = [], commands = [], startBlockID }: DiagramBody<B>) {
+  constructor({ id, blocks, variables = [], commands = [], startBlockID }: DiagramBody) {
     this.id = id;
     this.blocks = blocks;
     this.commands = commands;
@@ -49,7 +35,7 @@ class Diagram<B> {
     return this.id;
   }
 
-  public getBlock(blockID: string | null): Block<B> | null {
+  public getBlock(blockID: string | null): Block | null {
     // eslint-disable-next-line no-prototype-builtins
     if (!(blockID && this.blocks.hasOwnProperty(blockID))) {
       return null;

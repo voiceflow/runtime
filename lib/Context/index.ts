@@ -3,16 +3,17 @@ import axios, { AxiosInstance } from 'axios';
 import cycleStack from '@/lib/Context/cycleStack';
 import Diagram from '@/lib/Diagram';
 import Handler from '@/lib/Handler';
+// import produce, { Draft } from 'immer';
 import Lifecycle, { AbstractLifecycle, Event } from '@/lib/Lifecycle';
 
 import Request from './Request';
 import Stack, { FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
 
-export interface Options<B> {
+export interface Options {
   secret?: string;
   endpoint?: string;
-  handlers?: Handler<B>[];
+  handlers?: Handler[];
 }
 
 export interface State {
@@ -28,7 +29,7 @@ export enum Action {
   END,
 }
 
-class Context<B> extends AbstractLifecycle<B> {
+class Context extends AbstractLifecycle {
   // temporary turn variables
   public turn: Store;
 
@@ -44,7 +45,7 @@ class Context<B> extends AbstractLifecycle<B> {
 
   private fetch: AxiosInstance;
 
-  constructor(public versionID: string, state: State, private request: Request | null = null, private options: Options<B>, events: Lifecycle<B>) {
+  constructor(public versionID: string, state: State, private request: Request | null = null, private options: Options, events: Lifecycle) {
     super(events);
 
     const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
@@ -107,12 +108,12 @@ class Context<B> extends AbstractLifecycle<B> {
     return super.callEvent(event, this, ...args);
   }
 
-  public async fetchDiagram(diagramID: string): Promise<Diagram<B>> {
+  public async fetchDiagram(diagramID: string): Promise<Diagram> {
     this.callEvent(Event.diagramWillFetch, diagramID);
 
     const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
 
-    const diagram = new Diagram<B>({
+    const diagram = new Diagram({
       id: diagramID,
       startBlockID: data.startId,
       variables: data.variables,
@@ -134,7 +135,7 @@ class Context<B> extends AbstractLifecycle<B> {
       }
 
       this.setAction(Action.RUNNING);
-      await cycleStack<B>(this);
+      await cycleStack(this);
 
       await this.callEvent(Event.updateDidExecute);
     } catch (error) {
@@ -172,7 +173,7 @@ class Context<B> extends AbstractLifecycle<B> {
   //   this.variables.update(variables);
   // }
 
-  public getHandlers(): Handler<B>[] {
+  public getHandlers(): Handler[] {
     return this.options.handlers ?? [];
   }
 }

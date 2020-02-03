@@ -10,6 +10,7 @@ export type FlowBlock = {
     inputs?: [string, string][];
     outputs?: [string, string][];
   };
+  nextId?: string;
 };
 
 const FlowHandler: Handler<FlowBlock> = {

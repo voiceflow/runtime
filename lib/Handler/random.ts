@@ -3,7 +3,6 @@ import { S } from '@/lib/Constants';
 import Handler from './index';
 
 export type RandomBlock = {
-  blockID: string;
   random?: number;
   nextIds: string[];
 };

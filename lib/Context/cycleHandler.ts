@@ -7,7 +7,7 @@ import { Event } from '@/lib/Lifecycle';
 
 const HANDLER_OVERFLOW = 400;
 
-const cycleHandler = async <B>(context: Context<B>, diagram: Diagram<B>, variableState: Storage): Promise<void> => {
+const cycleHandler = async (context: Context, diagram: Diagram, variableState: Storage): Promise<void> => {
   const referenceFrame = context.stack.top();
 
   let nextID: string | null = null;
@@ -25,7 +25,7 @@ const cycleHandler = async <B>(context: Context<B>, diagram: Diagram<B>, variabl
     }
 
     if (block !== null) {
-      const _block = block; // needed for TS
+      const _block = block; // resolve TS type
 
       try {
         // eslint-disable-next-line no-loop-func
