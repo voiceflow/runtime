@@ -9,7 +9,7 @@ class Controller extends AbstractLifecycle {
   private options: {
     secret?: string;
     endpoint?: string;
-    handlers: Handler<any>[];
+    handlers: Handler[];
   };
 
   constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [] }: ContextOptions) {

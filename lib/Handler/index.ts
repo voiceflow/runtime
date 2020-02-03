@@ -12,11 +12,11 @@ import RandomHandler from './random';
 import SetHandler from './set';
 import StartHandler from './start';
 
-export type Block<B = {}> = B & {
+export type Block<B extends {} = {}> = B & {
   blockID: string;
 };
 
-export default interface Handler<B> {
+export default interface Handler<B extends {} = any> {
   canHandle: (block: Block<B>, context: Context, variables: Store, diagram: Diagram) => boolean;
   handle: (block: Block<B>, context: Context, variables: Store, diagram: Diagram) => null | string | Promise<string | null>;
 }

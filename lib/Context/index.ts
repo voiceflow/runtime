@@ -13,7 +13,7 @@ import Store, { State as StorageState } from './Store';
 export interface Options {
   secret?: string;
   endpoint?: string;
-  handlers?: Handler<any>[];
+  handlers?: Handler[];
 }
 
 export interface State {
@@ -173,7 +173,7 @@ class Context extends AbstractLifecycle {
   //   this.variables.update(variables);
   // }
 
-  public getHandlers(): Handler<any>[] {
+  public getHandlers(): Handler[] {
     return this.options.handlers ?? [];
   }
 }
