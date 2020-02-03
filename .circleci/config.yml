@@ -17,9 +17,13 @@ jobs:
     steps: 
       - checkout
       - run: 
+          name: "Install dependencies"
+          command: |
+            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+            yarn install --frozen-lockfile
+      - run: 
           name: "Build package"
           command: |
-            yarn install
             yarn build
 
 workflows:
