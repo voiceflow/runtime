@@ -10,15 +10,17 @@ class Controller extends AbstractLifecycle {
     secret?: string;
     endpoint?: string;
     handlers: Handler[];
+    services: Record<string, any>;
   };
 
-  constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [] }: ContextOptions) {
+  constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [], services = {} }: ContextOptions) {
     super();
 
     this.options = {
       secret,
       endpoint,
       handlers: [...handlers, ...DefaultHandlers],
+      services,
     };
   }
 

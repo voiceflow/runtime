@@ -14,6 +14,7 @@ export interface Options {
   secret?: string;
   endpoint?: string;
   handlers?: Handler[];
+  services: Record<string, any>;
 }
 
 export interface State {
@@ -41,6 +42,9 @@ class Context extends AbstractLifecycle {
   // global variables
   public variables: Store;
 
+  // services
+  public services: Record<string, any>;
+
   private action: Action = Action.IDLE;
 
   private fetch: AxiosInstance;
@@ -49,6 +53,8 @@ class Context extends AbstractLifecycle {
     super(events);
 
     const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
+
+    this.services = options.services;
 
     this.stack = new Stack(state.stack, {
       didPop: createEvent(Event.stackDidPop),
