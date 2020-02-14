@@ -14,7 +14,7 @@ export interface Options {
   secret?: string;
   endpoint?: string;
   handlers?: Handler[];
-  services: Record<string, any>;
+  services?: Record<string, any>;
 }
 
 export interface State {
@@ -54,7 +54,7 @@ class Context extends AbstractLifecycle {
 
     const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
 
-    this.services = options.services;
+    this.services = options.services || {};
 
     this.stack = new Stack(state.stack, {
       didPop: createEvent(Event.stackDidPop),
