@@ -32,9 +32,9 @@ const cycleStack = async (context: Context, { diagram, depth }: CycleContext = {
   const combinedVariables = createCombinedVariables(context.variables, currentFrame.variables);
 
   try {
-    await context.callEvent(Event.stateWillExecute, diagram);
+    await context.callEvent(Event.stateWillExecute, diagram, combinedVariables);
     await cycleHandler(context, diagram, combinedVariables);
-    await context.callEvent(Event.stateDidExecute, diagram);
+    await context.callEvent(Event.stateDidExecute, diagram, combinedVariables);
   } catch (error) {
     await context.callEvent(Event.stateDidCatch, error);
   }
