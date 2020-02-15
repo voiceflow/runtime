@@ -16,6 +16,7 @@ export enum Event {
   handlerDidCatch,
   stackWillPop,
   stackDidPop,
+  frameDidFinish,
   storageWillUpdate,
   storageDidUpdate,
   turnWillUpdate,
