@@ -49,6 +49,7 @@ const cycleStack = async (context: Context, { diagram, depth }: CycleContext = {
 
   if (currentFrames === context.stack.getFrames()) {
     // pop frame
+    // TODO: ADD A NATURAL POP EVENT (pop because previous flow ended)
     const poppedFrame = context.stack.pop();
 
     const topFrame = context.stack.top();
