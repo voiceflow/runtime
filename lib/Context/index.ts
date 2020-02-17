@@ -129,25 +129,25 @@ class Context extends AbstractLifecycle {
     this.diagrams[diagram.getID()] = diagram;
   }
 
-  public async fetchDiagram(diagramID: string): Promise<Diagram> {
+  public async getDiagram(diagramID: string): Promise<Diagram> {
     this.callEvent(Event.diagramWillFetch, diagramID);
 
-    let diagram = this.diagrams[diagramID];
-    if (!diagram) {
+    if (!this.diagrams[diagramID]) {
       const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
 
-      diagram = new Diagram({
-        id: diagramID,
-        startBlockID: data.startId,
-        variables: data.variables,
-        blocks: data.lines,
-        commands: data.commands,
-      });
+      this.addDiagram(
+        new Diagram({
+          id: diagramID,
+          startBlockID: data.startId,
+          variables: data.variables,
+          blocks: data.lines,
+          commands: data.commands,
+        })
+      );
     }
 
-    this.callEvent(Event.diagramDidFetch, diagramID, diagram);
-
-    return diagram;
+    this.callEvent(Event.diagramDidFetch, diagramID, this.diagrams[diagramID]);
+    return this.diagrams[diagramID];
   }
 
   public async update(): Promise<void> {
@@ -155,7 +155,7 @@ class Context extends AbstractLifecycle {
       await this.callEvent(Event.updateWillExecute);
 
       if (this.action !== Action.IDLE) {
-        throw new Error('Context Updated Twice');
+        throw new Error('context updated twice');
       }
 
       this.setAction(Action.RUNNING);
@@ -169,7 +169,7 @@ class Context extends AbstractLifecycle {
 
   public getFinalState(): State {
     if (this.action === Action.IDLE) {
-      throw new Error('Context Not Updated');
+      throw new Error('context not updated');
     }
 
     return {

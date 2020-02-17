@@ -18,10 +18,12 @@ export interface Options {
   storage?: StoreState;
   commands?: Command[];
   variables?: StoreState;
+
+  diagram?: Diagram;
 }
 
 class Frame {
-  private updated = false;
+  private initialized = false;
 
   private blockID: string | null = null;
 
@@ -55,12 +57,12 @@ class Frame {
     };
   }
 
-  public update(diagram: Diagram): void {
-    if (this.updated) {
+  public initialize(diagram: Diagram): void {
+    if (this.initialized) {
       return;
     }
 
-    this.updated = true;
+    this.initialized = true;
 
     this.commands = diagram.getCommands();
     this.startBlockID = diagram.getStartBlockID();
