@@ -49,12 +49,23 @@ class Context extends AbstractLifecycle {
 
   private fetch: AxiosInstance;
 
-  constructor(public versionID: string, state: State, private request: Request | null = null, private options: Options, events: Lifecycle) {
+  private diagrams: Record<string, Diagram> = {};
+
+  private handlers: Handler[];
+
+  constructor(
+    public versionID: string,
+    state: State,
+    private request: Request | null = null,
+    { services, endpoint, secret, handlers }: Options = {},
+    events: Lifecycle
+  ) {
     super(events);
 
     const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
 
-    this.services = options.services || {};
+    this.services = services || {};
+    this.handlers = handlers || [];
 
     this.stack = new Stack(state.stack, {
       didPop: createEvent(Event.stackDidPop),
@@ -79,8 +90,8 @@ class Context extends AbstractLifecycle {
     });
 
     this.fetch = axios.create({
-      baseURL: this.options.endpoint,
-      headers: { authorization: `Bearer ${this.options.secret}` },
+      baseURL: endpoint,
+      headers: { authorization: `Bearer ${secret}` },
     });
   }
 
@@ -114,18 +125,25 @@ class Context extends AbstractLifecycle {
     return super.callEvent(event, this, ...args);
   }
 
+  public addDiagram(diagram: Diagram) {
+    this.diagrams[diagram.getID()] = diagram;
+  }
+
   public async fetchDiagram(diagramID: string): Promise<Diagram> {
     this.callEvent(Event.diagramWillFetch, diagramID);
 
-    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
+    let diagram = this.diagrams[diagramID];
+    if (!diagram) {
+      const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
 
-    const diagram = new Diagram({
-      id: diagramID,
-      startBlockID: data.startId,
-      variables: data.variables,
-      blocks: data.lines,
-      commands: data.commands,
-    });
+      diagram = new Diagram({
+        id: diagramID,
+        startBlockID: data.startId,
+        variables: data.variables,
+        blocks: data.lines,
+        commands: data.commands,
+      });
+    }
 
     this.callEvent(Event.diagramDidFetch, diagramID, diagram);
 
@@ -180,7 +198,7 @@ class Context extends AbstractLifecycle {
   // }
 
   public getHandlers(): Handler[] {
-    return this.options.handlers ?? [];
+    return this.handlers;
   }
 }
 
