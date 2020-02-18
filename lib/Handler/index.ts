@@ -9,7 +9,6 @@ import FlowHandler from './flow';
 import IfHandler from './if';
 import IntegrationsHandler from './integrations';
 import RandomHandler from './random';
-import ResetHandler from './reset';
 import SetHandler from './set';
 import StartHandler from './start';
 
@@ -22,14 +21,4 @@ export default interface Handler<B extends {} = any> {
   handle: (block: Block<B>, context: Context, variables: Store, diagram: Diagram) => null | string | Promise<string | null>;
 }
 
-export const DefaultHandlers = [
-  CodeHandler,
-  EndHandler,
-  FlowHandler,
-  StartHandler,
-  RandomHandler,
-  SetHandler,
-  IfHandler,
-  IntegrationsHandler,
-  ResetHandler,
-];
+export const DefaultHandlers = [CodeHandler, EndHandler, FlowHandler, StartHandler, RandomHandler, SetHandler, IfHandler, IntegrationsHandler];
