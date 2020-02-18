@@ -1,7 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
 import cycleStack from '@/lib/Context/cycleStack';
-import Diagram from '@/lib/Diagram';
 import Handler from '@/lib/Handler';
 // import produce, { Draft } from 'immer';
 import Lifecycle, { AbstractLifecycle, Event } from '@/lib/Lifecycle';
@@ -58,15 +57,15 @@ class Context extends AbstractLifecycle {
     public versionID: string,
     state: State,
     private request: Request | null = null,
-    { services, endpoint, secret, handlers }: Options = {},
+    { services = {}, endpoint, secret, handlers = [] }: Options = {},
     events: Lifecycle
   ) {
     super(events);
 
     const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
 
-    this.services = services || {};
-    this.handlers = handlers || [];
+    this.services = services;
+    this.handlers = handlers;
 
     this.stack = new Stack(state.stack, {
       didPop: createEvent(Event.stackDidPop),
@@ -95,7 +94,7 @@ class Context extends AbstractLifecycle {
       headers: { authorization: `Bearer ${secret}` },
     });
 
-    this.diagramManager = new DiagramManager(this);
+    this.diagramManager = new DiagramManager(this, this.fetch);
   }
 
   getRequest(): Request | null {
@@ -124,23 +123,13 @@ class Context extends AbstractLifecycle {
     return data;
   }
 
-  public async fetchDiagram(diagramID: string): Promise<Diagram> {
-    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
-
-    return new Diagram({
-      id: diagramID,
-      startBlockID: data.startId,
-      variables: data.variables,
-      blocks: data.lines,
-      commands: data.commands,
-    });
-  }
-
   async callEvent(event: Event, ...args: any[]): Promise<any> {
     return super.callEvent(event, this, ...args);
   }
 
-  public getDiagram = this.diagramManager.getDiagram;
+  public getDiagram(diagramID: string) {
+    return this.diagramManager.getDiagram(diagramID);
+  }
 
   public async update(): Promise<void> {
     try {

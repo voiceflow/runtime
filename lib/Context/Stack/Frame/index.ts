@@ -18,8 +18,6 @@ export interface Options {
   storage?: StoreState;
   commands?: Command[];
   variables?: StoreState;
-
-  diagram?: Diagram;
 }
 
 class Frame {

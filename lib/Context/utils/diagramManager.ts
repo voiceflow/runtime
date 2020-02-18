@@ -1,3 +1,5 @@
+import { AxiosInstance } from 'axios';
+
 import Context from '@/lib/Context';
 import Diagram from '@/lib/Diagram';
 import { Event } from '@/lib/Lifecycle';
@@ -9,7 +11,19 @@ import { Event } from '@/lib/Lifecycle';
 class DiagramManager {
   private cachedDiagram: Diagram | null = null;
 
-  constructor(private context: Context) {}
+  constructor(private context: Context, private fetch: AxiosInstance) {}
+
+  public async fetchDiagram(diagramID: string): Promise<Diagram> {
+    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
+
+    return new Diagram({
+      id: diagramID,
+      startBlockID: data.startId,
+      variables: data.variables,
+      blocks: data.lines,
+      commands: data.commands,
+    });
+  }
 
   public async getDiagram(diagramID: string): Promise<Diagram> {
     let diagram: Diagram | undefined;
@@ -23,7 +37,7 @@ class DiagramManager {
     }
 
     if (!diagram) {
-      diagram = await this.context.fetchDiagram(diagramID);
+      diagram = await this.fetchDiagram(diagramID);
     }
 
     this.context.callEvent(Event.diagramDidFetch, diagramID, diagram);
