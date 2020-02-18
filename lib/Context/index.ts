@@ -1,7 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
 import cycleStack from '@/lib/Context/cycleStack';
-import Diagram from '@/lib/Diagram';
 import Handler from '@/lib/Handler';
 // import produce, { Draft } from 'immer';
 import Lifecycle, { AbstractLifecycle, Event } from '@/lib/Lifecycle';
@@ -9,6 +8,7 @@ import Lifecycle, { AbstractLifecycle, Event } from '@/lib/Lifecycle';
 import Request from './Request';
 import Stack, { FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
+import DiagramManager from './utils/diagramManager';
 
 export interface Options {
   secret?: string;
@@ -45,16 +45,27 @@ class Context extends AbstractLifecycle {
   // services
   public services: Record<string, any>;
 
-  private action: Action = Action.IDLE;
-
   private fetch: AxiosInstance;
 
-  constructor(public versionID: string, state: State, private request: Request | null = null, private options: Options, events: Lifecycle) {
+  private action: Action = Action.IDLE;
+
+  private handlers: Handler[];
+
+  private diagramManager: DiagramManager;
+
+  constructor(
+    public versionID: string,
+    state: State,
+    private request: Request | null = null,
+    { services = {}, endpoint, secret, handlers = [] }: Options = {},
+    events: Lifecycle
+  ) {
     super(events);
 
     const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
 
-    this.services = options.services || {};
+    this.services = services;
+    this.handlers = handlers;
 
     this.stack = new Stack(state.stack, {
       didPop: createEvent(Event.stackDidPop),
@@ -79,9 +90,11 @@ class Context extends AbstractLifecycle {
     });
 
     this.fetch = axios.create({
-      baseURL: this.options.endpoint,
-      headers: { authorization: `Bearer ${this.options.secret}` },
+      baseURL: endpoint,
+      headers: { authorization: `Bearer ${secret}` },
     });
+
+    this.diagramManager = new DiagramManager(this, this.fetch);
   }
 
   getRequest(): Request | null {
@@ -114,22 +127,8 @@ class Context extends AbstractLifecycle {
     return super.callEvent(event, this, ...args);
   }
 
-  public async fetchDiagram(diagramID: string): Promise<Diagram> {
-    this.callEvent(Event.diagramWillFetch, diagramID);
-
-    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
-
-    const diagram = new Diagram({
-      id: diagramID,
-      startBlockID: data.startId,
-      variables: data.variables,
-      blocks: data.lines,
-      commands: data.commands,
-    });
-
-    this.callEvent(Event.diagramDidFetch, diagramID, diagram);
-
-    return diagram;
+  public getDiagram(diagramID: string) {
+    return this.diagramManager.getDiagram(diagramID);
   }
 
   public async update(): Promise<void> {
@@ -137,7 +136,7 @@ class Context extends AbstractLifecycle {
       await this.callEvent(Event.updateWillExecute);
 
       if (this.action !== Action.IDLE) {
-        throw new Error('Context Updated Twice');
+        throw new Error('context updated twice');
       }
 
       this.setAction(Action.RUNNING);
@@ -151,7 +150,7 @@ class Context extends AbstractLifecycle {
 
   public getFinalState(): State {
     if (this.action === Action.IDLE) {
-      throw new Error('Context Not Updated');
+      throw new Error('context not updated');
     }
 
     return {
@@ -180,7 +179,7 @@ class Context extends AbstractLifecycle {
   // }
 
   public getHandlers(): Handler[] {
-    return this.options.handlers ?? [];
+    return this.handlers;
   }
 }
 
