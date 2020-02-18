@@ -9,6 +9,7 @@ import Lifecycle, { AbstractLifecycle, Event } from '@/lib/Lifecycle';
 import Request from './Request';
 import Stack, { FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
+import DiagramManager from './utils/diagramManager';
 
 export interface Options {
   secret?: string;
@@ -45,13 +46,13 @@ class Context extends AbstractLifecycle {
   // services
   public services: Record<string, any>;
 
-  private action: Action = Action.IDLE;
-
   private fetch: AxiosInstance;
 
-  private diagrams: Record<string, Diagram> = {};
+  private action: Action = Action.IDLE;
 
   private handlers: Handler[];
+
+  private diagramManager: DiagramManager;
 
   constructor(
     public versionID: string,
@@ -93,6 +94,8 @@ class Context extends AbstractLifecycle {
       baseURL: endpoint,
       headers: { authorization: `Bearer ${secret}` },
     });
+
+    this.diagramManager = new DiagramManager(this);
   }
 
   getRequest(): Request | null {
@@ -121,34 +124,23 @@ class Context extends AbstractLifecycle {
     return data;
   }
 
+  public async fetchDiagram(diagramID: string): Promise<Diagram> {
+    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
+
+    return new Diagram({
+      id: diagramID,
+      startBlockID: data.startId,
+      variables: data.variables,
+      blocks: data.lines,
+      commands: data.commands,
+    });
+  }
+
   async callEvent(event: Event, ...args: any[]): Promise<any> {
     return super.callEvent(event, this, ...args);
   }
 
-  public addDiagram(diagram: Diagram) {
-    this.diagrams[diagram.getID()] = diagram;
-  }
-
-  public async getDiagram(diagramID: string): Promise<Diagram> {
-    this.callEvent(Event.diagramWillFetch, diagramID);
-
-    if (!this.diagrams[diagramID]) {
-      const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
-
-      this.addDiagram(
-        new Diagram({
-          id: diagramID,
-          startBlockID: data.startId,
-          variables: data.variables,
-          blocks: data.lines,
-          commands: data.commands,
-        })
-      );
-    }
-
-    this.callEvent(Event.diagramDidFetch, diagramID, this.diagrams[diagramID]);
-    return this.diagrams[diagramID];
-  }
+  public getDiagram = this.diagramManager.getDiagram;
 
   public async update(): Promise<void> {
     try {
