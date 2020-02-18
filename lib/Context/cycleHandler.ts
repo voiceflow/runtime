@@ -9,6 +9,7 @@ const HANDLER_OVERFLOW = 400;
 
 const cycleHandler = async (context: Context, diagram: Diagram, variableState: Storage): Promise<void> => {
   const referenceFrame = context.stack.top();
+  const currentFrames = context.stack.getFrames();
 
   let nextID: string | null = null;
   let i = 0;
@@ -28,7 +29,6 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
       const _block = block; // resolve TS type
 
       try {
-        // eslint-disable-next-line no-loop-func
         const handler = context.getHandlers().find((h) => h.canHandle(_block, context, variableState, diagram));
 
         if (handler) {
@@ -47,7 +47,8 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
         context.end();
       }
 
-      if (!nextID || context.hasEnded()) {
+      // exit conditions for handler loop
+      if (!nextID || context.hasEnded() || currentFrames !== context.stack.getFrames()) {
         block = null;
       }
     }
