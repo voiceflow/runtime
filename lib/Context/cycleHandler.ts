@@ -43,7 +43,7 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
       }
 
       // if a block has decided to stop on itself
-      if (referenceFrame.getBlockID() === nextID) {
+      if (block.blockID === nextID) {
         context.end();
       }
 
