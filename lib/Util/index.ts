@@ -4,11 +4,7 @@ import { Command } from '../Diagram';
 type Matcher = (command: Command, match?: any) => boolean;
 
 // eslint-disable-next-line import/prefer-default-export
-export const extractFrameCommand = (
-  stack: Stack,
-  matcher: Matcher,
-  match?: any
-): { index: null; command: null } | { index: number; command: Command } => {
+export const extractFrameCommand = (stack: Stack, matcher: Matcher, match?: any): { index: number; command: Command } | null => {
   const frames = stack.getFrames();
   // iterate from top forwards
   for (let index = frames.length - 1; index >= 0; index--) {
@@ -21,5 +17,5 @@ export const extractFrameCommand = (
     }
   }
 
-  return { index: null, command: null };
+  return null;
 };
