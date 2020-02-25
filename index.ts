@@ -6,6 +6,7 @@ export { default as Context, State } from '@/lib/Context';
 export { default as Handler, Block } from '@/lib/Handler';
 export { default as Diagram, Command } from '@/lib/Diagram';
 export { Event, Callback as EventCallback } from '@/lib/Lifecycle';
+export * from '@/lib/Constants';
 export * from '@/lib/Util';
 
 export { default } from '@/lib/Client';

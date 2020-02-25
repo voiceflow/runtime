@@ -14,7 +14,12 @@ class DiagramManager {
   constructor(private context: Context, private fetch: AxiosInstance) {}
 
   public async fetchDiagram(diagramID: string): Promise<Diagram> {
-    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
+    const testing = this.context.isTesting() ? '1' : undefined;
+    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`, {
+      params: {
+        testing,
+      },
+    });
 
     return new Diagram({
       id: diagramID,

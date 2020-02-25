@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
+import { TEST_VERSION_ID } from '@/lib/Constants';
 import cycleStack from '@/lib/Context/cycleStack';
 import Handler from '@/lib/Handler';
 // import produce, { Draft } from 'immer';
@@ -129,6 +130,10 @@ class Context extends AbstractLifecycle {
 
   public getDiagram(diagramID: string) {
     return this.diagramManager.getDiagram(diagramID);
+  }
+
+  public isTesting(): boolean {
+    return this.versionID === TEST_VERSION_ID;
   }
 
   public async update(): Promise<void> {
