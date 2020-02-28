@@ -15,9 +15,7 @@ class Lifecycle {
   }
 
   public async callEvent<K extends EventType>(type: K, context: Context, event: Event<K>): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    await this.getEvent<K>(type)?.(event);
+    await this.getEvent<K>(type)?.({ ...event, context });
   }
 }
 
