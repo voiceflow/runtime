@@ -1,32 +1,36 @@
-import { CallEvent, EventAction, EventType, SetEvent } from './types';
+import Context from '../Context';
 
-export { EventType as Event, EventAction as Callback, CallEvent, SetEvent };
+import { EventType, Callback, EventCallbackMap } from './types';
+
+export { EventType as Event, EventCallbackMap, Callback as EventCallback };
 
 class Lifecycle {
-  private events: { [key in EventType]?: any } = {};
+  private events: Partial<EventCallbackMap> = {};
 
-  public setEvent({ type, action }: SetEvent) {
-    this.events[type] = action;
+  public setEvent<K extends keyof EventCallbackMap>(type: K, callback: Callback<K>) {
+    this.events[type] = callback;
   }
 
-  public getEvent(type: EventType): EventAction | any {
-    return this.events[type] ?? (() => undefined);
+  public getEvent<K extends keyof EventCallbackMap>(type: K): Callback<K> | undefined {
+    return (this.events as EventCallbackMap)[type];
   }
 
-  public async callEvent({ type, context, event = {} }: CallEvent): Promise<void> {
-    await this.getEvent(type)(context, event);
+  public async callEvent<K extends keyof EventCallbackMap>(type: K, context: Context, event: Parameters<Callback<K>>[1]): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    await this.getEvent<K>(type)?.(context, event);
   }
 }
 
 export abstract class AbstractLifecycle {
   constructor(protected events: Lifecycle = new Lifecycle()) {}
 
-  public setEvent(set: SetEvent) {
-    this.events.setEvent(set);
+  public setEvent<K extends keyof EventCallbackMap>(type: K, callback: Callback<K>) {
+    this.events.setEvent<K>(type, callback);
   }
 
-  public async callEvent(call: CallEvent) {
-    await this.events.callEvent(call);
+  public async callEvent<K extends keyof EventCallbackMap>(type: K, context: Context, event: Parameters<Callback<K>>[1]) {
+    await this.events.callEvent<K>(type, context, event);
   }
 }
 

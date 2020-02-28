@@ -2,8 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 
 import cycleStack from '@/lib/Context/cycleStack';
 import Handler from '@/lib/Handler';
-// import produce, { Draft } from 'immer';
-import Lifecycle, { AbstractLifecycle, CallEvent, Event } from '@/lib/Lifecycle';
+import Lifecycle, { AbstractLifecycle, Event, EventCallbackMap } from '@/lib/Lifecycle';
 
 import Request from './Request';
 import Stack, { FrameState } from './Stack';
@@ -69,7 +68,7 @@ class Context extends AbstractLifecycle {
   ) {
     super(events);
 
-    const createEvent = (type: Event) => (event: any) => this.callEvent({ type, event } as CallEvent);
+    const createEvent = <K extends keyof EventCallbackMap>(type: K) => (event: Parameters<EventCallbackMap[K]>[1]) => this.callEvent(type, event);
 
     this.services = services;
     this.handlers = handlers;
@@ -130,8 +129,8 @@ class Context extends AbstractLifecycle {
     return data;
   }
 
-  async callEvent(call: CallEvent): Promise<void> {
-    await super.callEvent({ ...call, context: this });
+  public async callEvent<K extends keyof EventCallbackMap>(type: K, event: Parameters<EventCallbackMap[K]>[1]) {
+    await super.callEvent<K>(type, this, event);
   }
 
   public getDiagram(diagramID: string) {
@@ -140,7 +139,7 @@ class Context extends AbstractLifecycle {
 
   public async update(): Promise<void> {
     try {
-      await this.callEvent({ type: Event.updateWillExecute });
+      await this.callEvent(Event.updateWillExecute, {});
 
       if (this.action !== Action.IDLE) {
         throw new Error('context updated twice');
@@ -149,9 +148,9 @@ class Context extends AbstractLifecycle {
       this.setAction(Action.RUNNING);
       await cycleStack(this);
 
-      await this.callEvent({ type: Event.updateDidExecute });
+      await this.callEvent(Event.updateDidExecute, {});
     } catch (error) {
-      await this.callEvent({ type: Event.updateDidCatch, event: { error } });
+      await this.callEvent(Event.updateDidCatch, { error });
     }
   }
 
@@ -178,15 +177,14 @@ class Context extends AbstractLifecycle {
 
   public addTrace = async (traceFrame: TraceFrame) => {
     let stop = false;
-    await this.callEvent({
-      type: Event.traceWillAdd,
-      event: {
-        frame: traceFrame,
-        stop: () => {
-          stop = true;
-        },
+
+    await this.callEvent(Event.traceWillAdd, {
+      frame: traceFrame,
+      stop: () => {
+        stop = true;
       },
     });
+
     if (stop) return;
 
     this.trace = [...this.trace, traceFrame];

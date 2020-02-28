@@ -1,96 +1,122 @@
 import Context, { TraceFrame } from '../Context';
+import Frame from '../Context/Stack/Frame';
+import Storage from '../Context/Store';
 import Diagram from '../Diagram';
+import { Block } from '../Handler';
 
 export enum EventType {
-  updateWillExecute,
-  updateDidExecute,
-  updateDidCatch,
-  diagramWillFetch,
-  diagramDidFetch,
-  stackWillPush,
-  stackDidPush,
-  stateWillExecute,
-  stateDidExecute,
-  stateDidCatch,
-  handlerWillHandle,
-  handlerDidHandle,
-  handlerDidCatch,
-  stackWillPop,
-  stackDidPop,
-  frameDidFinish,
-  storageWillUpdate,
-  storageDidUpdate,
-  turnWillUpdate,
-  turnDidUpdate,
-  variablesWillUpdate,
-  variablesDidUpdate,
-  traceWillAdd,
+  updateWillExecute = 'updateWillExecute',
+  updateDidExecute = 'updateDidExecute',
+  updateDidCatch = 'updateDidCatch',
+  diagramWillFetch = 'diagramWillFetch',
+  diagramDidFetch = 'diagramDidFetch',
+  stackWillPush = 'stackWillPush',
+  stackDidPush = 'stackDidPush',
+  stateWillExecute = 'stateWillExecute',
+  stateDidExecute = 'stateDidExecute',
+  stateDidCatch = 'stateDidCatch',
+  handlerWillHandle = 'handlerWillHandle',
+  handlerDidHandle = 'handlerDidHandle',
+  handlerDidCatch = 'handlerDidCatch',
+  stackWillPop = 'stackWillPop',
+  stackDidPop = 'stackDidPop',
+  frameDidFinish = 'frameDidFinish',
+  storageWillUpdate = 'storageWillUpdate',
+  storageDidUpdate = 'storageDidUpdate',
+  turnWillUpdate = 'turnWillUpdate',
+  turnDidUpdate = 'turnDidUpdate',
+  variablesWillUpdate = 'variablesWillUpdate',
+  variablesDidUpdate = 'variablesDidUpdate',
+  traceWillAdd = 'traceWillAdd',
 }
 
-export interface GenericEvent<T extends EventType, E extends Record<string, any> = {}> {
-  Action: (event: E & { context: Context }) => void;
-  SetEvent: { type: T; action: (event: E & { context: Context }) => void };
-  CallEvent: { type: T; context?: Context; event: E };
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface BaseEvent {}
+interface BaseErrorEvent {
+  error: Error;
 }
 
-export type updateWillExecute = GenericEvent<EventType.updateWillExecute>;
-export type updateDidExecute = GenericEvent<EventType.updateDidExecute>;
-export type updateDidCatch = GenericEvent<EventType.updateDidCatch, { error: Error }>;
+interface UpdateDidCatchEvent extends BaseEvent, BaseErrorEvent {}
 
-export type diagramWillFetch = GenericEvent<EventType.updateWillExecute, { diagramID: string; override: (_diagram: Diagram | undefined) => void }>;
-export type diagramDidFetch = GenericEvent<EventType.updateWillExecute, { diagramID: string; diagram: Diagram }>;
+interface DiagramWillFetchEvent extends BaseEvent {
+  diagramID: string;
+  override: (_diagram: Diagram | undefined) => void;
+}
 
-export type stackWillPush = GenericEvent<EventType.stackWillPush, {}>;
-export type stackDidPush = GenericEvent<EventType.stackDidPush, {}>;
+interface DiagramDidFetchEvent extends BaseEvent {
+  diagramID: string;
+  diagram: Diagram;
+}
 
-export type stateWillExecute = GenericEvent<EventType.stateWillExecute, {}>;
-export type stateDidExecute = GenericEvent<EventType.stateDidExecute, {}>;
-export type stateDidCatch = GenericEvent<EventType.stateDidCatch, {}>;
+interface HandlerWillHandleEvent extends BaseEvent {
+  block: Block;
+  variables: Storage;
+}
 
-export type handlerWillHandle = GenericEvent<EventType.handlerWillHandle>;
-export type handlerDidHandle = GenericEvent<EventType.handlerDidHandle>;
-export type handlerDidCatch = GenericEvent<EventType.handlerDidCatch>;
+interface HandlerDidHandleEvent extends BaseEvent {
+  block: Block;
+  variables: Storage;
+}
 
-export type stackWillPop = GenericEvent<EventType.stackWillPop, {}>;
-export type stackDidPop = GenericEvent<EventType.stackDidPop, {}>;
+interface HandlerDidCatchEvent extends BaseEvent, BaseErrorEvent {}
 
-export type frameDidFinish = GenericEvent<EventType.frameDidFinish, {}>;
+interface StateWillExecute extends BaseEvent {
+  diagram: Diagram;
+  variables: Storage;
+}
 
-export type storageWillUpdate = GenericEvent<EventType.storageWillUpdate, {}>;
-export type storageDidUpdate = GenericEvent<EventType.storageDidUpdate, {}>;
+interface StateDidExecute extends BaseEvent {
+  diagram: Diagram;
+  variables: Storage;
+}
 
-export type turnWillUpdate = GenericEvent<EventType.turnWillUpdate, {}>;
-export type turnDidUpdate = GenericEvent<EventType.turnDidUpdate, {}>;
+interface StateDidCatch extends BaseEvent, BaseErrorEvent {}
 
-export type variablesWillUpdate = GenericEvent<EventType.variablesWillUpdate, {}>;
-export type variablesDidUpdate = GenericEvent<EventType.variablesDidUpdate, {}>;
+interface FrameDidFinishEvent extends BaseEvent {
+  frame?: Frame;
+}
 
-export type traceWillAdd = GenericEvent<EventType.traceWillAdd, { frame: TraceFrame; stop: () => void }>;
+interface TraceWillAddEvent extends BaseEvent {
+  frame: TraceFrame;
+  stop: () => void;
+}
 
-export type EventUnion =
-  | updateWillExecute
-  | updateDidExecute
-  | updateDidCatch
-  | diagramWillFetch
-  | stackWillPush
-  | stackDidPush
-  | stateWillExecute
-  | stateDidExecute
-  | stateDidCatch
-  | handlerWillHandle
-  | handlerDidHandle
-  | handlerDidCatch
-  | stackWillPop
-  | stackDidPop
-  | frameDidFinish
-  | storageWillUpdate
-  | storageDidUpdate
-  | turnWillUpdate
-  | variablesWillUpdate
-  | traceWillAdd;
+export interface EventCallbackMap {
+  [EventType.updateWillExecute]: (context: Context, event: BaseEvent) => void;
+  [EventType.updateDidExecute]: (context: Context, event: BaseEvent) => void;
+  [EventType.updateDidCatch]: (context: Context, event: UpdateDidCatchEvent) => void;
 
-export type SetEvent = EventUnion['SetEvent'];
+  [EventType.diagramWillFetch]: (context: Context, event: DiagramWillFetchEvent) => void;
+  [EventType.diagramDidFetch]: (context: Context, event: DiagramDidFetchEvent) => void;
 
-export type CallEvent = EventUnion['CallEvent'];
+  [EventType.updateDidExecute]: (context: Context, event: BaseEvent) => void;
 
-export type EventAction = EventUnion['Action'];
+  [EventType.stackWillPush]: (context: Context, event: BaseEvent) => void;
+  [EventType.stackDidPush]: (context: Context, event: BaseEvent) => void;
+
+  [EventType.stateWillExecute]: (context: Context, event: StateWillExecute) => void;
+  [EventType.stateDidExecute]: (context: Context, event: StateDidExecute) => void;
+  [EventType.stateDidCatch]: (context: Context, event: StateDidCatch) => void;
+
+  [EventType.handlerWillHandle]: (context: Context, event: HandlerWillHandleEvent) => void;
+  [EventType.handlerDidHandle]: (context: Context, event: HandlerDidHandleEvent) => void;
+  [EventType.handlerDidCatch]: (context: Context, event: HandlerDidCatchEvent) => void;
+
+  [EventType.stackWillPop]: (context: Context, event: BaseEvent) => void;
+  [EventType.stackDidPop]: (context: Context, event: BaseEvent) => void;
+
+  [EventType.frameDidFinish]: (context: Context, event: FrameDidFinishEvent) => void;
+
+  [EventType.storageWillUpdate]: (context: Context, event: BaseEvent) => void;
+  [EventType.storageDidUpdate]: (context: Context, event: BaseEvent) => void;
+
+  [EventType.turnWillUpdate]: (context: Context, event: BaseEvent) => void;
+  [EventType.turnDidUpdate]: (context: Context, event: BaseEvent) => void;
+
+  [EventType.variablesWillUpdate]: (context: Context, event: BaseEvent) => void;
+  [EventType.variablesDidUpdate]: (context: Context, event: BaseEvent) => void;
+
+  [EventType.traceWillAdd]: (context: Context, event: TraceWillAddEvent) => void;
+}
+
+export type Callback<K extends keyof EventCallbackMap> = EventCallbackMap[K];
