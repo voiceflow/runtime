@@ -1,16 +1,16 @@
 import Context from '../Context';
-import { Callback, Event, EventCallbackMap, EventType } from './types';
+import { CallbackEvent, Event, EventCallback, EventCallbackMap, EventType } from './types';
 
-export { EventType, Event, EventCallbackMap, Callback as EventCallback };
+export { EventType, Event, EventCallbackMap, EventCallback, CallbackEvent };
 
 class Lifecycle {
   private events: Partial<EventCallbackMap> = {};
 
-  public setEvent<K extends EventType>(type: K, callback: Callback<K>) {
+  public setEvent<K extends EventType>(type: K, callback: EventCallback<K>) {
     this.events[type] = callback;
   }
 
-  public getEvent<K extends EventType>(type: K): Callback<K> | undefined {
+  public getEvent<K extends EventType>(type: K): EventCallback<K> | undefined {
     return (this.events as EventCallbackMap)[type];
   }
 
@@ -24,7 +24,7 @@ class Lifecycle {
 export abstract class AbstractLifecycle {
   constructor(protected events: Lifecycle = new Lifecycle()) {}
 
-  public setEvent<K extends EventType>(type: K, callback: Callback<K>) {
+  public setEvent<K extends EventType>(type: K, callback: EventCallback<K>) {
     this.events.setEvent<K>(type, callback);
   }
 

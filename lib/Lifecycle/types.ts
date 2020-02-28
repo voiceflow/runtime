@@ -89,8 +89,6 @@ export interface EventMap {
   [EventType.diagramWillFetch]: DiagramWillFetchEvent;
   [EventType.diagramDidFetch]: DiagramDidFetchEvent;
 
-  [EventType.updateDidExecute]: BaseEvent;
-
   [EventType.stackWillPush]: BaseEvent;
   [EventType.stackDidPush]: BaseEvent;
 
@@ -120,5 +118,6 @@ export interface EventMap {
 }
 
 export type Event<K extends EventType> = EventMap[K];
-export type EventCallbackMap = { [key in EventType]: (event: Event<key> & { context: Context }) => void };
-export type Callback<K extends EventType> = EventCallbackMap[K];
+export type CallbackEvent<K extends EventType> = Event<K> & { context: Context };
+export type EventCallbackMap = { [key in EventType]: (event: CallbackEvent<key>) => void | Promise<void> };
+export type EventCallback<K extends EventType> = EventCallbackMap[K];
