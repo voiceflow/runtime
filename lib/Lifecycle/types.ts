@@ -1,4 +1,4 @@
-import Context from '../Context';
+import Context, { TraceFrame } from '../Context';
 import Diagram from '../Diagram';
 
 export enum EventType {
@@ -43,8 +43,29 @@ export type diagramDidFetch = GenericEvent<EventType.updateWillExecute, { diagra
 export type stackWillPush = GenericEvent<EventType.stackWillPush, {}>;
 export type stackDidPush = GenericEvent<EventType.stackDidPush, {}>;
 
-export type stateWillExecute = GenericEvent<EventType.stackDidPush, {}>;
-export type stateDidExecute = GenericEvent<EventType.stackDidPush, {}>;
+export type stateWillExecute = GenericEvent<EventType.stateWillExecute, {}>;
+export type stateDidExecute = GenericEvent<EventType.stateDidExecute, {}>;
+export type stateDidCatch = GenericEvent<EventType.stateDidCatch, {}>;
+
+export type handlerWillHandle = GenericEvent<EventType.handlerWillHandle, {}>;
+export type handlerDidHandle = GenericEvent<EventType.handlerDidHandle, {}>;
+export type handlerDidCatch = GenericEvent<EventType.handlerDidCatch, {}>;
+
+export type stackWillPop = GenericEvent<EventType.stackWillPop, {}>;
+export type stackDidPop = GenericEvent<EventType.stackDidPop, {}>;
+
+export type frameDidFinish = GenericEvent<EventType.frameDidFinish, {}>;
+
+export type storageWillUpdate = GenericEvent<EventType.storageWillUpdate, {}>;
+export type storageDidUpdate = GenericEvent<EventType.storageDidUpdate, {}>;
+
+export type turnWillUpdate = GenericEvent<EventType.turnWillUpdate, {}>;
+export type turnDidUpdate = GenericEvent<EventType.turnDidUpdate, {}>;
+
+export type variablesWillUpdate = GenericEvent<EventType.variablesWillUpdate, {}>;
+export type variablesDidUpdate = GenericEvent<EventType.variablesDidUpdate, {}>;
+
+export type traceWillAdd = GenericEvent<EventType.traceWillAdd, { frame: TraceFrame; stop: () => void }>;
 
 export type EventUnion =
   | updateWillExecute
@@ -54,7 +75,19 @@ export type EventUnion =
   | stackWillPush
   | stackDidPush
   | stateWillExecute
-  | stateDidExecute;
+  | stateDidExecute
+  | stateDidCatch
+  | handlerWillHandle
+  | handlerDidHandle
+  | handlerDidCatch
+  | stackWillPop
+  | stackDidPop
+  | frameDidFinish
+  | storageWillUpdate
+  | storageDidUpdate
+  | turnWillUpdate
+  | variablesWillUpdate
+  | traceWillAdd;
 
 export type SetEvent = EventUnion['SetEvent'];
 
