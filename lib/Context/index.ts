@@ -130,7 +130,7 @@ class Context extends AbstractLifecycle {
   }
 
   public async callEvent<K extends EventType>(type: K, event: Event<K>) {
-    await super.callEvent<K>(type, this, event);
+    await super.callEvent<K>(type, event, this);
   }
 
   public getDiagram(diagramID: string) {

@@ -120,5 +120,5 @@ export interface EventMap {
 }
 
 export type Event<K extends EventType> = EventMap[K];
-export type Callback<K extends EventType> = (event: Event<K> & { context: Context }) => void;
-export type EventCallbackMap = { [key in EventType]: Callback<key> };
+export type EventCallbackMap = { [key in EventType]: (event: Event<key> & { context: Context }) => void };
+export type Callback<K extends EventType> = EventCallbackMap[K];

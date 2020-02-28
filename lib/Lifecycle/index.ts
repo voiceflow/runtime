@@ -14,7 +14,9 @@ class Lifecycle {
     return (this.events as EventCallbackMap)[type];
   }
 
-  public async callEvent<K extends EventType>(type: K, context: Context, event: Event<K>): Promise<void> {
+  public async callEvent<K extends EventType>(type: K, event: Event<K>, context: Context): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
     await this.getEvent<K>(type)?.({ ...event, context });
   }
 }
@@ -26,8 +28,8 @@ export abstract class AbstractLifecycle {
     this.events.setEvent<K>(type, callback);
   }
 
-  public async callEvent<K extends EventType>(type: K, context: Context, event: Event<K>) {
-    await this.events.callEvent<K>(type, context, event);
+  public async callEvent<K extends EventType>(type: K, event: Event<K>, context: Context) {
+    await this.events.callEvent<K>(type, event, context);
   }
 }
 
