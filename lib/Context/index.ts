@@ -74,10 +74,8 @@ class Context extends AbstractLifecycle {
     this.handlers = handlers;
 
     this.stack = new Stack(state.stack, {
-      didPop: createEvent(EventType.stackDidPop),
-      willPop: createEvent(EventType.stackWillPop),
-      didPush: createEvent(EventType.stackDidPush),
-      willPush: createEvent(EventType.stackWillPush),
+      willChange: createEvent(EventType.stackWillChange),
+      didChange: createEvent(EventType.stackDidChange),
     });
 
     this.turn = new Store(state.turn, {

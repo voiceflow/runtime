@@ -2,13 +2,13 @@
 
 import produce from 'immer';
 
+import { Event, EventType } from '@/lib/Lifecycle';
+
 import Frame, { State as FrameState } from './Frame';
 
 type Handlers = {
-  didPop?: Function;
-  willPop?: Function;
-  didPush?: Function;
-  willPush?: Function;
+  willChange?: (event: Event<EventType.stackWillChange>) => void;
+  didChange?: (event: Event<EventType.stackDidChange>) => void;
 };
 
 class Stack {
@@ -38,39 +38,42 @@ class Stack {
     return this.frames[this.frames.length - 1];
   }
 
+  public updateFrames(nextFrames: Frame[]) {
+    this.handlers?.willChange?.({ nextFrames });
+
+    const prevFrames = this.frames;
+    this.frames = nextFrames;
+
+    this.handlers?.didChange?.({ prevFrames });
+  }
+
   public pop(): Frame | undefined {
     let frame: Frame | undefined;
 
-    this.handlers?.willPop?.(this.frames);
-
-    this.frames = produce(this.frames, (draft: Frame[]) => {
+    const nextFrames = produce(this.frames, (draft: Frame[]) => {
       frame = draft.pop();
     });
 
-    this.handlers?.didPop?.(this.frames, frame);
+    this.updateFrames(nextFrames);
 
     return frame;
   }
 
   // pops all frames until index
   public popTo(index: number): void {
-    this.frames = this.frames.slice(0, index);
+    this.updateFrames(this.frames.slice(0, index));
   }
 
   public lift(depth = 1): void {
-    this.frames = this.frames.slice(0, this.frames.length - depth);
+    this.updateFrames(this.frames.slice(0, this.frames.length - depth));
   }
 
   public push(frame: Frame): void {
-    this.handlers?.willPush?.(this.frames, frame);
-
-    this.frames = [...this.frames, frame];
-
-    this.handlers?.didPush?.(this.frames);
+    this.updateFrames((this.frames = [...this.frames, frame]));
   }
 
   public update(frames: FrameState[]): void {
-    this.frames = Stack.getFrames(frames);
+    this.updateFrames(Stack.getFrames(frames));
   }
 
   public getFrames(): Frame[] {
@@ -82,7 +85,7 @@ class Stack {
   }
 
   public flush(): void {
-    this.frames = [];
+    this.updateFrames([]);
   }
 }
 

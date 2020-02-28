@@ -10,16 +10,14 @@ export enum EventType {
   updateDidCatch = 'updateDidCatch',
   diagramWillFetch = 'diagramWillFetch',
   diagramDidFetch = 'diagramDidFetch',
-  stackWillPush = 'stackWillPush',
-  stackDidPush = 'stackDidPush',
   stateWillExecute = 'stateWillExecute',
   stateDidExecute = 'stateDidExecute',
   stateDidCatch = 'stateDidCatch',
   handlerWillHandle = 'handlerWillHandle',
   handlerDidHandle = 'handlerDidHandle',
   handlerDidCatch = 'handlerDidCatch',
-  stackWillPop = 'stackWillPop',
-  stackDidPop = 'stackDidPop',
+  stackWillChange = 'stackWillChange',
+  stackDidChange = 'stackDidChange',
   frameDidFinish = 'frameDidFinish',
   storageWillUpdate = 'storageWillUpdate',
   storageDidUpdate = 'storageDidUpdate',
@@ -81,6 +79,14 @@ interface TraceWillAddEvent extends BaseEvent {
   stop: () => void;
 }
 
+interface StackWillChangeEvent extends BaseEvent {
+  nextFrames: Frame[];
+}
+
+interface StackDidChangeEvent extends BaseEvent {
+  prevFrames: Frame[];
+}
+
 export interface EventMap {
   [EventType.updateWillExecute]: BaseEvent;
   [EventType.updateDidExecute]: BaseEvent;
@@ -89,8 +95,8 @@ export interface EventMap {
   [EventType.diagramWillFetch]: DiagramWillFetchEvent;
   [EventType.diagramDidFetch]: DiagramDidFetchEvent;
 
-  [EventType.stackWillPush]: BaseEvent;
-  [EventType.stackDidPush]: BaseEvent;
+  [EventType.stackWillChange]: StackWillChangeEvent;
+  [EventType.stackDidChange]: StackDidChangeEvent;
 
   [EventType.stateWillExecute]: StateWillExecute;
   [EventType.stateDidExecute]: StateDidExecute;
@@ -99,10 +105,6 @@ export interface EventMap {
   [EventType.handlerWillHandle]: HandlerWillHandleEvent;
   [EventType.handlerDidHandle]: HandlerDidHandleEvent;
   [EventType.handlerDidCatch]: HandlerDidCatchEvent;
-
-  [EventType.stackWillPop]: BaseEvent;
-  [EventType.stackDidPop]: BaseEvent;
-
   [EventType.frameDidFinish]: FrameDidFinishEvent;
 
   [EventType.storageWillUpdate]: BaseEvent;
