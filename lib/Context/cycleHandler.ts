@@ -32,14 +32,14 @@ const cycleHandler = async (context: Context, diagram: Diagram, variableState: S
         const handler = context.getHandlers().find((h) => h.canHandle(_block, context, variableState, diagram));
 
         if (handler) {
-          await context.callEvent(Event.handlerWillHandle, { block, variables: variableState });
+          await context.callEvent({ type: Event.handlerWillHandle, event: { block, variables: variableState } });
 
           nextID = await handler.handle(_block, context, variableState, diagram);
 
-          await context.callEvent(Event.handlerDidHandle, { block, variables: variableState });
+          await context.callEvent({ type: Event.handlerDidHandle, event: { block, variables: variableState } });
         }
       } catch (error) {
-        await context.callEvent(Event.handlerDidCatch, { error });
+        await context.callEvent({ type: Event.handlerDidCatch, event: { error } });
       }
 
       // if a block has decided to stop on itself

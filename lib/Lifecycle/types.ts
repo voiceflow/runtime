@@ -27,15 +27,15 @@ export enum EventType {
   traceWillAdd,
 }
 
-export interface GenericEvent<T extends EventType, P extends Record<string, any>> {
-  Callback: (context: Context, payload: P) => void | Promise<void>;
-  SetEvent: (eventType: T, callback: (context: Context, payload: P) => void) => void;
-  CallEvent: (eventType: T, context: Context, payload: P) => void | Promise<void>;
+export interface GenericEvent<T extends EventType, E extends Record<string, any> = {}> {
+  Action: (event: E & { context: Context }) => void;
+  SetEvent: { type: T; action: (event: E & { context: Context }) => void };
+  CallEvent: { type: T; context?: Context; event: E };
 }
 
-export type updateWillExecute = GenericEvent<EventType.updateWillExecute, {}>;
-export type updateDidExecute = GenericEvent<EventType.updateWillExecute, {}>;
-export type updateDidCatch = GenericEvent<EventType.updateWillExecute, { error: Error }>;
+export type updateWillExecute = GenericEvent<EventType.updateWillExecute>;
+export type updateDidExecute = GenericEvent<EventType.updateDidExecute>;
+export type updateDidCatch = GenericEvent<EventType.updateDidCatch, { error: Error }>;
 
 export type diagramWillFetch = GenericEvent<EventType.updateWillExecute, { diagramID: string; override: (_diagram: Diagram | undefined) => void }>;
 export type diagramDidFetch = GenericEvent<EventType.updateWillExecute, { diagramID: string; diagram: Diagram }>;
@@ -47,9 +47,9 @@ export type stateWillExecute = GenericEvent<EventType.stateWillExecute, {}>;
 export type stateDidExecute = GenericEvent<EventType.stateDidExecute, {}>;
 export type stateDidCatch = GenericEvent<EventType.stateDidCatch, {}>;
 
-export type handlerWillHandle = GenericEvent<EventType.handlerWillHandle, {}>;
-export type handlerDidHandle = GenericEvent<EventType.handlerDidHandle, {}>;
-export type handlerDidCatch = GenericEvent<EventType.handlerDidCatch, {}>;
+export type handlerWillHandle = GenericEvent<EventType.handlerWillHandle>;
+export type handlerDidHandle = GenericEvent<EventType.handlerDidHandle>;
+export type handlerDidCatch = GenericEvent<EventType.handlerDidCatch>;
 
 export type stackWillPop = GenericEvent<EventType.stackWillPop, {}>;
 export type stackDidPop = GenericEvent<EventType.stackDidPop, {}>;
@@ -93,4 +93,4 @@ export type SetEvent = EventUnion['SetEvent'];
 
 export type CallEvent = EventUnion['CallEvent'];
 
-export type EventCallback = EventUnion['Callback'];
+export type EventAction = EventUnion['Action'];
