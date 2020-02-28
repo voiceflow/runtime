@@ -1,59 +1,34 @@
 import Context from '@/lib/Context';
 
-export enum Event {
-  updateWillExecute,
-  updateDidExecute,
-  updateDidCatch,
-  diagramWillFetch,
-  diagramDidFetch,
-  stackWillPush,
-  stackDidPush,
-  stateWillExecute,
-  stateDidExecute,
-  stateDidCatch,
-  handlerWillHandle,
-  handlerDidHandle,
-  handlerDidCatch,
-  stackWillPop,
-  stackDidPop,
-  frameDidFinish,
-  storageWillUpdate,
-  storageDidUpdate,
-  turnWillUpdate,
-  turnDidUpdate,
-  variablesWillUpdate,
-  variablesDidUpdate,
-}
+import { EventCallback, EventType } from './types';
 
-export type Callback = (context: Context, ...args: any[]) => any | Promise<any>;
-
-export type Events = { [key in keyof typeof Event]?: Callback };
+export { EventType as Event, EventCallback as Callback };
 
 class Lifecycle {
-  private events: Events = {};
+  private events: { [key in EventType]?: EventCallback } = {};
 
-  public setEvent(event: Event, callback: Callback) {
+  public setEvent(event: EventType, callback: EventCallback) {
     this.events[event] = callback;
   }
 
-  public getEvent(event: Event): Callback {
-    return this.events[event] ?? (() => null);
+  public getEvent(event: EventType): EventCallback {
+    return this.events[event] ?? (() => undefined);
   }
 
-  public async callEvent(event: Event, context: Context, ...args: any[]): Promise<any> {
-    return this.getEvent(event)(context, ...args);
+  public async callEvent(event: EventType, context: Context, payload: any): Promise<any> {
+    await this.getEvent(event)(context, payload);
   }
 }
 
 export abstract class AbstractLifecycle {
   constructor(protected events: Lifecycle = new Lifecycle()) {}
 
-  public setEvent(event: Event, callback: Callback) {
+  public setEvent(event: EventType, callback: EventCallback) {
     this.events.setEvent(event, callback);
   }
 
-  public async callEvent(event: Event, context: Context, ...args: any[]): Promise<any> {
-    return this.events.callEvent(event, context, ...args);
+  public async callEvent(eventType: EventType, context: Context, payload: any = {}) {
+    await this.events.callEvent(eventType, context, payload);
   }
 }
 

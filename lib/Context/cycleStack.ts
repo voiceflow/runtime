@@ -25,11 +25,11 @@ const cycleStack = async (context: Context, depth = 0): Promise<void> => {
   const combinedVariables = createCombinedVariables(context.variables, currentFrame.variables);
 
   try {
-    await context.callEvent(Event.stateWillExecute, diagram, combinedVariables);
+    await context.callEvent(Event.stateWillExecute, { diagram, variables: combinedVariables });
     await cycleHandler(context, diagram, combinedVariables);
-    await context.callEvent(Event.stateDidExecute, diagram, combinedVariables);
+    await context.callEvent(Event.stateDidExecute, { diagram, variables: combinedVariables });
   } catch (error) {
-    await context.callEvent(Event.stateDidCatch, error);
+    await context.callEvent(Event.stateDidCatch, { error });
   }
 
   // deconstruct variable state and save to stores
@@ -43,7 +43,7 @@ const cycleStack = async (context: Context, depth = 0): Promise<void> => {
   if (currentFrames === context.stack.getFrames()) {
     // pop frame
     const poppedFrame = context.stack.pop();
-    await context.callEvent(Event.frameDidFinish, poppedFrame);
+    await context.callEvent(Event.frameDidFinish, { frame: poppedFrame });
 
     const topFrame = context.stack.top();
 

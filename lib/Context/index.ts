@@ -1,6 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
 
-import { TEST_VERSION_ID } from '@/lib/Constants';
 import cycleStack from '@/lib/Context/cycleStack';
 import Handler from '@/lib/Handler';
 // import produce, { Draft } from 'immer';
@@ -31,6 +30,11 @@ export enum Action {
   END,
 }
 
+export interface TraceFrame {
+  type: string;
+  payload: any;
+}
+
 class Context extends AbstractLifecycle {
   // temporary turn variables
   public turn: Store;
@@ -54,6 +58,8 @@ class Context extends AbstractLifecycle {
 
   private diagramManager: DiagramManager;
 
+  private trace: TraceFrame[] = [];
+
   constructor(
     public versionID: string,
     state: State,
@@ -63,7 +69,7 @@ class Context extends AbstractLifecycle {
   ) {
     super(events);
 
-    const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
+    const createEvent = (eventName: Event) => (payload: any) => this.callEvent(eventName, payload);
 
     this.services = services;
     this.handlers = handlers;
@@ -124,16 +130,12 @@ class Context extends AbstractLifecycle {
     return data;
   }
 
-  async callEvent(event: Event, ...args: any[]): Promise<any> {
-    return super.callEvent(event, this, ...args);
+  async callEvent(eventType: Event, payload: any = {}): Promise<void> {
+    await super.callEvent(eventType, this, payload);
   }
 
   public getDiagram(diagramID: string) {
     return this.diagramManager.getDiagram(diagramID);
-  }
-
-  public isTesting(): boolean {
-    return this.versionID === TEST_VERSION_ID;
   }
 
   public async update(): Promise<void> {
@@ -149,7 +151,7 @@ class Context extends AbstractLifecycle {
 
       await this.callEvent(Event.updateDidExecute);
     } catch (error) {
-      await this.callEvent(Event.updateDidCatch, error);
+      await this.callEvent(Event.updateDidCatch, { error });
     }
   }
 
@@ -173,6 +175,23 @@ class Context extends AbstractLifecycle {
       variables: this.variables.getState(),
     };
   }
+
+  public addTrace = async (traceFrame: TraceFrame) => {
+    let stop = false;
+    await this.callEvent(Event.traceWillAdd, {
+      frame: traceFrame,
+      stop: () => {
+        stop = true;
+      },
+    });
+    if (stop) return;
+
+    this.trace = [...this.trace, traceFrame];
+  };
+
+  public getTrace = () => {
+    return this.trace;
+  };
 
   // public produce(producer: (draft: Draft<State>) => void): void {
   //   const { turn, stack, storage, variables } = produce(this.getState(), producer);

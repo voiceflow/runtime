@@ -25,8 +25,8 @@ const setHandler: Handler<SetBlock> = {
         const evaluated = (await evaluateExpression(set.expression, { v: variables.getState() })) as any;
         // assign only if number or true
         variables.set(set.variable, !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined);
-      } catch (err) {
-        await context.callEvent(Event.handlerDidCatch, err);
+      } catch (error) {
+        await context.callEvent(Event.handlerDidCatch, { error });
       }
     });
 

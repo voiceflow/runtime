@@ -14,12 +14,7 @@ class DiagramManager {
   constructor(private context: Context, private fetch: AxiosInstance) {}
 
   public async fetchDiagram(diagramID: string): Promise<Diagram> {
-    const testing = this.context.isTesting() ? '1' : undefined;
-    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`, {
-      params: {
-        testing,
-      },
-    });
+    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
 
     return new Diagram({
       id: diagramID,
@@ -34,7 +29,12 @@ class DiagramManager {
     let diagram: Diagram | undefined;
 
     // Event.diagramWillFetch can optionally override the diagram
-    diagram = (await this.context.callEvent(Event.diagramWillFetch, diagramID)) as Diagram | undefined;
+    await this.context.callEvent(Event.diagramWillFetch, {
+      diagramID,
+      override: (_diagram: Diagram | undefined) => {
+        diagram = _diagram;
+      },
+    });
 
     // this manager currently just caches the current diagram, incase it is repeatedly called
     if (!diagram && diagramID === this.cachedDiagram?.getID()) {
@@ -45,7 +45,7 @@ class DiagramManager {
       diagram = await this.fetchDiagram(diagramID);
     }
 
-    this.context.callEvent(Event.diagramDidFetch, diagramID, diagram);
+    this.context.callEvent(Event.diagramDidFetch, { diagramID, diagram });
 
     this.cachedDiagram = diagram;
     return diagram;

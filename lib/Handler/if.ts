@@ -28,9 +28,9 @@ const ifHandler: Handler<IfBlock> = {
           path = block.nextIds[i];
           break;
         }
-      } catch (err) {
+      } catch (error) {
         // eslint-disable-next-line no-await-in-loop
-        await context.callEvent(Event.handlerDidCatch, err);
+        await context.callEvent(Event.handlerDidCatch, { error });
       }
     }
 
