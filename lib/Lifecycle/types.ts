@@ -121,5 +121,11 @@ export interface EventMap {
 
 export type Event<K extends EventType> = EventMap[K];
 export type CallbackEvent<K extends EventType> = Event<K> & { context: Context };
-export type EventCallbackMap = { [key in EventType]: (event: CallbackEvent<key>) => void | Promise<void> };
-export type EventCallback<K extends EventType> = EventCallbackMap[K];
+export type EventCallback<K extends EventType> = (event: CallbackEvent<K>) => void | Promise<void>;
+export type EventCallbackMap = { [key in EventType]: EventCallback<key> };
+
+// export type Event<K extends EventType> = EventMap[K];
+// export type EventCallbackMap = { [key in EventType]: (event: EventMap[key] & { context: Context }) => void | Promise<void> };
+
+// export type EventCallback<K extends EventType> = EventCallbackMap[K];
+// export type CallbackEvent<K extends EventType> = Parameters<EventCallback<K>>[0];
