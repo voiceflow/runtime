@@ -1,59 +1,37 @@
-import Context from '@/lib/Context';
+import Context from '../Context';
+import { CallbackEvent, Event, EventCallback, EventCallbackMap, EventType } from './types';
 
-export enum Event {
-  updateWillExecute,
-  updateDidExecute,
-  updateDidCatch,
-  diagramWillFetch,
-  diagramDidFetch,
-  stackWillPush,
-  stackDidPush,
-  stateWillExecute,
-  stateDidExecute,
-  stateDidCatch,
-  handlerWillHandle,
-  handlerDidHandle,
-  handlerDidCatch,
-  stackWillPop,
-  stackDidPop,
-  frameDidFinish,
-  storageWillUpdate,
-  storageDidUpdate,
-  turnWillUpdate,
-  turnDidUpdate,
-  variablesWillUpdate,
-  variablesDidUpdate,
-}
-
-export type Callback = (context: Context, ...args: any[]) => any | Promise<any>;
-
-export type Events = { [key in keyof typeof Event]?: Callback };
+export { EventType, Event, EventCallbackMap, EventCallback, CallbackEvent };
 
 class Lifecycle {
-  private events: Events = {};
+  private events: Partial<EventCallbackMap> = {};
 
-  public setEvent(event: Event, callback: Callback) {
-    this.events[event] = callback;
+  public setEvent<K extends EventType>(type: K, callback: EventCallback<K>) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    this.events[type] = callback;
   }
 
-  public getEvent(event: Event): Callback {
-    return this.events[event] ?? (() => null);
+  public getEvent<K extends EventType>(type: K): EventCallback<K> | undefined {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    return (this.events as EventCallbackMap)[type];
   }
 
-  public async callEvent(event: Event, context: Context, ...args: any[]): Promise<any> {
-    return this.getEvent(event)(context, ...args);
+  public async callEvent<K extends EventType>(type: K, event: Event<K>, context: Context): Promise<void> {
+    await this.getEvent<K>(type)?.({ ...event, context });
   }
 }
 
 export abstract class AbstractLifecycle {
   constructor(protected events: Lifecycle = new Lifecycle()) {}
 
-  public setEvent(event: Event, callback: Callback) {
-    this.events.setEvent(event, callback);
+  public setEvent<K extends EventType>(type: K, callback: EventCallback<K>) {
+    this.events.setEvent<K>(type, callback);
   }
 
-  public async callEvent(event: Event, context: Context, ...args: any[]): Promise<any> {
-    return this.events.callEvent(event, context, ...args);
+  public async callEvent<K extends EventType>(type: K, event: Event<K>, context: Context) {
+    await this.events.callEvent<K>(type, event, context);
   }
 }
 

@@ -2,8 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 
 import cycleStack from '@/lib/Context/cycleStack';
 import Handler from '@/lib/Handler';
-// import produce, { Draft } from 'immer';
-import Lifecycle, { AbstractLifecycle, Event } from '@/lib/Lifecycle';
+import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/lib/Lifecycle';
 
 import Request from './Request';
 import Stack, { FrameState } from './Stack';
@@ -30,6 +29,11 @@ export enum Action {
   END,
 }
 
+export interface TraceFrame {
+  type: string;
+  payload: any;
+}
+
 class Context extends AbstractLifecycle {
   // temporary turn variables
   public turn: Store;
@@ -53,6 +57,8 @@ class Context extends AbstractLifecycle {
 
   private diagramManager: DiagramManager;
 
+  private trace: TraceFrame[] = [];
+
   constructor(
     public versionID: string,
     state: State,
@@ -62,31 +68,29 @@ class Context extends AbstractLifecycle {
   ) {
     super(events);
 
-    const createEvent = (eventName: Event) => (...args: any[]) => this.callEvent(eventName, ...args);
+    const createEvent = <K extends EventType>(type: K) => (event: Event<K>) => this.callEvent(type, event);
 
     this.services = services;
     this.handlers = handlers;
 
     this.stack = new Stack(state.stack, {
-      didPop: createEvent(Event.stackDidPop),
-      willPop: createEvent(Event.stackWillPop),
-      didPush: createEvent(Event.stackDidPush),
-      willPush: createEvent(Event.stackWillPush),
+      willChange: createEvent(EventType.stackWillChange),
+      didChange: createEvent(EventType.stackDidChange),
     });
 
     this.turn = new Store(state.turn, {
-      didUpdate: createEvent(Event.turnDidUpdate),
-      willUpdate: createEvent(Event.turnWillUpdate),
+      didUpdate: createEvent(EventType.turnDidUpdate),
+      willUpdate: createEvent(EventType.turnWillUpdate),
     });
 
     this.storage = new Store(state.storage, {
-      didUpdate: createEvent(Event.storageDidUpdate),
-      willUpdate: createEvent(Event.storageWillUpdate),
+      didUpdate: createEvent(EventType.storageDidUpdate),
+      willUpdate: createEvent(EventType.storageWillUpdate),
     });
 
     this.variables = new Store(state.variables, {
-      didUpdate: createEvent(Event.variablesDidUpdate),
-      willUpdate: createEvent(Event.variablesWillUpdate),
+      didUpdate: createEvent(EventType.variablesDidUpdate),
+      willUpdate: createEvent(EventType.variablesWillUpdate),
     });
 
     this.fetch = axios.create({
@@ -123,8 +127,8 @@ class Context extends AbstractLifecycle {
     return data;
   }
 
-  async callEvent(event: Event, ...args: any[]): Promise<any> {
-    return super.callEvent(event, this, ...args);
+  public async callEvent<K extends EventType>(type: K, event: Event<K>) {
+    await super.callEvent<K>(type, event, this);
   }
 
   public getDiagram(diagramID: string) {
@@ -133,7 +137,7 @@ class Context extends AbstractLifecycle {
 
   public async update(): Promise<void> {
     try {
-      await this.callEvent(Event.updateWillExecute);
+      await this.callEvent(EventType.updateWillExecute, {});
 
       if (this.action !== Action.IDLE) {
         throw new Error('context updated twice');
@@ -142,9 +146,9 @@ class Context extends AbstractLifecycle {
       this.setAction(Action.RUNNING);
       await cycleStack(this);
 
-      await this.callEvent(Event.updateDidExecute);
+      await this.callEvent(EventType.updateDidExecute, {});
     } catch (error) {
-      await this.callEvent(Event.updateDidCatch, error);
+      await this.callEvent(EventType.updateDidCatch, { error });
     }
   }
 
@@ -168,6 +172,25 @@ class Context extends AbstractLifecycle {
       variables: this.variables.getState(),
     };
   }
+
+  public addTrace = async (traceFrame: TraceFrame) => {
+    let stop = false;
+
+    await this.callEvent(EventType.traceWillAdd, {
+      frame: traceFrame,
+      stop: () => {
+        stop = true;
+      },
+    });
+
+    if (stop) return;
+
+    this.trace = [...this.trace, traceFrame];
+  };
+
+  public getTrace = () => {
+    return this.trace;
+  };
 
   // public produce(producer: (draft: Draft<State>) => void): void {
   //   const { turn, stack, storage, variables } = produce(this.getState(), producer);

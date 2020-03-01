@@ -1,6 +1,6 @@
 import Promise from 'bluebird';
 
-import { Event } from '@/lib/Lifecycle';
+import { EventType } from '@/lib/Lifecycle';
 
 import Handler from './index';
 import { evaluateExpression } from './utils/shuntingYard';
@@ -25,8 +25,8 @@ const setHandler: Handler<SetBlock> = {
         const evaluated = (await evaluateExpression(set.expression, { v: variables.getState() })) as any;
         // assign only if number or true
         variables.set(set.variable, !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined);
-      } catch (err) {
-        await context.callEvent(Event.handlerDidCatch, err);
+      } catch (error) {
+        await context.callEvent(EventType.handlerDidCatch, { error });
       }
     });
 
