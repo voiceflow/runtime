@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 
 import cycleStack from '@/lib/Context/cycleStack';
 import Handler from '@/lib/Handler';
-import Lifecycle, { AbstractLifecycle, Event, EventCallbackMap } from '@/lib/Lifecycle';
+import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/lib/Lifecycle';
 
 import Request from './Request';
 import Stack, { FrameState } from './Stack';
@@ -68,31 +68,29 @@ class Context extends AbstractLifecycle {
   ) {
     super(events);
 
-    const createEvent = <K extends keyof EventCallbackMap>(type: K) => (event: Parameters<EventCallbackMap[K]>[1]) => this.callEvent(type, event);
+    const createEvent = <K extends EventType>(type: K) => (event: Event<K>) => this.callEvent(type, event);
 
     this.services = services;
     this.handlers = handlers;
 
     this.stack = new Stack(state.stack, {
-      didPop: createEvent(Event.stackDidPop),
-      willPop: createEvent(Event.stackWillPop),
-      didPush: createEvent(Event.stackDidPush),
-      willPush: createEvent(Event.stackWillPush),
+      willChange: createEvent(EventType.stackWillChange),
+      didChange: createEvent(EventType.stackDidChange),
     });
 
     this.turn = new Store(state.turn, {
-      didUpdate: createEvent(Event.turnDidUpdate),
-      willUpdate: createEvent(Event.turnWillUpdate),
+      didUpdate: createEvent(EventType.turnDidUpdate),
+      willUpdate: createEvent(EventType.turnWillUpdate),
     });
 
     this.storage = new Store(state.storage, {
-      didUpdate: createEvent(Event.storageDidUpdate),
-      willUpdate: createEvent(Event.storageWillUpdate),
+      didUpdate: createEvent(EventType.storageDidUpdate),
+      willUpdate: createEvent(EventType.storageWillUpdate),
     });
 
     this.variables = new Store(state.variables, {
-      didUpdate: createEvent(Event.variablesDidUpdate),
-      willUpdate: createEvent(Event.variablesWillUpdate),
+      didUpdate: createEvent(EventType.variablesDidUpdate),
+      willUpdate: createEvent(EventType.variablesWillUpdate),
     });
 
     this.fetch = axios.create({
@@ -129,8 +127,8 @@ class Context extends AbstractLifecycle {
     return data;
   }
 
-  public async callEvent<K extends keyof EventCallbackMap>(type: K, event: Parameters<EventCallbackMap[K]>[1]) {
-    await super.callEvent<K>(type, this, event);
+  public async callEvent<K extends EventType>(type: K, event: Event<K>) {
+    await super.callEvent<K>(type, event, this);
   }
 
   public getDiagram(diagramID: string) {
@@ -139,7 +137,7 @@ class Context extends AbstractLifecycle {
 
   public async update(): Promise<void> {
     try {
-      await this.callEvent(Event.updateWillExecute, {});
+      await this.callEvent(EventType.updateWillExecute, {});
 
       if (this.action !== Action.IDLE) {
         throw new Error('context updated twice');
@@ -148,9 +146,9 @@ class Context extends AbstractLifecycle {
       this.setAction(Action.RUNNING);
       await cycleStack(this);
 
-      await this.callEvent(Event.updateDidExecute, {});
+      await this.callEvent(EventType.updateDidExecute, {});
     } catch (error) {
-      await this.callEvent(Event.updateDidCatch, { error });
+      await this.callEvent(EventType.updateDidCatch, { error });
     }
   }
 
@@ -178,7 +176,7 @@ class Context extends AbstractLifecycle {
   public addTrace = async (traceFrame: TraceFrame) => {
     let stop = false;
 
-    await this.callEvent(Event.traceWillAdd, {
+    await this.callEvent(EventType.traceWillAdd, {
       frame: traceFrame,
       stop: () => {
         stop = true;

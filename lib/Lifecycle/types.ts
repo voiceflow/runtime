@@ -10,16 +10,14 @@ export enum EventType {
   updateDidCatch = 'updateDidCatch',
   diagramWillFetch = 'diagramWillFetch',
   diagramDidFetch = 'diagramDidFetch',
-  stackWillPush = 'stackWillPush',
-  stackDidPush = 'stackDidPush',
   stateWillExecute = 'stateWillExecute',
   stateDidExecute = 'stateDidExecute',
   stateDidCatch = 'stateDidCatch',
   handlerWillHandle = 'handlerWillHandle',
   handlerDidHandle = 'handlerDidHandle',
   handlerDidCatch = 'handlerDidCatch',
-  stackWillPop = 'stackWillPop',
-  stackDidPop = 'stackDidPop',
+  stackWillChange = 'stackWillChange',
+  stackDidChange = 'stackDidChange',
   frameDidFinish = 'frameDidFinish',
   storageWillUpdate = 'storageWillUpdate',
   storageDidUpdate = 'storageDidUpdate',
@@ -81,42 +79,53 @@ interface TraceWillAddEvent extends BaseEvent {
   stop: () => void;
 }
 
-export interface EventCallbackMap {
-  [EventType.updateWillExecute]: (context: Context, event: BaseEvent) => void;
-  [EventType.updateDidExecute]: (context: Context, event: BaseEvent) => void;
-  [EventType.updateDidCatch]: (context: Context, event: UpdateDidCatchEvent) => void;
-
-  [EventType.diagramWillFetch]: (context: Context, event: DiagramWillFetchEvent) => void;
-  [EventType.diagramDidFetch]: (context: Context, event: DiagramDidFetchEvent) => void;
-
-  [EventType.updateDidExecute]: (context: Context, event: BaseEvent) => void;
-
-  [EventType.stackWillPush]: (context: Context, event: BaseEvent) => void;
-  [EventType.stackDidPush]: (context: Context, event: BaseEvent) => void;
-
-  [EventType.stateWillExecute]: (context: Context, event: StateWillExecute) => void;
-  [EventType.stateDidExecute]: (context: Context, event: StateDidExecute) => void;
-  [EventType.stateDidCatch]: (context: Context, event: StateDidCatch) => void;
-
-  [EventType.handlerWillHandle]: (context: Context, event: HandlerWillHandleEvent) => void;
-  [EventType.handlerDidHandle]: (context: Context, event: HandlerDidHandleEvent) => void;
-  [EventType.handlerDidCatch]: (context: Context, event: HandlerDidCatchEvent) => void;
-
-  [EventType.stackWillPop]: (context: Context, event: BaseEvent) => void;
-  [EventType.stackDidPop]: (context: Context, event: BaseEvent) => void;
-
-  [EventType.frameDidFinish]: (context: Context, event: FrameDidFinishEvent) => void;
-
-  [EventType.storageWillUpdate]: (context: Context, event: BaseEvent) => void;
-  [EventType.storageDidUpdate]: (context: Context, event: BaseEvent) => void;
-
-  [EventType.turnWillUpdate]: (context: Context, event: BaseEvent) => void;
-  [EventType.turnDidUpdate]: (context: Context, event: BaseEvent) => void;
-
-  [EventType.variablesWillUpdate]: (context: Context, event: BaseEvent) => void;
-  [EventType.variablesDidUpdate]: (context: Context, event: BaseEvent) => void;
-
-  [EventType.traceWillAdd]: (context: Context, event: TraceWillAddEvent) => void;
+interface StackWillChangeEvent extends BaseEvent {
+  nextFrames: Frame[];
 }
 
-export type Callback<K extends keyof EventCallbackMap> = EventCallbackMap[K];
+interface StackDidChangeEvent extends BaseEvent {
+  prevFrames: Frame[];
+}
+
+export interface EventMap {
+  [EventType.updateWillExecute]: BaseEvent;
+  [EventType.updateDidExecute]: BaseEvent;
+  [EventType.updateDidCatch]: UpdateDidCatchEvent;
+
+  [EventType.diagramWillFetch]: DiagramWillFetchEvent;
+  [EventType.diagramDidFetch]: DiagramDidFetchEvent;
+
+  [EventType.stackWillChange]: StackWillChangeEvent;
+  [EventType.stackDidChange]: StackDidChangeEvent;
+
+  [EventType.stateWillExecute]: StateWillExecute;
+  [EventType.stateDidExecute]: StateDidExecute;
+  [EventType.stateDidCatch]: StateDidCatch;
+
+  [EventType.handlerWillHandle]: HandlerWillHandleEvent;
+  [EventType.handlerDidHandle]: HandlerDidHandleEvent;
+  [EventType.handlerDidCatch]: HandlerDidCatchEvent;
+  [EventType.frameDidFinish]: FrameDidFinishEvent;
+
+  [EventType.storageWillUpdate]: BaseEvent;
+  [EventType.storageDidUpdate]: BaseEvent;
+
+  [EventType.turnWillUpdate]: BaseEvent;
+  [EventType.turnDidUpdate]: BaseEvent;
+
+  [EventType.variablesWillUpdate]: BaseEvent;
+  [EventType.variablesDidUpdate]: BaseEvent;
+
+  [EventType.traceWillAdd]: TraceWillAddEvent;
+}
+
+export type Event<K extends EventType> = EventMap[K];
+export type CallbackEvent<K extends EventType> = Event<K> & { context: Context };
+export type EventCallback<K extends EventType> = (event: CallbackEvent<K>) => void | Promise<void>;
+export type EventCallbackMap = { [key in EventType]: EventCallback<key> };
+
+// export type Event<K extends EventType> = EventMap[K];
+// export type EventCallbackMap = { [key in EventType]: (event: EventMap[key] & { context: Context }) => void | Promise<void> };
+
+// export type EventCallback<K extends EventType> = EventCallbackMap[K];
+// export type CallbackEvent<K extends EventType> = Parameters<EventCallback<K>>[0];

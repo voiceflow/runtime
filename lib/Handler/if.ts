@@ -1,4 +1,4 @@
-import { Event } from '@/lib/Lifecycle';
+import { EventType } from '@/lib/Lifecycle';
 
 import Handler from './index';
 import { evaluateExpression } from './utils/shuntingYard';
@@ -30,7 +30,7 @@ const ifHandler: Handler<IfBlock> = {
         }
       } catch (error) {
         // eslint-disable-next-line no-await-in-loop
-        await context.callEvent(Event.handlerDidCatch, { error });
+        await context.callEvent(EventType.handlerDidCatch, { error });
       }
     }
 

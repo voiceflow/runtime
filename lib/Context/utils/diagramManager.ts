@@ -2,7 +2,7 @@ import { AxiosInstance } from 'axios';
 
 import Context from '@/lib/Context';
 import Diagram from '@/lib/Diagram';
-import { Event } from '@/lib/Lifecycle';
+import { EventType } from '@/lib/Lifecycle';
 
 /**
  * use this class for CPU caching strategies when fetching diagrams/memory
@@ -29,7 +29,7 @@ class DiagramManager {
     let diagram: Diagram | undefined;
 
     // Event.diagramWillFetch can optionally override the diagram
-    await this.context.callEvent(Event.diagramWillFetch, {
+    await this.context.callEvent(EventType.diagramWillFetch, {
       diagramID,
       override: (_diagram: Diagram | undefined) => {
         diagram = _diagram;
@@ -45,7 +45,7 @@ class DiagramManager {
       diagram = await this.fetchDiagram(diagramID);
     }
 
-    this.context.callEvent(Event.diagramDidFetch, { diagramID, diagram });
+    this.context.callEvent(EventType.diagramDidFetch, { diagramID, diagram });
 
     this.cachedDiagram = diagram;
     return diagram;
