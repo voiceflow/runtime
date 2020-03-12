@@ -5,6 +5,8 @@ import { AbstractLifecycle } from '@/lib/Lifecycle';
 
 const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';
 
+type Options = Omit<ContextOptions, 'testing'>;
+
 class Controller extends AbstractLifecycle {
   private options: {
     secret?: string;
@@ -13,7 +15,7 @@ class Controller extends AbstractLifecycle {
     services?: Record<string, any>;
   };
 
-  constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [], services = {} }: ContextOptions) {
+  constructor({ secret, endpoint = DEFAULT_ENDPOINT, handlers = [], services = {} }: Options) {
     super();
 
     this.options = {
@@ -24,8 +26,12 @@ class Controller extends AbstractLifecycle {
     };
   }
 
-  public createContext(versionID: string, state: ContextState, request?: Request, options?: ContextOptions): Context {
-    return new Context(versionID, state, request, { ...this.options, ...options }, this.events);
+  public createContext(versionID: string, state: ContextState, request?: Request, options?: Options): Context {
+    return new Context(versionID, state, request, { ...this.options, ...options, testing: false }, this.events);
+  }
+
+  public createTestingContext(versionID: string, state: ContextState, request?: Request, options?: Options): Context {
+    return new Context(versionID, state, request, { ...this.options, ...options, testing: true }, this.events);
   }
 }
 

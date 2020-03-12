@@ -9,12 +9,16 @@ import { EventType } from '@/lib/Lifecycle';
  * https://en.wikipedia.org/wiki/Cache_replacement_policies
  */
 class DiagramManager {
+  private testing: boolean;
+
   private cachedDiagram: Diagram | null = null;
 
-  constructor(private context: Context, private fetch: AxiosInstance) {}
+  constructor(private context: Context, private fetch: AxiosInstance, { testing }: { testing: boolean }) {
+    this.testing = testing;
+  }
 
   public async fetchDiagram(diagramID: string): Promise<Diagram> {
-    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}`);
+    const { data }: { data: Record<string, any> } = await this.fetch.get(`/diagrams/${diagramID}?testing=${this.testing}`);
 
     return new Diagram({
       id: diagramID,

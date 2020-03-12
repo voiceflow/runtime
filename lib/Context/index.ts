@@ -11,6 +11,7 @@ import DiagramManager from './utils/diagramManager';
 
 export interface Options {
   secret?: string;
+  testing?: boolean;
   endpoint?: string;
   handlers?: Handler[];
   services?: Record<string, any>;
@@ -63,7 +64,7 @@ class Context extends AbstractLifecycle {
     public versionID: string,
     state: State,
     private request: Request | null = null,
-    { services = {}, endpoint, secret, handlers = [] }: Options = {},
+    { services = {}, endpoint, secret, handlers = [], testing = false }: Options = {},
     events: Lifecycle
   ) {
     super(events);
@@ -98,7 +99,7 @@ class Context extends AbstractLifecycle {
       headers: { authorization: `Bearer ${secret}` },
     });
 
-    this.diagramManager = new DiagramManager(this, this.fetch);
+    this.diagramManager = new DiagramManager(this, this.fetch, { testing });
   }
 
   getRequest(): Request | null {
