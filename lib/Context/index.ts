@@ -7,6 +7,7 @@ import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/lib/Lifecycle'
 import Request from './Request';
 import Stack, { FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
+import Trace from './Trace';
 import DiagramManager from './utils/diagramManager';
 
 export interface Options {
@@ -29,11 +30,6 @@ export enum Action {
   END,
 }
 
-export interface TraceFrame {
-  type: string;
-  payload: any;
-}
-
 class Context extends AbstractLifecycle {
   // temporary turn variables
   public turn: Store;
@@ -46,6 +42,8 @@ class Context extends AbstractLifecycle {
   // global variables
   public variables: Store;
 
+  public trace: Trace;
+
   // services
   public services: Record<string, any>;
 
@@ -56,8 +54,6 @@ class Context extends AbstractLifecycle {
   private handlers: Handler[];
 
   private diagramManager: DiagramManager;
-
-  private trace: TraceFrame[] = [];
 
   constructor(
     public versionID: string,
@@ -97,6 +93,8 @@ class Context extends AbstractLifecycle {
       baseURL: endpoint,
       headers: { authorization: `Bearer ${secret}` },
     });
+
+    this.trace = new Trace(this);
 
     this.diagramManager = new DiagramManager(this, this.fetch);
   }
@@ -172,25 +170,6 @@ class Context extends AbstractLifecycle {
       variables: this.variables.getState(),
     };
   }
-
-  public addTrace = async (traceFrame: TraceFrame) => {
-    let stop = false;
-
-    await this.callEvent(EventType.traceWillAdd, {
-      frame: traceFrame,
-      stop: () => {
-        stop = true;
-      },
-    });
-
-    if (stop) return;
-
-    this.trace = [...this.trace, traceFrame];
-  };
-
-  public getTrace = () => {
-    return this.trace;
-  };
 
   // public produce(producer: (draft: Draft<State>) => void): void {
   //   const { turn, stack, storage, variables } = produce(this.getState(), producer);
