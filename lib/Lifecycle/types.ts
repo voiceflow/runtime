@@ -1,6 +1,7 @@
-import Context, { TraceFrame } from '../Context';
+import Context from '../Context';
 import Frame from '../Context/Stack/Frame';
 import Storage from '../Context/Store';
+import { TraceFrame } from '../Context/Trace';
 import Diagram from '../Diagram';
 import { Block } from '../Handler';
 

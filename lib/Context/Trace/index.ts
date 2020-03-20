@@ -17,9 +17,9 @@ export enum TraceType {
 }
 
 export enum StreamAction {
-  'LOOP',
-  'PLAY',
-  'PAUSE',
+  LOOP = 'LOOP',
+  PLAY = 'PLAY',
+  PAUSE = 'PAUSE',
 }
 
 export default class Trace {
@@ -46,32 +46,28 @@ export default class Trace {
     return this.trace;
   }
 
-  block(blockID: string) {
+  block = (blockID: string) =>
     this.addTrace({
       type: TraceType.BLOCK,
       payload: { blockID },
     });
-  }
 
-  speak(message: string) {
+  speak = (message: string) =>
     this.addTrace({
       type: TraceType.SPEAK,
       payload: { message },
     });
-  }
 
-  end() {
+  end = () =>
     this.addTrace({
       type: TraceType.END,
     });
-  }
 
-  stream(src: string, action: StreamAction) {
+  stream = (src: string, action: StreamAction) =>
     this.addTrace({
       type: TraceType.STREAM,
       payload: { src, action },
     });
-  }
 
   flow(diagramID: string) {
     this.addTrace({
@@ -80,10 +76,9 @@ export default class Trace {
     });
   }
 
-  debug(message: string) {
+  debug = (message: string) =>
     this.addTrace({
       type: TraceType.DEBUG,
       payload: { message },
     });
-  }
 }
