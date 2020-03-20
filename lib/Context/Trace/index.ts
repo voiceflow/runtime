@@ -14,6 +14,7 @@ export enum TraceType {
   STREAM = 'stream',
   DEBUG = 'debug',
   END = 'end',
+  CHOICE = 'choice',
 }
 
 export enum StreamAction {
@@ -22,15 +23,19 @@ export enum StreamAction {
   PAUSE = 'PAUSE',
 }
 
+export interface Choice {
+  name: string;
+}
+
 export default class Trace {
   private trace: TraceFrame[] = [];
 
   constructor(private context: Context) {}
 
-  async addTrace(frame: TraceFrame) {
+  addTrace(frame: TraceFrame) {
     let stop = false;
 
-    await this.context.callEvent(EventType.traceWillAdd, {
+    this.context.callEvent(EventType.traceWillAdd, {
       frame,
       stop: () => {
         stop = true;
@@ -63,16 +68,23 @@ export default class Trace {
       type: TraceType.END,
     });
 
-  stream = (src: string, action: StreamAction) =>
+  stream = (src: string, token: string, action: StreamAction) =>
     this.addTrace({
       type: TraceType.STREAM,
-      payload: { src, action },
+      payload: { src, action, token },
     });
 
   flow(diagramID: string) {
     this.addTrace({
       type: TraceType.FLOW,
       payload: { diagramID },
+    });
+  }
+
+  choice(choices: Choice[]) {
+    this.addTrace({
+      type: TraceType.CHOICE,
+      payload: { choices },
     });
   }
 
