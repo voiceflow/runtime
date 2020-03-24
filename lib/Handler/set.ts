@@ -3,7 +3,7 @@ import Promise from 'bluebird';
 import { EventType } from '@/lib/Lifecycle';
 
 import Handler from './index';
-import { evaluateExpression } from './utils/shuntingYard';
+import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
 type SetStep = {
   expression: string;
@@ -22,10 +22,15 @@ const setHandler: Handler<SetBlock> = {
   handle: async (block, context, variables) => {
     await Promise.each<SetStep>(block.sets, async (set) => {
       try {
+        if (!set.variable) throw new Error('No Variable Defined');
+
         const evaluated = (await evaluateExpression(set.expression, { v: variables.getState() })) as any;
-        // assign only if number or true
-        variables.set(set.variable, !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined);
+        const value = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;
+        // assign only if truthy or not literally NaN
+        context.trace.debug(`setting \`{${set.variable}}\`  \nevaluating \`${regexExpression(set.expression)}\` to \`${value?.toString?.()}\``);
+        variables.set(set.variable, value);
       } catch (error) {
+        context.trace.debug(`unable to resolve expression \`${regexExpression(set.expression)}\` for \`{${set.variable}}\`  \n\`${error}\``);
         await context.callEvent(EventType.handlerDidCatch, { error });
       }
     });

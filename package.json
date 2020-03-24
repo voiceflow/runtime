@@ -12,11 +12,13 @@
     }
   },
   "dependencies": {
+    "@types/safe-json-stringify": "^1.1.0",
     "axios": "^0.19.0",
     "bluebird": "^3.7.2",
     "immer": "^5.1.0",
     "lodash": "^4.17.15",
     "mathjs": "^6.5.0",
+    "safe-json-stringify": "^1.2.0",
     "workerpool": "^5.0.4"
   },
   "devDependencies": {

@@ -34,7 +34,7 @@ const evaluate = (expressions: string, variables: Record<string, any>) => {
   try {
     return limitedEvaluate!(expressions, variables).pop();
   } catch (e) {
-    return e.message;
+    return `__ERROR__:${e.message}`;
   }
 };
 

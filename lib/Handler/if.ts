@@ -1,7 +1,7 @@
 import { EventType } from '@/lib/Lifecycle';
 
 import Handler from './index';
-import { evaluateExpression } from './utils/shuntingYard';
+import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
 export type IfBlock = {
   expressions: string[];
@@ -24,16 +24,20 @@ const ifHandler: Handler<IfBlock> = {
           v: variables.getState(),
         })) as any;
 
+        context.trace.debug(`evaluating path ${i + 1}: \`${regexExpression(block.expressions[i])}\` to \`${evaluated?.toString?.()}\``);
         if (evaluated || evaluated === 0) {
+          context.trace.debug(`condition true - taking path ${i + 1}`);
           path = block.nextIds[i];
           break;
         }
       } catch (error) {
+        context.trace.debug(`unable to resolve expression \`${regexExpression(block.expressions[i])}\`  \n\`${error}\``);
         // eslint-disable-next-line no-await-in-loop
         await context.callEvent(EventType.handlerDidCatch, { error });
       }
     }
 
+    context.trace.debug('no conditions matched - taking else path');
     return path || block.elseId || null;
   },
 };
