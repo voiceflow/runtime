@@ -14,7 +14,10 @@ const randomHandler: Handler<RandomBlock> = {
   handle: async (block, context) => {
     let nextId: string;
 
-    if (!block.nextIds.length) return null;
+    if (!block.nextIds.length) {
+      context.trace.debug('no random paths connected - exiting');
+      return null;
+    }
 
     if (block.nextIds.length === 1) {
       [nextId] = block.nextIds;
@@ -49,6 +52,7 @@ const randomHandler: Handler<RandomBlock> = {
     } else {
       nextId = block.nextIds[Math.floor(Math.random() * block.nextIds.length)];
     }
+    context.trace.debug('going down random path');
 
     return nextId;
   },

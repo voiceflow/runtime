@@ -13,6 +13,8 @@ const EndHandler: Handler<EndBlock> = {
     context.turn.set('end', true);
     context.end();
 
+    context.trace.debug('exiting session - saving location/resolving stack');
+
     return null;
   },
 };

@@ -9,6 +9,7 @@ const evalExpression = async (expression: string, variables: Record<string, any>
   // evaluate expressions in a separate worker to prevent memory overflow of main thread
   const result = await mathJsWorkerPool.exec('evaluate', [exp, variables]).timeout(500);
   await mathJsWorkerPool.terminate();
+
   return result;
 };
 
@@ -356,4 +357,9 @@ export const evaluateExpression = async (expression: string | number, variables:
   } catch (err) {
     return `Unable to calculate expression: ${err}`;
   }
+};
+
+export const regexExpression = (expression: string | number) => {
+  if (_.isNumber(expression)) return expression;
+  return expression.replace(/v\['([A-Za-z0-9_]{0,32})'\]/g, (_m, inner) => `{${inner}}`);
 };

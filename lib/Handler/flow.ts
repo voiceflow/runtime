@@ -30,6 +30,7 @@ const FlowHandler: Handler<FlowBlock> = {
     topFrame.setBlockID(block.nextId ?? null);
 
     context.stack.push(newFrame);
+    context.trace.debug(`entering flow \`${newFrame.getDiagramID()}\``);
     return null;
   },
 };

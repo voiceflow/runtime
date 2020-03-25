@@ -1,5 +1,6 @@
 import axios from 'axios';
 import _ from 'lodash';
+import safeJSONStringify from 'safe-json-stringify';
 
 import Handler from './index';
 import { CUSTOM_API, ENDPOINTS_MAP, IntegrationBlock } from './utils/integrations/constants';
@@ -13,8 +14,9 @@ const IntegrationsHandler: Handler<IntegrationBlock> = {
   canHandle: (block) => {
     return block.type === 'integrations';
   },
-  handle: async (block, _context, variables) => {
+  handle: async (block, context, variables) => {
     if (!block.selected_integration || !block.selected_action) {
+      context.trace.debug('no integration or action specified - fail by default');
       return block.fail_id ?? null;
     }
 
@@ -35,11 +37,16 @@ const IntegrationsHandler: Handler<IntegrationBlock> = {
 
       // if custom api returned error http status nextId to fail port, otherwise success
       if (selectedIntegration === CUSTOM_API && data.response.status >= 400) {
+        context.trace.debug(`action **${block.selected_action}** for integration **${block.selected_integration}** successfully triggered`);
         nextId = block.fail_id ?? null;
       } else {
+        context.trace.debug(`action **${block.selected_action}** for integration **${block.selected_integration}** failed or encountered error`);
         nextId = block.success_id ?? null;
       }
-    } catch (err) {
+    } catch (error) {
+      context.trace.debug(
+        `action **${block.selected_action}** for integration **${block.selected_integration}** failed  \n${safeJSONStringify(error?.response?.data)}`
+      );
       nextId = block.fail_id ?? null;
     }
 
