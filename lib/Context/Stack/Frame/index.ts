@@ -3,7 +3,7 @@ import Diagram, { Command } from '@/lib/Diagram';
 import Store, { State as StoreState } from '../../Store';
 
 export interface State {
-  blockID: string | null;
+  blockID?: string | null;
   diagramID: string;
 
   storage: StoreState;
@@ -23,7 +23,7 @@ export interface Options {
 class Frame {
   private initialized = false;
 
-  private blockID: string | null = null;
+  private blockID?: string | null;
 
   private startBlockID: string | null = null;
 
@@ -36,7 +36,7 @@ class Frame {
   public variables: Store;
 
   constructor(frameState: Options) {
-    this.blockID = frameState.blockID ?? null;
+    this.blockID = frameState.blockID;
     this.diagramID = frameState.diagramID;
 
     this.storage = new Store(frameState.storage);
@@ -67,12 +67,12 @@ class Frame {
 
     Store.initialize(this.variables, diagram.getVariables(), 0);
 
-    if (!this.blockID) {
+    if (this.blockID === undefined) {
       this.blockID = this.startBlockID;
     }
   }
 
-  public getBlockID(): string | null {
+  public getBlockID(): string | null | undefined {
     return this.blockID;
   }
 

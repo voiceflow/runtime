@@ -35,7 +35,7 @@ class Diagram {
     return this.id;
   }
 
-  public getBlock(blockID: string | null): Block | null {
+  public getBlock(blockID?: string | null): Block | null {
     // eslint-disable-next-line no-prototype-builtins
     if (!(blockID && this.blocks.hasOwnProperty(blockID))) {
       return null;
