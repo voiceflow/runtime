@@ -1,0 +1,8 @@
+{
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "include": ["lib/**"],
+  "reporter": ["html", "text", "text-summary", "lcov"],
+  "report-dir": "nyc_coverage",
+  "all": true,
+  "extension": [".ts"]
+}
