@@ -3,7 +3,7 @@ import Request from '@/lib/Context/Request';
 import Handler, { DefaultHandlers } from '@/lib/Handler';
 import { AbstractLifecycle } from '@/lib/Lifecycle';
 
-const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';
+export const DEFAULT_ENDPOINT = 'https://data.voiceflow.com';
 
 class Controller extends AbstractLifecycle {
   private options: {
