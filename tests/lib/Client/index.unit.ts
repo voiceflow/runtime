@@ -8,10 +8,6 @@ import { DefaultHandlers } from '@/lib/Handler';
 
 describe('client unit tests', () => {
   describe('constructor', () => {
-    afterEach(() => {
-      sinon.restore();
-    });
-
     it('default values', () => {
       const secret = 'secret';
 
@@ -41,6 +37,10 @@ describe('client unit tests', () => {
   });
 
   describe('createContext', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
     it('correct init of context', () => {
       const contextStub = sinon.stub(Context, 'default');
       const newContext = { foo: 'bar' };
