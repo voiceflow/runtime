@@ -1,6 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import { S } from '@/lib/Constants';
+import Store from '@/lib/Context/Store';
 import RandomHandler from '@/lib/Handler/random';
 
 describe('RandomHandler unit tests', () => {
@@ -36,6 +38,43 @@ describe('RandomHandler unit tests', () => {
         // result is one of the ids in nextIds
         expect(nextIds.includes(result as string)).to.eql(true);
         expect(context.trace.debug.args).to.eql([['going down random path']]);
+      });
+
+      describe('random === 2 | cannot repeat', () => {
+        it('no previous choices', async () => {
+          const context = { trace: { debug: sinon.stub() }, storage: new Store() };
+          const nextIds = ['one', 'two', 'three'];
+          const block = { blockID: 'block-id', nextIds, random: 2 };
+          const result = await RandomHandler.handle(block as any, context as any, null as any, null as any);
+          // result is one of the ids in nextIds
+          expect(nextIds.includes(result as string)).to.eql(true);
+          expect(context.trace.debug.args).to.eql([['going down random path']]);
+          expect(context.storage.get(S.RANDOMS)[block.blockID]).to.eql([result]);
+        });
+
+        it('only one option left', async () => {
+          const nextIds = ['one', 'two', 'three'];
+          const block = { blockID: 'block-id', nextIds, random: 2 };
+
+          const context = { trace: { debug: sinon.stub() }, storage: new Store({ [S.RANDOMS]: { [block.blockID]: ['one', 'three'] } }) };
+          const result = await RandomHandler.handle(block as any, context as any, null as any, null as any);
+          // only one option possible left
+          expect(result).to.eql('two');
+          expect(context.trace.debug.args).to.eql([['going down random path']]);
+          expect(context.storage.get(S.RANDOMS)[block.blockID]).to.eql(['one', 'three', 'two']);
+        });
+
+        it('no option left', async () => {
+          const nextIds = ['one', 'two', 'three'];
+          const block = { blockID: 'block-id', nextIds, random: 2 };
+
+          const context = { trace: { debug: sinon.stub() }, storage: new Store({ [S.RANDOMS]: { [block.blockID]: nextIds } }) };
+          const result = await RandomHandler.handle(block as any, context as any, null as any, null as any);
+          // result is one of the ids in nextIds
+          expect(nextIds.includes(result as string)).to.eql(true);
+          expect(context.trace.debug.args).to.eql([['going down random path']]);
+          expect(context.storage.get(S.RANDOMS)[block.blockID]).to.eql([result]);
+        });
       });
     });
   });
