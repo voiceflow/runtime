@@ -5,6 +5,7 @@ import sinon from 'sinon';
 import Client, { DEFAULT_ENDPOINT } from '@/lib/Client';
 import * as Context from '@/lib/Context';
 import { DefaultHandlers } from '@/lib/Handler';
+import { EventType } from '@/lib/Lifecycle';
 
 describe('client unit tests', () => {
   describe('constructor', () => {
@@ -56,6 +57,24 @@ describe('client unit tests', () => {
       expect(client.createContext(versionID, state as any, request as any, options as any)).to.eql(newContext);
       expect(contextStub.calledWithNew()).to.eql(true);
       expect(contextStub.args).to.eql([[versionID, state, request, { ..._.get(client, 'options'), ...options }, _.get(client, 'events')]]);
+    });
+  });
+
+  describe('events', () => {
+    it('set, get and call', async () => {
+      const client = new Client({ secret: 'secret' });
+
+      const eventCallback = sinon.stub();
+      client.setEvent(EventType.diagramDidFetch, eventCallback);
+
+      const event = { foo: 'bar' };
+      const context = 'context';
+      await client.callEvent(EventType.diagramDidFetch, event as any, context as any);
+      expect(eventCallback.callCount).to.eql(1);
+      expect(eventCallback.args).to.eql([[{ ...event, context }]]);
+
+      // event not found
+      await client.callEvent('random' as any, event as any, context as any);
     });
   });
 });
