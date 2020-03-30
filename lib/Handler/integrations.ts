@@ -7,8 +7,8 @@ import { CUSTOM_API, ENDPOINTS_MAP, IntegrationBlock } from './utils/integration
 import { deepVariableSubstitution, resultMappings } from './utils/integrations/utils';
 
 // TODO: move this to configs
-const CUSTOM_API_INTEGRATIONS_ENDPOINT = 'http://localhost:8181';
-const INTEGRATIONS_LAMBDA_ENDPOINT = 'http://localhost:8100';
+export const CUSTOM_API_INTEGRATIONS_ENDPOINT = 'http://localhost:8181';
+export const INTEGRATIONS_LAMBDA_ENDPOINT = 'http://localhost:8100';
 
 const IntegrationsHandler: Handler<IntegrationBlock> = {
   canHandle: (block) => {
@@ -37,15 +37,15 @@ const IntegrationsHandler: Handler<IntegrationBlock> = {
 
       // if custom api returned error http status nextId to fail port, otherwise success
       if (selectedIntegration === CUSTOM_API && data.response.status >= 400) {
-        context.trace.debug(`action **${block.selected_action}** for integration **${block.selected_integration}** successfully triggered`);
+        context.trace.debug(`action **${block.selected_action}** for integration **${block.selected_integration}** failed or encountered error`);
         nextId = block.fail_id ?? null;
       } else {
-        context.trace.debug(`action **${block.selected_action}** for integration **${block.selected_integration}** failed or encountered error`);
+        context.trace.debug(`action **${block.selected_action}** for integration **${block.selected_integration}** successfully triggered`);
         nextId = block.success_id ?? null;
       }
     } catch (error) {
       context.trace.debug(
-        `action **${block.selected_action}** for integration **${block.selected_integration}** failed  \n${safeJSONStringify(error?.response?.data)}`
+        `action **${block.selected_action}** for integration **${block.selected_integration}** failed  \n${safeJSONStringify(error.response?.data)}`
       );
       nextId = block.fail_id ?? null;
     }
