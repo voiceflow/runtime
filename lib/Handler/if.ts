@@ -11,11 +11,10 @@ export type IfBlock = {
 
 const ifHandler: Handler<IfBlock> = {
   canHandle: (block) => {
-    return block.expressions && block.expressions.length < 101;
+    return !!(block.expressions && block.expressions.length < 101);
   },
   handle: async (block, context, variables) => {
     // If Block
-    let path;
 
     for (let i = 0; i < block.expressions.length; i++) {
       try {
@@ -27,8 +26,7 @@ const ifHandler: Handler<IfBlock> = {
         context.trace.debug(`evaluating path ${i + 1}: \`${regexExpression(block.expressions[i])}\` to \`${evaluated?.toString?.()}\``);
         if (evaluated || evaluated === 0) {
           context.trace.debug(`condition true - taking path ${i + 1}`);
-          path = block.nextIds[i];
-          break;
+          return block.nextIds[i];
         }
       } catch (error) {
         context.trace.debug(`unable to resolve expression \`${regexExpression(block.expressions[i])}\`  \n\`${error}\``);
@@ -38,7 +36,7 @@ const ifHandler: Handler<IfBlock> = {
     }
 
     context.trace.debug('no conditions matched - taking else path');
-    return path || block.elseId || null;
+    return block.elseId || null;
   },
 };
 
