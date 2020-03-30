@@ -17,7 +17,7 @@ export type SetBlock = {
 
 const setHandler: Handler<SetBlock> = {
   canHandle: (block) => {
-    return block.sets && block.sets.length < 21;
+    return !!(block.sets && block.sets.length < 21);
   },
   handle: async (block, context, variables) => {
     await Promise.each<SetStep>(block.sets, async (set) => {
