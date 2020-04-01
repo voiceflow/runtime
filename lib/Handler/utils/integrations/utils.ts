@@ -20,7 +20,7 @@ export const resultMappings: Record<string, (block: Block<IntegrationBlock>, res
   [ZAPIER]: () => ({}),
 };
 
-const _replacer = (match: string, inner: string, variablesMap: Record<string, any>, uriEncode = false) => {
+export const _replacer = (match: string, inner: string, variablesMap: Record<string, any>, uriEncode = false) => {
   if (inner in variablesMap) {
     return uriEncode ? encodeURI(variablesMap[inner]) : variablesMap[inner];
   }
