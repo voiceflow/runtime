@@ -5,7 +5,7 @@ import Storage from '@/lib/Context/Store';
 import Diagram from '@/lib/Diagram';
 import { EventType } from '@/lib/Lifecycle';
 
-const HANDLER_OVERFLOW = 400;
+export const HANDLER_OVERFLOW = 400;
 
 const cycleHandler = async (context: Context, diagram: Diagram, variableState: Storage): Promise<void> => {
   const referenceFrame = context.stack.top();
