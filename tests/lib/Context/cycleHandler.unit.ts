@@ -1,7 +1,8 @@
 import { expect } from 'chai';
+import _ from 'lodash';
 import sinon from 'sinon';
 
-import cycleHandler, { HANDLER_OVERFLOW } from '@/lib/Context/cycleHandler';
+import cycleHandler, * as file from '@/lib/Context/cycleHandler';
 import { EventType } from '@/lib/Lifecycle';
 
 describe('Context cycleHandler unit tests', () => {
@@ -103,7 +104,9 @@ describe('Context cycleHandler unit tests', () => {
     expect(context.stack.getFrames.callCount).to.eql(2);
   });
 
-  it('cycle twice', async () => {
+  it('cycle multiple times', async () => {
+    const cyclesLimit = 3;
+    _.set(file, 'HANDLER_OVERFLOW', cyclesLimit);
     const blockID = 'block-id';
     const referenceFrame = { getBlockID: sinon.stub().returns(blockID), setBlockID: sinon.stub() };
     const handlers = [{ canHandle: () => false }, { canHandle: () => true, handle: sinon.stub().resolves('next-id') }];
@@ -122,7 +125,7 @@ describe('Context cycleHandler unit tests', () => {
 
     // the fact that finishes means that i > HANDLER_OVERFLOW was hit
     await cycleHandler(context as any, diagram as any, variableState as any);
-    expect(context.hasEnded.callCount).to.eql(HANDLER_OVERFLOW + 1);
+    expect(context.hasEnded.callCount).to.eql(cyclesLimit + 1);
     expect(referenceFrame.setBlockID.args[0]).to.eql(['next-id']);
   });
 });
