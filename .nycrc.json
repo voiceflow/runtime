@@ -1,7 +1,6 @@
 {
   "extends": "@istanbuljs/nyc-config-typescript",
   "include": ["lib/**"],
-  "exclude": ["lib/Handler/utils/mathJsWorker.ts", "lib/Handler/utils/shuntingYard.ts"],
   "reporter": ["html", "text", "text-summary", "lcov"],
   "report-dir": "nyc_coverage",
   "all": true,
