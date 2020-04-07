@@ -1,16 +1,19 @@
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@1.0.2
+
 executors:
-  build-executor: 
-    docker: 
+  build-executor:
+    docker:
       - image: circleci/node:12
     resource_class: small
 
-commands: 
+commands:
   install_node_modules:
     steps:
       - restore_cache:
-          keys: 
+          keys:
             - node-module-cache-{{ checksum "yarn.lock" }}
       - run:
           name: yarn install packages
@@ -29,24 +32,30 @@ jobs:
       - checkout
       - install_node_modules # To build the TS
       - run: npx semantic-release@15
-  build: 
+  build-and-test:
     executor: build-executor
-    steps: 
+    steps:
       - checkout
       - install_node_modules
-      - run: 
-          name: "Build package"
+      - run:
+          name: 'Build package'
           command: |
             yarn build
+      - run:
+          name: 'Run tests'
+          command: |
+            yarn test
+      - codecov/upload:
+          file: nyc_coverage/lcov.info
 
 workflows:
   test-and-release:
     jobs:
       - release:
           requires:
-            - build
+            - build-and-test
           filters:
             branches:
               only: master
-      - build  # Run on all branches
+      - build-and-test # Run on all branches
 

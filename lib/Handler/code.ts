@@ -1,7 +1,11 @@
 import axios from 'axios';
+import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
 
 import Handler from './index';
+
+// TODO: move url to configs
+export const CODE_ENDPOINT = 'https://cjpsnfbb56.execute-api.us-east-1.amazonaws.com/dev/code/execute';
 
 export type CodeBlock = {
   code: string;
@@ -22,14 +26,13 @@ const codeHandler: Handler<CodeBlock> = {
         return acc;
       }, {});
 
-      // TODO: move url to configs
-      const result = await axios.post('https://cjpsnfbb56.execute-api.us-east-1.amazonaws.com/dev/code/execute', {
+      const result = await axios.post(CODE_ENDPOINT, {
         code: block.code,
         variables: usedVariables,
       });
 
       // debugging changes find variable value differences
-      const changes = Object.keys(usedVariables).reduce<string>((acc, variable) => {
+      const changes = _.union(Object.keys(usedVariables), Object.keys(result.data)).reduce<string>((acc, variable) => {
         if (usedVariables[variable] !== result.data[variable]) {
           acc += `\`{${variable}}\`: \`${usedVariables[variable]?.toString?.()}\` => \`${result.data[variable]?.toString?.()}\`  \n`;
         }
@@ -41,7 +44,7 @@ const codeHandler: Handler<CodeBlock> = {
 
       return block.success_id ?? null;
     } catch (error) {
-      context.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error?.response?.data)}\``);
+      context.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data)}\``);
       return block.fail_id ?? null;
     }
   },

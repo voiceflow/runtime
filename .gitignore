@@ -9,6 +9,7 @@ routes/tmp/*
 !routes/tmp/.gitkeep
 
 coverage
+*_coverage
 restart.sh
 log/
 newrelic_agent.log

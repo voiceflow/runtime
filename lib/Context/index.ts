@@ -171,15 +171,6 @@ class Context extends AbstractLifecycle {
     };
   }
 
-  // public produce(producer: (draft: Draft<State>) => void): void {
-  //   const { turn, stack, storage, variables } = produce(this.getState(), producer);
-  //
-  //   this.turn.update(turn);
-  //   this.stack.update(stack);
-  //   this.storage.update(storage);
-  //   this.variables.update(variables);
-  // }
-
   public getHandlers(): Handler[] {
     return this.handlers;
   }
