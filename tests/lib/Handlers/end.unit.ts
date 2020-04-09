@@ -1,16 +1,18 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import EndHandler from '@/lib/Handler/end';
+import EndHandler from '@/lib/Handlers/end';
 
 describe('EndHandler unit tests', () => {
+  const endHandler = EndHandler();
+
   describe('canHandle', () => {
     it('false', () => {
-      expect(EndHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(endHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', () => {
-      expect(EndHandler.canHandle({ end: true } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(endHandler.canHandle({ end: true } as any, null as any, null as any, null as any)).to.eql(true);
     });
   });
 
@@ -22,7 +24,7 @@ describe('EndHandler unit tests', () => {
         end: sinon.stub(),
         trace: { debug: sinon.stub() },
       };
-      expect(EndHandler.handle(null as any, context as any, null as any, null as any)).to.eql(null);
+      expect(endHandler.handle(null as any, context as any, null as any, null as any)).to.eql(null);
       expect(context.stack.pop.callCount).to.eql(1);
       expect(context.turn.set.args).to.eql([['end', true]]);
       expect(context.end.callCount).to.eql(1);

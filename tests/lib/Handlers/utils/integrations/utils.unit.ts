@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { CUSTOM_API, GOOGLE_SHEETS, ZAPIER } from '@/lib/Handler/utils/integrations/constants';
-import { _replacer, deepVariableSubstitution, resultMappings } from '@/lib/Handler/utils/integrations/utils';
+import { CUSTOM_API, GOOGLE_SHEETS, ZAPIER } from '@/lib/Handlers/utils/integrations/constants';
+import { _replacer, deepVariableSubstitution, resultMappings } from '@/lib/Handlers/utils/integrations/utils';
 
 describe('handlers integrations utils unit tests', () => {
   describe('resultMappings', () => {

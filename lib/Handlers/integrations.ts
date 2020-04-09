@@ -2,15 +2,17 @@ import axios from 'axios';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
 
-import Handler from './index';
+import { HandlerFactory } from '@/lib/Handler';
+
 import { CUSTOM_API, ENDPOINTS_MAP, IntegrationBlock } from './utils/integrations/constants';
 import { deepVariableSubstitution, resultMappings } from './utils/integrations/utils';
 
-// TODO: move this to configs
-export const CUSTOM_API_INTEGRATIONS_ENDPOINT = 'http://localhost:8181';
-export const INTEGRATIONS_LAMBDA_ENDPOINT = 'http://localhost:8100';
+export type IntegrationsOptions = {
+  customAPIEndpoint: string;
+  integrationsLambdaEndpoint: string;
+};
 
-const IntegrationsHandler: Handler<IntegrationBlock> = {
+const IntegrationsHandler: HandlerFactory<IntegrationBlock, IntegrationsOptions> = ({ customAPIEndpoint, integrationsLambdaEndpoint }) => ({
   canHandle: (block) => {
     return block.type === 'integrations';
   },
@@ -27,7 +29,7 @@ const IntegrationsHandler: Handler<IntegrationBlock> = {
 
       const actionBodyData = deepVariableSubstitution(_.cloneDeep(block.action_data), variables.getState());
 
-      const BASE_URL = selectedIntegration === CUSTOM_API ? CUSTOM_API_INTEGRATIONS_ENDPOINT : INTEGRATIONS_LAMBDA_ENDPOINT;
+      const BASE_URL = selectedIntegration === CUSTOM_API ? customAPIEndpoint : integrationsLambdaEndpoint;
       const { data } = await axios.post(`${BASE_URL}${ENDPOINTS_MAP[selectedIntegration][selectedAction]}`, actionBodyData);
       const resultVariables = selectedIntegration === CUSTOM_API ? data.variables : data;
       // map result data to variables
@@ -52,6 +54,6 @@ const IntegrationsHandler: Handler<IntegrationBlock> = {
 
     return nextId;
   },
-};
+});
 
 export default IntegrationsHandler;

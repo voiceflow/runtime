@@ -1,6 +1,6 @@
+import { HandlerFactory } from '@/lib/Handler';
 import { EventType } from '@/lib/Lifecycle';
 
-import Handler from './index';
 import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
 export type IfBlock = {
@@ -9,7 +9,7 @@ export type IfBlock = {
   elseId?: string;
 };
 
-const ifHandler: Handler<IfBlock> = {
+const IfHandler: HandlerFactory<IfBlock> = () => ({
   canHandle: (block) => {
     return !!(block.expressions && block.expressions.length < 101);
   },
@@ -38,6 +38,6 @@ const ifHandler: Handler<IfBlock> = {
     context.trace.debug('no conditions matched - taking else path');
     return block.elseId || null;
   },
-};
+});
 
-export default ifHandler;
+export default IfHandler;

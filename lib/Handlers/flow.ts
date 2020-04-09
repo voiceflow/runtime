@@ -1,8 +1,8 @@
 import { S } from '@/lib/Constants';
 import Frame from '@/lib/Context/Stack/Frame';
+import { HandlerFactory } from '@/lib/Handler';
 
 import { mapStores } from '../Context/utils/variables';
-import Handler from './index';
 
 export type FlowBlock = {
   diagram_id: string;
@@ -13,7 +13,7 @@ export type FlowBlock = {
   nextId?: string;
 };
 
-const FlowHandler: Handler<FlowBlock> = {
+const FlowHandler: HandlerFactory<FlowBlock> = () => ({
   canHandle: (block) => {
     return !!block.diagram_id;
   },
@@ -33,6 +33,6 @@ const FlowHandler: Handler<FlowBlock> = {
     context.trace.debug(`entering flow \`${newFrame.getDiagramID()}\``);
     return null;
   },
-};
+});
 
 export default FlowHandler;

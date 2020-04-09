@@ -2,10 +2,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
 
-import Handler from './index';
-
-// TODO: move url to configs
-export const CODE_ENDPOINT = 'https://cjpsnfbb56.execute-api.us-east-1.amazonaws.com/dev/code/execute';
+import { HandlerFactory } from '@/lib/Handler';
 
 export type CodeBlock = {
   code: string;
@@ -13,7 +10,11 @@ export type CodeBlock = {
   success_id?: string;
 };
 
-const codeHandler: Handler<CodeBlock> = {
+export type CodeOptions = {
+  endpoint: string;
+};
+
+const CodeHandler: HandlerFactory<CodeBlock, CodeOptions> = ({ endpoint }) => ({
   canHandle: (block) => {
     return !!block.code;
   },
@@ -26,7 +27,7 @@ const codeHandler: Handler<CodeBlock> = {
         return acc;
       }, {});
 
-      const result = await axios.post(CODE_ENDPOINT, {
+      const result = await axios.post(endpoint, {
         code: block.code,
         variables: usedVariables,
       });
@@ -48,6 +49,6 @@ const codeHandler: Handler<CodeBlock> = {
       return block.fail_id ?? null;
     }
   },
-};
+});
 
-export default codeHandler;
+export default CodeHandler;

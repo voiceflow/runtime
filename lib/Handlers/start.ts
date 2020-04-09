@@ -1,10 +1,10 @@
-import Handler from './index';
+import { HandlerFactory } from '@/lib/Handler';
 
 export type Start = {
   nextId?: string;
 };
 
-const StartHandler: Handler<Start> = {
+const StartHandler: HandlerFactory<Start> = () => ({
   canHandle: (block) => {
     return Object.keys(block).length === 2 && !!block.nextId;
   },
@@ -12,6 +12,6 @@ const StartHandler: Handler<Start> = {
     context.trace.debug('beginning flow');
     return block.nextId ?? null;
   },
-};
+});
 
 export default StartHandler;

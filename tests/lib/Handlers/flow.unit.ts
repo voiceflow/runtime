@@ -4,16 +4,18 @@ import sinon from 'sinon';
 import { S } from '@/lib/Constants';
 import * as Frame from '@/lib/Context/Stack/Frame';
 import * as Utils from '@/lib/Context/utils/variables';
-import FlowHandler from '@/lib/Handler/flow';
+import FlowHandler from '@/lib/Handlers/flow';
 
-describe('FlowHandler unit tests', () => {
+describe('flowHandler unit tests', () => {
+  const flowHandler = FlowHandler();
+
   describe('canHandle', () => {
     it('false', () => {
-      expect(FlowHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(flowHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', () => {
-      expect(FlowHandler.canHandle({ diagram_id: 'diagram-id' } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(flowHandler.canHandle({ diagram_id: 'diagram-id' } as any, null as any, null as any, null as any)).to.eql(true);
     });
   });
 
@@ -35,7 +37,7 @@ describe('FlowHandler unit tests', () => {
       const variables = {};
 
       // assertions
-      expect(FlowHandler.handle(block, context as any, variables as any, null as any)).to.eql(null);
+      expect(flowHandler.handle(block, context as any, variables as any, null as any)).to.eql(null);
       expect(frameStub.calledWithNew()).to.eql(true);
       expect(frameStub.args).to.eql([[{ diagramID: block.diagram_id }]]);
       expect(mapStoresStub.args).to.eql([[[], variables, newFrame.variables]]);
@@ -71,7 +73,7 @@ describe('FlowHandler unit tests', () => {
       const variables = {};
 
       // assertions
-      expect(FlowHandler.handle(block, context as any, variables as any, null as any)).to.eql(null);
+      expect(flowHandler.handle(block, context as any, variables as any, null as any)).to.eql(null);
       expect(frameStub.calledWithNew()).to.eql(true);
       expect(frameStub.args).to.eql([[{ diagramID: block.diagram_id }]]);
       expect(mapStoresStub.args).to.eql([[block.variable_map.inputs, variables, newFrame.variables]]);
