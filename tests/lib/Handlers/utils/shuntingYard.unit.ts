@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { evaluateExpression } from '@/lib/Handler/utils/shuntingYard';
+import { evaluateExpression } from '@/lib/Handlers/utils/shuntingYard';
 
 describe('handler utils shuntingYard unit tests', () => {
   // todo: add more tests

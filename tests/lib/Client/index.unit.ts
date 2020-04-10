@@ -4,7 +4,6 @@ import sinon from 'sinon';
 
 import Client, { DEFAULT_ENDPOINT } from '@/lib/Client';
 import * as Context from '@/lib/Context';
-import { DefaultHandlers } from '@/lib/Handler';
 import { EventType } from '@/lib/Lifecycle';
 
 describe('client unit tests', () => {
@@ -16,7 +15,7 @@ describe('client unit tests', () => {
       expect(_.get(client, 'options')).to.eql({
         secret,
         endpoint: DEFAULT_ENDPOINT,
-        handlers: DefaultHandlers,
+        handlers: [],
         services: {},
       });
     });
@@ -31,7 +30,7 @@ describe('client unit tests', () => {
       expect(_.get(client, 'options')).to.eql({
         secret,
         endpoint,
-        handlers: [...handlers, ...DefaultHandlers],
+        handlers,
         services,
       });
     });

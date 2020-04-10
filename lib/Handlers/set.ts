@@ -1,8 +1,8 @@
 import Promise from 'bluebird';
 
+import { HandlerFactory } from '@/lib/Handler';
 import { EventType } from '@/lib/Lifecycle';
 
-import Handler from './index';
 import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
 type SetStep = {
@@ -15,7 +15,7 @@ export type SetBlock = {
   nextId?: string;
 };
 
-const setHandler: Handler<SetBlock> = {
+const setHandler: HandlerFactory<SetBlock> = () => ({
   canHandle: (block) => {
     return !!(block.sets && block.sets.length < 21);
   },
@@ -37,6 +37,6 @@ const setHandler: Handler<SetBlock> = {
 
     return block.nextId || null;
   },
-};
+});
 
 export default setHandler;

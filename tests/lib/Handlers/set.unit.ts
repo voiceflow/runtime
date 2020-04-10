@@ -1,18 +1,20 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import SetHandler from '@/lib/Handler/set';
-import * as Utils from '@/lib/Handler/utils/shuntingYard';
+import SetHandler from '@/lib/Handlers/set';
+import * as Utils from '@/lib/Handlers/utils/shuntingYard';
 import { EventType } from '@/lib/Lifecycle';
 
-describe('SetHandler unit tests', () => {
+describe('setHandler unit tests', () => {
+  const setHandler = SetHandler();
+
   describe('canHandle', () => {
     it('false', () => {
-      expect(SetHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(setHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', () => {
-      expect(SetHandler.canHandle({ sets: ['a', 'b'] } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(setHandler.canHandle({ sets: ['a', 'b'] } as any, null as any, null as any, null as any)).to.eql(true);
     });
   });
 
@@ -40,7 +42,7 @@ describe('SetHandler unit tests', () => {
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState), set: sinon.stub() };
 
-      expect(await SetHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.nextId);
+      expect(await setHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.nextId);
       expect(shuntingYardStub.args).to.eql([
         [block.sets[1].expression, { v: variablesState }],
         [block.sets[2].expression, { v: variablesState }],
@@ -68,7 +70,7 @@ describe('SetHandler unit tests', () => {
       };
       const context = { trace: { debug: sinon.stub() }, callEvent: sinon.stub() };
 
-      expect(await SetHandler.handle(block as any, context as any, null as any, null as any)).to.eql(null);
+      expect(await setHandler.handle(block as any, context as any, null as any, null as any)).to.eql(null);
     });
   });
 });

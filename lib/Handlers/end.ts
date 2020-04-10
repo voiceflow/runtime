@@ -1,10 +1,10 @@
-import Handler from './index';
+import { HandlerFactory } from '@/lib/Handler';
 
 export type EndBlock = {
   end?: string;
 };
 
-const EndHandler: Handler<EndBlock> = {
+const EndHandler: HandlerFactory<EndBlock> = () => ({
   canHandle: (block) => {
     return !!block.end;
   },
@@ -17,6 +17,6 @@ const EndHandler: Handler<EndBlock> = {
 
     return null;
   },
-};
+});
 
 export default EndHandler;

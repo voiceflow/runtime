@@ -1,4 +1,4 @@
-import { Block } from '../Handler';
+import { Block } from '@/lib/Handler';
 
 export type Command<C = {}> = C & {
   [key: string]: any;

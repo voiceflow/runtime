@@ -1,18 +1,20 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import IfHandler from '@/lib/Handler/if';
-import * as Utils from '@/lib/Handler/utils/shuntingYard';
+import IfHandler from '@/lib/Handlers/if';
+import * as Utils from '@/lib/Handlers/utils/shuntingYard';
 import { EventType } from '@/lib/Lifecycle';
 
-describe('IfHandler unit tests', () => {
+describe('ifHandler unit tests', () => {
+  const ifHandler = IfHandler();
+
   describe('canHandle', () => {
     it('false', () => {
-      expect(IfHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(ifHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', () => {
-      expect(IfHandler.canHandle({ expressions: ['a', 'b'] } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(ifHandler.canHandle({ expressions: ['a', 'b'] } as any, null as any, null as any, null as any)).to.eql(true);
     });
   });
 
@@ -32,7 +34,7 @@ describe('IfHandler unit tests', () => {
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState) };
 
-      expect(await IfHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.nextIds[1]);
+      expect(await ifHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.nextIds[1]);
       expect(shuntingYardStub.args).to.eql([
         [block.expressions[0], { v: variablesState }],
         [block.expressions[1], { v: variablesState }],
@@ -59,7 +61,7 @@ describe('IfHandler unit tests', () => {
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState) };
 
-      expect(await IfHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.nextIds[1]);
+      expect(await ifHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.nextIds[1]);
       expect(shuntingYardStub.args).to.eql([
         [block.expressions[0], { v: variablesState }],
         [block.expressions[1], { v: variablesState }],
@@ -84,7 +86,7 @@ describe('IfHandler unit tests', () => {
         const context = { trace: { debug: sinon.stub() } };
         const variables = { getState: sinon.stub().returns({}) };
 
-        expect(await IfHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.elseId);
+        expect(await ifHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.elseId);
 
         expect(context.trace.debug.args).to.eql([['evaluating path 1: `first` to `undefined`'], ['no conditions matched - taking else path']]);
       });
@@ -96,7 +98,7 @@ describe('IfHandler unit tests', () => {
         const context = { trace: { debug: sinon.stub() } };
         const variables = { getState: sinon.stub().returns({}) };
 
-        expect(await IfHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(null);
+        expect(await ifHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(null);
 
         expect(context.trace.debug.args).to.eql([['evaluating path 1: `first` to `undefined`'], ['no conditions matched - taking else path']]);
       });

@@ -1,13 +1,12 @@
 import { S } from '@/lib/Constants';
-
-import Handler from './index';
+import { HandlerFactory } from '@/lib/Handler';
 
 export type RandomBlock = {
   random?: number;
   nextIds: string[];
 };
 
-const randomHandler: Handler<RandomBlock> = {
+const randomHandler: HandlerFactory<RandomBlock> = () => ({
   canHandle: (block) => {
     return !!block.random;
   },
@@ -56,6 +55,6 @@ const randomHandler: Handler<RandomBlock> = {
 
     return nextId;
   },
-};
+});
 
 export default randomHandler;
