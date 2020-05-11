@@ -21,7 +21,7 @@ const FlowHandler: HandlerFactory<FlowBlock> = () => ({
     const newFrame = new Frame({ diagramID: block.diagram_id });
 
     // map block variable map input to frame
-    mapStores(block.variable_map?.inputs || [], variables, newFrame.variables);
+    mapStores(block.variable_map?.inputs || [], variables, newFrame.variables, true);
 
     // attach block variable map outputs to frame
     newFrame.storage.set(S.OUTPUT_MAP, block.variable_map?.outputs);
