@@ -23,14 +23,10 @@ export const saveCombinedVariables = (combined: Store, global: Store, local: Sto
   global.merge(updatedGlobal);
 };
 
-export const mapStores = (map: [string, string][], from: Store, to: Store, input = false): void => {
+export const mapStores = (map: [string, string][], from: Store, to: Store): void => {
   to.produce((draft) => {
-    map.forEach(([var1, var2]) => {
-      const currentVal = input ? var1 : var2;
-      const newVal = input ? var2 : var1;
+    map.forEach(([currentVal, newVal]) => {
       draft[newVal] = from.get(currentVal);
     });
   });
 };
-//     map.forEach(([currentVal, newVal]) => { -> input
-// map.forEach(([newVal, currentVal]) => { -> output
