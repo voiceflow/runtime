@@ -77,7 +77,15 @@ describe('flowHandler unit tests', () => {
       expect(frameStub.calledWithNew()).to.eql(true);
       expect(frameStub.args).to.eql([[{ diagramID: block.diagram_id }]]);
       expect(mapStoresStub.args).to.eql([[block.variable_map.inputs, variables, newFrame.variables]]);
-      expect(newFrame.storage.set.args).to.eql([[S.OUTPUT_MAP, block.variable_map.outputs]]);
+      expect(newFrame.storage.set.args).to.eql([
+        [
+          S.OUTPUT_MAP,
+          [
+            ['f', 'e'],
+            ['h', 'g'],
+          ],
+        ],
+      ]);
       expect(topFrame.setBlockID.args).to.eql([[null]]);
       expect(context.stack.push.args).to.eql([[newFrame]]);
       expect(context.trace.debug.args).to.eql([[`entering flow \`${newFrame.getDiagramID()}\``]]);
