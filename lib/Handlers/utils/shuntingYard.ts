@@ -327,7 +327,8 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
           throw new Error('var not found');
         }
 
-        const val = variables[object][variable];
+        let val = variables[object][variable];
+        val = Number.isNaN(Number(val)) ? val : Number(val);
         RPN.push(val);
         i--;
       }
