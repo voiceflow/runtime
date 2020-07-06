@@ -2,41 +2,14 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.0.2
-
-executors:
-  build-executor:
-    docker:
-      - image: circleci/node:12
-    resource_class: small
-
-commands:
-  install_node_modules:
-    steps:
-      - restore_cache:
-          keys:
-            - node-module-cache-{{ checksum "yarn.lock" }}
-      - run:
-          name: yarn install packages
-          command: |
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            yarn install --frozen-lockfile
-      - save_cache: # special step to save the dependency cache
-          key: node-module-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - ./node_modules
+  vfcommon: voiceflow/common@0.0.5
 
 jobs:
-  release:
-    executor: build-executor
-    steps:
-      - checkout
-      - install_node_modules # To build the TS
-      - run: npx semantic-release@15
   build-and-test:
-    executor: build-executor
+    executor: vfcommon/default-executor
     steps:
       - checkout
-      - install_node_modules
+      - vfcommon/install_node_modules
       - run:
           name: 'Build package'
           command: |
@@ -51,11 +24,11 @@ jobs:
 workflows:
   test-and-release:
     jobs:
-      - release:
+      - build-and-test
+      - vfcommon/release:
           requires:
             - build-and-test
           filters:
             branches:
               only: master
-      - build-and-test # Run on all branches
 
