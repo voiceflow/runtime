@@ -20,22 +20,17 @@ const CodeHandler: HandlerFactory<CodeBlock, CodeOptions> = ({ endpoint }) => ({
   },
   handle: async (block, context, variables) => {
     try {
-      const usedVariables = variables.keys().reduce<Record<string, any>>((acc, variable) => {
-        if (block.code.indexOf(variable) !== -1) {
-          acc[variable] = variables.get(variable);
-        }
-        return acc;
-      }, {});
+      const variablesState = variables.getState();
 
       const result = await axios.post(endpoint, {
         code: block.code,
-        variables: usedVariables,
+        variables: variablesState,
       });
 
       // debugging changes find variable value differences
-      const changes = _.union(Object.keys(usedVariables), Object.keys(result.data)).reduce<string>((acc, variable) => {
-        if (usedVariables[variable] !== result.data[variable]) {
-          acc += `\`{${variable}}\`: \`${usedVariables[variable]?.toString?.()}\` => \`${result.data[variable]?.toString?.()}\`  \n`;
+      const changes = _.union(Object.keys(variablesState), Object.keys(result.data)).reduce<string>((acc, variable) => {
+        if (variablesState[variable] !== result.data[variable]) {
+          acc += `\`{${variable}}\`: \`${variablesState[variable]?.toString?.()}\` => \`${result.data[variable]?.toString?.()}\`  \n`;
         }
         return acc;
       }, '');
