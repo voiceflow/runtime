@@ -31,7 +31,7 @@ describe('codeHandler unit tests', () => {
 
         const block = { code: 'foo()' };
         const context = { trace: { debug: sinon.stub() } };
-        const variables = { keys: sinon.stub().returns([]) };
+        const variables = { keys: sinon.stub().returns([]), getState: sinon.stub().returns({}) };
         const result = await codeHandler.handle(block as any, context as any, variables as any, null as any);
         expect(result).to.eql(null);
         expect(axiosPost.args).to.eql([['foo', { code: block.code, variables: {} }]]);
@@ -44,7 +44,7 @@ describe('codeHandler unit tests', () => {
 
         const block = { code: 'foo()', fail_id: 'fail-id' };
         const context = { trace: { debug: sinon.stub() } };
-        const variables = { keys: sinon.stub().returns([]) };
+        const variables = { keys: sinon.stub().returns([]), getState: sinon.stub().returns({}) };
         const result = await codeHandler.handle(block as any, context as any, variables as any, null as any);
         expect(result).to.eql(block.fail_id);
         expect(axiosPost.args).to.eql([['foo', { code: block.code, variables: {} }]]);
@@ -63,11 +63,10 @@ describe('codeHandler unit tests', () => {
 
         const block = { code: 'var1(); var2(); var3();', success_id: 'success-id' };
         const context = { trace: { debug: sinon.stub() } };
-        const variablesGet = sinon.stub();
-        variablesGet.withArgs('var1').returns(1);
-        variablesGet.withArgs('var2').returns(2);
-        variablesGet.withArgs('var3').returns(3);
-        const variables = { keys: sinon.stub().returns(['var1', 'var2', 'var3', 'var4']), get: variablesGet, merge: sinon.stub() };
+        const variables = {
+          merge: sinon.stub(),
+          getState: sinon.stub().returns({ var1: 1, var2: 2, var3: 3 }),
+        };
         const result = await codeHandler.handle(block as any, context as any, variables as any, null as any);
         expect(result).to.eql(block.success_id);
         expect(axiosPost.args).to.eql([['foo', { code: block.code, variables: { var1: 1, var2: 2, var3: 3 } }]]);
@@ -84,9 +83,7 @@ describe('codeHandler unit tests', () => {
 
         const block = { code: 'var1();' };
         const context = { trace: { debug: sinon.stub() } };
-        const variablesGet = sinon.stub();
-        variablesGet.withArgs('var1').returns(1);
-        const variables = { keys: sinon.stub().returns(['var1', 'var2', 'var3', 'var4']), get: variablesGet, merge: sinon.stub() };
+        const variables = { merge: sinon.stub(), getState: sinon.stub().returns({ var1: 1 }) };
         const result = await codeHandler.handle(block as any, context as any, variables as any, null as any);
         expect(result).to.eql(null);
         expect(axiosPost.args).to.eql([['foo', { code: block.code, variables: { var1: 1 } }]]);
