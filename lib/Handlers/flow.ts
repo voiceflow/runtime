@@ -5,7 +5,7 @@ import { HandlerFactory } from '@/lib/Handler';
 import { mapStores } from '../Context/utils/variables';
 
 export type FlowBlock = {
-  diagram_id: string;
+  diagram_id?: string;
   variable_map?: {
     inputs?: [string, string][];
     outputs?: [string, string][];
@@ -17,7 +17,11 @@ const FlowHandler: HandlerFactory<FlowBlock> = () => ({
   canHandle: (block) => {
     return !!block.diagram_id;
   },
-  handle: (block, context, variables): null => {
+  handle: (block, context, variables) => {
+    if (!block.diagram_id) {
+      return block.nextId || null;
+    }
+
     const newFrame = new Frame({ diagramID: block.diagram_id });
 
     // map block variable map input to frame
