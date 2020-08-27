@@ -119,8 +119,8 @@ class Context extends AbstractLifecycle {
     return this.getAction() === Action.END;
   }
 
-  public async fetchMetadata<T = object>(): Promise<T> {
-    const { data }: { data: T } = await this.fetch.get(`/metadata/${this.versionID}`);
+  public async fetchVersion<T = object>(): Promise<T> {
+    const { data }: { data: T } = await this.fetch.get(`/version/${this.versionID}`);
 
     return data;
   }
