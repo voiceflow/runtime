@@ -68,7 +68,7 @@ describe('Context unit', () => {
     expect(getDiagram.args).to.eql([[diagramId]]);
   });
 
-  it('fetchMetadata', async () => {
+  it('fetchVersion', async () => {
     const metadata = { foo: 'bar' };
     const axiosGet = sinon.stub().resolves({ data: metadata });
     const axiosCreate = sinon.stub(axios, 'create').returns({ get: axiosGet } as any);
@@ -78,9 +78,9 @@ describe('Context unit', () => {
     const versionID = 'version-id';
     const context = new Context(versionID as any, { stack: [] } as any, undefined as any, { endpoint, secret } as any, null as any);
 
-    expect(await context.fetchMetadata()).to.eql(metadata);
+    expect(await context.fetchVersion()).to.eql(metadata);
     expect(axiosCreate.args).to.eql([[{ baseURL: endpoint, headers: { authorization: `Bearer ${secret}` } }]]);
-    expect(axiosGet.args).to.eql([[`/metadata/${versionID}`]]);
+    expect(axiosGet.args).to.eql([[`/version/${versionID}`]]);
   });
 
   it('getHandlers', () => {
