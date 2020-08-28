@@ -42,10 +42,10 @@ describe('Context Trace unit tests', () => {
     expect(traceObj.get()).to.eql(trace);
   });
 
-  it('node', () => {
+  it('block', () => {
     const trace = new Trace({ callEvent: sinon.stub() } as any);
 
-    const blockID = 'node-id';
+    const blockID = 'block-id';
     trace.block(blockID);
     expect(trace.get()).to.eql([{ type: TraceType.BLOCK, payload: { blockID } }]);
   });
@@ -78,7 +78,7 @@ describe('Context Trace unit tests', () => {
   it('flow', () => {
     const trace = new Trace({ callEvent: sinon.stub() } as any);
 
-    const diagramID = 'program-id';
+    const diagramID = 'diagram-id';
     trace.flow(diagramID);
     expect(trace.get()).to.eql([{ type: TraceType.FLOW, payload: { diagramID } }]);
   });
