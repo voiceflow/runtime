@@ -51,10 +51,10 @@ export default class Trace {
     return this.trace;
   }
 
-  node = (nodeID: string) =>
+  block = (blockID: string) =>
     this.addTrace({
       type: TraceType.BLOCK,
-      payload: { nodeID },
+      payload: { blockID },
     });
 
   speak = (message: string) =>
@@ -74,10 +74,10 @@ export default class Trace {
       payload: { src, action, token },
     });
 
-  flow(programID: string) {
+  flow(diagramID: string) {
     this.addTrace({
       type: TraceType.FLOW,
-      payload: { programID },
+      payload: { diagramID },
     });
   }
 
