@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import { Program, Version } from '@voiceflow/api-sdk';
 
 import cycleStack from '@/lib/Context/cycleStack';
 import Handler from '@/lib/Handler';
@@ -8,13 +8,15 @@ import Request from './Request';
 import Stack, { FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
-import DiagramManager from './utils/diagramManager';
+import ProgramManager from './utils/programManager';
 
 export interface Options {
-  secret?: string;
-  endpoint?: string;
   handlers?: Handler[];
   services?: Record<string, any>;
+  api: {
+    getProgram: (programID: string) => Program | Promise<Program>;
+    getVersion?: (versionID: string) => Version<any> | Promise<Version<any>>;
+  };
 }
 
 export interface State {
@@ -47,19 +49,19 @@ class Context extends AbstractLifecycle {
   // services
   public services: Record<string, any>;
 
-  private fetch: AxiosInstance;
+  public api: Options['api'];
 
   private action: Action = Action.IDLE;
 
   private handlers: Handler[];
 
-  private diagramManager: DiagramManager;
+  private programManager: ProgramManager;
 
   constructor(
     public versionID: string,
     state: State,
     private request: Request | null = null,
-    { services = {}, endpoint, secret, handlers = [] }: Options = {},
+    { services = {}, handlers = [], api }: Options,
     events: Lifecycle
   ) {
     super(events);
@@ -68,6 +70,7 @@ class Context extends AbstractLifecycle {
 
     this.services = services;
     this.handlers = handlers;
+    this.api = api;
 
     this.stack = new Stack(state.stack, {
       willChange: createEvent(EventType.stackWillChange),
@@ -89,14 +92,9 @@ class Context extends AbstractLifecycle {
       willUpdate: createEvent(EventType.variablesWillUpdate),
     });
 
-    this.fetch = axios.create({
-      baseURL: endpoint,
-      headers: { authorization: `Bearer ${secret}` },
-    });
-
     this.trace = new Trace(this);
 
-    this.diagramManager = new DiagramManager(this, this.fetch);
+    this.programManager = new ProgramManager(this);
   }
 
   getRequest(): Request | null {
@@ -119,18 +117,12 @@ class Context extends AbstractLifecycle {
     return this.getAction() === Action.END;
   }
 
-  public async fetchVersion<T = object>(): Promise<T> {
-    const { data }: { data: T } = await this.fetch.get(`/version/${this.versionID}`);
-
-    return data;
-  }
-
   public async callEvent<K extends EventType>(type: K, event: Event<K>) {
     await super.callEvent<K>(type, event, this);
   }
 
-  public getDiagram(diagramID: string) {
-    return this.diagramManager.getDiagram(diagramID);
+  public getProgram(programID: string) {
+    return this.programManager.get(programID);
   }
 
   public async update(): Promise<void> {

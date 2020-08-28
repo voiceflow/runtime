@@ -29,12 +29,12 @@ describe('codeHandler unit tests', () => {
         const err = { response: { data: { foo: 'bar' } } };
         const axiosPost = sinon.stub(axios, 'post').throws(err);
 
-        const block = { code: 'foo()' };
+        const node = { code: 'foo()' };
         const context = { trace: { debug: sinon.stub() } };
         const variables = { keys: sinon.stub().returns([]), getState: sinon.stub().returns({}) };
-        const result = await codeHandler.handle(block as any, context as any, variables as any, null as any);
+        const result = await codeHandler.handle(node as any, context as any, variables as any, null as any);
         expect(result).to.eql(null);
-        expect(axiosPost.args).to.eql([['foo', { code: block.code, variables: {} }]]);
+        expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: {} }]]);
         expect(context.trace.debug.args).to.eql([[`unable to resolve code  \n\`${safeJSONStringify(err.response.data)}\``]]);
       });
 
@@ -42,12 +42,12 @@ describe('codeHandler unit tests', () => {
         const codeHandler = CodeHandler({ endpoint: 'foo' });
         const axiosPost = sinon.stub(axios, 'post').throws({});
 
-        const block = { code: 'foo()', fail_id: 'fail-id' };
+        const node = { code: 'foo()', fail_id: 'fail-id' };
         const context = { trace: { debug: sinon.stub() } };
         const variables = { keys: sinon.stub().returns([]), getState: sinon.stub().returns({}) };
-        const result = await codeHandler.handle(block as any, context as any, variables as any, null as any);
-        expect(result).to.eql(block.fail_id);
-        expect(axiosPost.args).to.eql([['foo', { code: block.code, variables: {} }]]);
+        const result = await codeHandler.handle(node as any, context as any, variables as any, null as any);
+        expect(result).to.eql(node.fail_id);
+        expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: {} }]]);
         expect(context.trace.debug.args).to.eql([['unable to resolve code  \n`undefined`']]);
       });
     });
@@ -61,15 +61,15 @@ describe('codeHandler unit tests', () => {
         const codeHandler = CodeHandler({ endpoint: 'foo' });
         const axiosPost = sinon.stub(axios, 'post').resolves({ data: { var1: 1.1, var2: 2.2, newVar: 5 } });
 
-        const block = { code: 'var1(); var2(); var3();', success_id: 'success-id' };
+        const node = { code: 'var1(); var2(); var3();', success_id: 'success-id' };
         const context = { trace: { debug: sinon.stub() } };
         const variables = {
           merge: sinon.stub(),
           getState: sinon.stub().returns({ var1: 1, var2: 2, var3: 3 }),
         };
-        const result = await codeHandler.handle(block as any, context as any, variables as any, null as any);
-        expect(result).to.eql(block.success_id);
-        expect(axiosPost.args).to.eql([['foo', { code: block.code, variables: { var1: 1, var2: 2, var3: 3 } }]]);
+        const result = await codeHandler.handle(node as any, context as any, variables as any, null as any);
+        expect(result).to.eql(node.success_id);
+        expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }]]);
         expect(context.trace.debug.args).to.eql([
           [
             'evaluating code - changes:  \n`{var1}`: `1` => `1.1`  \n`{var2}`: `2` => `2.2`  \n`{var3}`: `3` => `undefined`  \n`{newVar}`: `undefined` => `5`  \n',
@@ -81,12 +81,12 @@ describe('codeHandler unit tests', () => {
         const codeHandler = CodeHandler({ endpoint: 'foo' });
         const axiosPost = sinon.stub(axios, 'post').resolves({ data: { var1: 1 } });
 
-        const block = { code: 'var1();' };
+        const node = { code: 'var1();' };
         const context = { trace: { debug: sinon.stub() } };
         const variables = { merge: sinon.stub(), getState: sinon.stub().returns({ var1: 1 }) };
-        const result = await codeHandler.handle(block as any, context as any, variables as any, null as any);
+        const result = await codeHandler.handle(node as any, context as any, variables as any, null as any);
         expect(result).to.eql(null);
-        expect(axiosPost.args).to.eql([['foo', { code: block.code, variables: { var1: 1 } }]]);
+        expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: { var1: 1 } }]]);
         expect(context.trace.debug.args).to.eql([['evaluating code - no variable changes']]);
       });
     });

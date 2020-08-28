@@ -1,12 +1,12 @@
 import { HandlerFactory } from '@/lib/Handler';
 
-export type EndBlock = {
+export type EndData = {
   end?: string;
 };
 
-const EndHandler: HandlerFactory<EndBlock> = () => ({
-  canHandle: (block) => {
-    return !!block.end;
+const EndHandler: HandlerFactory<'exit', EndData> = () => ({
+  canHandle: (node) => {
+    return !!node.end;
   },
   handle: (_, context): null => {
     context.stack.pop();

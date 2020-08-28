@@ -8,7 +8,7 @@ export interface TraceFrame {
 }
 
 export enum TraceType {
-  BLOCK = 'block',
+  BLOCK = 'node',
   SPEAK = 'speak',
   FLOW = 'flow',
   STREAM = 'stream',
@@ -51,10 +51,10 @@ export default class Trace {
     return this.trace;
   }
 
-  block = (blockID: string) =>
+  node = (nodeID: string) =>
     this.addTrace({
       type: TraceType.BLOCK,
-      payload: { blockID },
+      payload: { nodeID },
     });
 
   speak = (message: string) =>
@@ -74,10 +74,10 @@ export default class Trace {
       payload: { src, action, token },
     });
 
-  flow(diagramID: string) {
+  flow(programID: string) {
     this.addTrace({
       type: TraceType.FLOW,
-      payload: { diagramID },
+      payload: { programID },
     });
   }
 

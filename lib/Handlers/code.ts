@@ -4,7 +4,7 @@ import safeJSONStringify from 'safe-json-stringify';
 
 import { HandlerFactory } from '@/lib/Handler';
 
-export type CodeBlock = {
+export type CodeData = {
   code: string;
   fail_id?: string;
   success_id?: string;
@@ -14,16 +14,16 @@ export type CodeOptions = {
   endpoint: string;
 };
 
-const CodeHandler: HandlerFactory<CodeBlock, CodeOptions> = ({ endpoint }) => ({
-  canHandle: (block) => {
-    return !!block.code;
+const CodeHandler: HandlerFactory<'code', CodeData, CodeOptions> = ({ endpoint }) => ({
+  canHandle: (node) => {
+    return !!node.code;
   },
-  handle: async (block, context, variables) => {
+  handle: async (node, context, variables) => {
     try {
       const variablesState = variables.getState();
 
       const result = await axios.post(endpoint, {
-        code: block.code,
+        code: node.code,
         variables: variablesState,
       });
 
@@ -38,10 +38,10 @@ const CodeHandler: HandlerFactory<CodeBlock, CodeOptions> = ({ endpoint }) => ({
 
       variables.merge(result.data);
 
-      return block.success_id ?? null;
+      return node.success_id ?? null;
     } catch (error) {
       context.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data)}\``);
-      return block.fail_id ?? null;
+      return node.fail_id ?? null;
     }
   },
 });

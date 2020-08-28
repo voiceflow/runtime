@@ -1,11 +1,10 @@
-import axios from 'axios';
 import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
 
 import Context, { Action } from '@/lib/Context';
 import * as cycleStack from '@/lib/Context/cycleStack';
-import * as DiagramManager from '@/lib/Context/utils/diagramManager';
+import * as ProgramManager from '@/lib/Context/utils/programManager';
 import { AbstractLifecycle, EventType } from '@/lib/Lifecycle';
 
 describe('Context unit', () => {
@@ -53,25 +52,24 @@ describe('Context unit', () => {
     expect(context.hasEnded()).to.eql(true);
   });
 
-  it('getDiagram', () => {
-    const diagram = { foo: 'bar' };
-    const getDiagram = sinon.stub().returns(diagram);
-    const DiagramManagerStub = sinon.stub(DiagramManager, 'default');
-    DiagramManagerStub.returns({ getDiagram });
+  it('getProgram', () => {
+    const program = { foo: 'bar' };
+    const getProgram = sinon.stub().returns(program);
+    const ProgramManagerStub = sinon.stub(ProgramManager, 'default');
+    ProgramManagerStub.returns({ getProgram });
 
     const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined, null as any);
 
-    const diagramId = 'diagram-id';
-    expect(context.getDiagram(diagramId)).to.eql(diagram);
-    expect(DiagramManagerStub.calledWithNew()).to.eql(true);
-    expect(DiagramManagerStub.args).to.eql([[context, _.get(context, 'fetch')]]);
-    expect(getDiagram.args).to.eql([[diagramId]]);
+    const programId = 'program-id';
+    expect(context.getProgram(programId)).to.eql(program);
+    expect(ProgramManagerStub.calledWithNew()).to.eql(true);
+    expect(ProgramManagerStub.args).to.eql([[context, _.get(context, 'fetch')]]);
+    expect(getProgram.args).to.eql([[programId]]);
   });
 
-  it('fetchVersion', async () => {
+  it('getVersion', async () => {
     const metadata = { foo: 'bar' };
     const axiosGet = sinon.stub().resolves({ data: metadata });
-    const axiosCreate = sinon.stub(axios, 'create').returns({ get: axiosGet } as any);
 
     const endpoint = 'endpoint';
     const secret = 'secret';

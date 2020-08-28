@@ -7,46 +7,46 @@ import Frame from '@/lib/Context/Stack/Frame/index';
 describe('Context Stack Frame unit tests', () => {
   it('getState', () => {
     const options = {
-      blockID: 'block-id',
-      diagramID: 'diagram-id',
+      nodeID: 'node-id',
+      programID: 'program-id',
       storage: { s1: 'v1' },
       commands: [{}, {}],
       variables: { v1: 'v1' },
     };
     const frame = new Frame(options);
     expect(frame.getState()).to.eql({
-      blockID: options.blockID,
-      diagramID: options.diagramID,
+      nodeID: options.nodeID,
+      programID: options.programID,
       storage: options.storage,
       commands: options.commands,
       variables: options.variables,
     });
   });
 
-  it('getBlockID', () => {
-    const blockID = 'block-id';
-    const frame = new Frame({ blockID } as any);
-    expect(frame.getBlockID()).to.eql(blockID);
+  it('getNodeID', () => {
+    const nodeID = 'node-id';
+    const frame = new Frame({ nodeID } as any);
+    expect(frame.getNodeID()).to.eql(nodeID);
   });
 
-  it('setBlockID', () => {
-    const blockID = 'block-id';
+  it('setNodeID', () => {
+    const nodeID = 'node-id';
     const frame = new Frame({} as any);
-    frame.setBlockID(blockID);
-    expect(_.get(frame, 'blockID')).to.eql(blockID);
+    frame.setNodeID(nodeID);
+    expect(_.get(frame, 'nodeID')).to.eql(nodeID);
   });
 
-  it('getDiagramID', () => {
-    const diagramID = 'diagram-id';
-    const frame = new Frame({ diagramID } as any);
-    expect(frame.getDiagramID()).to.eql(diagramID);
+  it('getProgramID', () => {
+    const programID = 'program-id';
+    const frame = new Frame({ programID } as any);
+    expect(frame.getProgramID()).to.eql(programID);
   });
 
-  it('setDiagramID', () => {
-    const diagramID = 'diagram-id';
+  it('setProgramID', () => {
+    const programID = 'program-id';
     const frame = new Frame({} as any);
-    frame.setDiagramID(diagramID);
-    expect(_.get(frame, 'diagramID')).to.eql(diagramID);
+    frame.setProgramID(programID);
+    expect(_.get(frame, 'programID')).to.eql(programID);
   });
 
   it('getCommands', () => {
@@ -60,41 +60,41 @@ describe('Context Stack Frame unit tests', () => {
       const frame = new Frame({} as any);
       _.set(frame, 'initialized', true);
       frame.initialize(null as any);
-      expect(frame.getBlockID()).to.eql(undefined);
+      expect(frame.getNodeID()).to.eql(undefined);
     });
 
-    it('init blockID', () => {
+    it('init nodeID', () => {
       const frame = new Frame({} as any);
       const commands = [{ c1: 'v1' }, { c2: 'v2' }];
-      const startBlockID = 'start-block-id';
+      const startNodeID = 'start-node-id';
       const variables = ['var1', 'var2'];
-      const diagram = {
+      const program = {
         getCommands: sinon.stub().returns(commands),
-        getStartBlockID: sinon.stub().returns(startBlockID),
+        getStartNodeID: sinon.stub().returns(startNodeID),
         getVariables: sinon.stub().returns(variables),
       };
 
-      frame.initialize(diagram as any);
+      frame.initialize(program as any);
 
-      expect(frame.getBlockID()).to.eql(startBlockID);
+      expect(frame.getNodeID()).to.eql(startNodeID);
       expect(frame.getCommands()).to.eql(commands);
       expect(frame.getState().variables).to.eql({ var1: 0, var2: 0 });
     });
 
-    it('blockID already set', () => {
-      const blockID = 'block-id';
-      const frame = new Frame({ blockID } as any);
-      const startBlockID = 'start-block-id';
-      const diagram = {
+    it('nodeID already set', () => {
+      const nodeID = 'node-id';
+      const frame = new Frame({ nodeID } as any);
+      const startNodeID = 'start-node-id';
+      const program = {
         getCommands: sinon.stub().returns([]),
-        getStartBlockID: sinon.stub().returns(startBlockID),
+        getStartNodeID: sinon.stub().returns(startNodeID),
         getVariables: sinon.stub().returns([]),
       };
 
-      frame.initialize(diagram as any);
+      frame.initialize(program as any);
 
-      expect(frame.getBlockID()).to.eql(blockID);
-      expect(_.get(frame, 'startBlockID')).to.eql(startBlockID);
+      expect(frame.getNodeID()).to.eql(nodeID);
+      expect(_.get(frame, 'startNodeID')).to.eql(startNodeID);
     });
   });
 });

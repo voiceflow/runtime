@@ -1,16 +1,17 @@
+import { Node } from '@voiceflow/api-sdk';
+
 import Context from '../Context';
 import Frame from '../Context/Stack/Frame';
 import Storage from '../Context/Store';
 import { TraceFrame } from '../Context/Trace';
-import Diagram from '../Diagram';
-import { Block } from '../Handler';
+import Program from '../Program';
 
 export enum EventType {
   updateWillExecute = 'updateWillExecute',
   updateDidExecute = 'updateDidExecute',
   updateDidCatch = 'updateDidCatch',
-  diagramWillFetch = 'diagramWillFetch',
-  diagramDidFetch = 'diagramDidFetch',
+  programWillFetch = 'programWillFetch',
+  programDidFetch = 'programDidFetch',
   stateWillExecute = 'stateWillExecute',
   stateDidExecute = 'stateDidExecute',
   stateDidCatch = 'stateDidCatch',
@@ -37,35 +38,35 @@ interface BaseErrorEvent {
 
 interface UpdateDidCatchEvent extends BaseEvent, BaseErrorEvent {}
 
-interface DiagramWillFetchEvent extends BaseEvent {
-  diagramID: string;
-  override: (_diagram: Diagram | undefined) => void;
+interface ProgramWillFetchEvent extends BaseEvent {
+  programID: string;
+  override: (_program: Program | undefined) => void;
 }
 
-interface DiagramDidFetchEvent extends BaseEvent {
-  diagramID: string;
-  diagram: Diagram;
+interface ProgramDidFetchEvent extends BaseEvent {
+  programID: string;
+  program: Program;
 }
 
 interface HandlerWillHandleEvent extends BaseEvent {
-  block: Block;
+  node: Node;
   variables: Storage;
 }
 
 interface HandlerDidHandleEvent extends BaseEvent {
-  block: Block;
+  node: Node;
   variables: Storage;
 }
 
 interface HandlerDidCatchEvent extends BaseEvent, BaseErrorEvent {}
 
 interface StateWillExecute extends BaseEvent {
-  diagram: Diagram;
+  program: Program;
   variables: Storage;
 }
 
 interface StateDidExecute extends BaseEvent {
-  diagram: Diagram;
+  program: Program;
   variables: Storage;
 }
 
@@ -93,8 +94,8 @@ export interface EventMap {
   [EventType.updateDidExecute]: BaseEvent;
   [EventType.updateDidCatch]: UpdateDidCatchEvent;
 
-  [EventType.diagramWillFetch]: DiagramWillFetchEvent;
-  [EventType.diagramDidFetch]: DiagramDidFetchEvent;
+  [EventType.programWillFetch]: ProgramWillFetchEvent;
+  [EventType.programDidFetch]: ProgramDidFetchEvent;
 
   [EventType.stackWillChange]: StackWillChangeEvent;
   [EventType.stackDidChange]: StackDidChangeEvent;

@@ -14,7 +14,7 @@ describe('handlers integrations utils unit tests', () => {
 
       it('with mappings', () => {
         const resultData = { _cell_location: { row: 'val1' }, foo: 'val2' };
-        const block = {
+        const node = {
           action_data: {
             mapping: [
               { arg1: 'row_number', arg2: 'var1' },
@@ -22,7 +22,7 @@ describe('handlers integrations utils unit tests', () => {
             ],
           },
         };
-        expect(resultMappings[GOOGLE_SHEETS](block as any, resultData as any)).to.eql({ var1: 'val1', var2: 'val2' });
+        expect(resultMappings[GOOGLE_SHEETS](node as any, resultData as any)).to.eql({ var1: 'val1', var2: 'val2' });
       });
     });
 

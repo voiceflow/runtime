@@ -1,5 +1,6 @@
+import { Command } from '@voiceflow/api-sdk';
+
 import Stack from '../Context/Stack';
-import { Command } from '../Diagram';
 
 type Matcher = (command: Command, match?: any) => boolean;
 

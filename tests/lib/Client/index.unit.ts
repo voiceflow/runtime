@@ -64,11 +64,11 @@ describe('client unit tests', () => {
       const client = new Client({ secret: 'secret' });
 
       const eventCallback = sinon.stub();
-      client.setEvent(EventType.diagramDidFetch, eventCallback);
+      client.setEvent(EventType.programDidFetch, eventCallback);
 
       const event = { foo: 'bar' };
       const context = 'context';
-      await client.callEvent(EventType.diagramDidFetch, event as any, context as any);
+      await client.callEvent(EventType.programDidFetch, event as any, context as any);
       expect(eventCallback.callCount).to.eql(1);
       expect(eventCallback.args).to.eql([[{ ...event, context }]]);
 

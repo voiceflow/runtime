@@ -35,7 +35,7 @@ export const ENDPOINTS_MAP: Record<string, Record<string, string>> = {
 };
 // end constants
 
-export type IntegrationBlock = {
+export type IntegrationData = {
   type: string;
   fail_id?: string;
   success_id?: string;

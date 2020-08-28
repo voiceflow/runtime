@@ -1,17 +1,17 @@
 import { HandlerFactory } from '@/lib/Handler';
 
-export type NextBlock = {
+export type NextData = {
   nextId?: string;
 };
 
-const NextHandler: HandlerFactory<NextBlock> = () => ({
-  canHandle: (block) => {
-    return !!block.nextId;
+const NextHandler: HandlerFactory<'next', NextData> = () => ({
+  canHandle: (node) => {
+    return !!node.nextId;
   },
-  handle: (block, context) => {
+  handle: (node, context) => {
     context.trace.debug('could not handle step - redirecting to the next step');
 
-    return block.nextId ?? null;
+    return node.nextId ?? null;
   },
 });
 

@@ -5,13 +5,13 @@ export type Start = {
   nextId?: string;
 };
 
-const StartHandler: HandlerFactory<Start> = () => ({
-  canHandle: (block) => {
-    return (Object.keys(block).length === 2 || block.type === 'start') && !!block.nextId;
+const StartHandler: HandlerFactory<'start', Start> = () => ({
+  canHandle: (node) => {
+    return (Object.keys(node).length === 2 || node.type === 'start') && !!node.nextId;
   },
-  handle: (block, context) => {
+  handle: (node, context) => {
     context.trace.debug('beginning flow');
-    return block.nextId ?? null;
+    return node.nextId ?? null;
   },
 });
 

@@ -15,7 +15,7 @@ describe('flowHandler unit tests', () => {
     });
 
     it('true', () => {
-      expect(flowHandler.canHandle({ diagram_id: 'diagram-id' } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(flowHandler.canHandle({ diagram_id: 'program-id' } as any, null as any, null as any, null as any)).to.eql(true);
     });
   });
 
@@ -28,35 +28,35 @@ describe('flowHandler unit tests', () => {
       // stubs
       const mapStoresStub = sinon.stub(Utils, 'mapStores');
       const frameStub = sinon.stub(Frame, 'default');
-      const newFrame = { storage: { set: sinon.stub() }, getDiagramID: sinon.stub().returns('diagram-id-from-frame'), variables: 'frame-variables' };
+      const newFrame = { storage: { set: sinon.stub() }, getProgramID: sinon.stub().returns('program-id-from-frame'), variables: 'frame-variables' };
       frameStub.returns(newFrame);
 
-      const block = { blockID: 'block-id', diagram_id: 'diagram-id', nextId: 'next-id' };
-      const topFrame = { setBlockID: sinon.stub() };
+      const node = { nodeID: 'node-id', diagram_id: 'program-id', nextId: 'next-id' };
+      const topFrame = { setNodeID: sinon.stub() };
       const context = { stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() }, trace: { debug: sinon.stub() } };
       const variables = {};
 
       // assertions
-      expect(flowHandler.handle(block, context as any, variables as any, null as any)).to.eql(null);
+      expect(flowHandler.handle(node, context as any, variables as any, null as any)).to.eql(null);
       expect(frameStub.calledWithNew()).to.eql(true);
-      expect(frameStub.args).to.eql([[{ diagramID: block.diagram_id }]]);
+      expect(frameStub.args).to.eql([[{ programID: node.diagram_id }]]);
       expect(mapStoresStub.args).to.eql([[[], variables, newFrame.variables]]);
       expect(newFrame.storage.set.args).to.eql([[S.OUTPUT_MAP, undefined]]);
-      expect(topFrame.setBlockID.args).to.eql([[block.nextId]]);
+      expect(topFrame.setNodeID.args).to.eql([[node.nextId]]);
       expect(context.stack.push.args).to.eql([[newFrame]]);
-      expect(context.trace.debug.args).to.eql([[`entering flow \`${newFrame.getDiagramID()}\``]]);
+      expect(context.trace.debug.args).to.eql([[`entering flow \`${newFrame.getProgramID()}\``]]);
     });
 
     it('with variable_map', () => {
       // stubs
       const mapStoresStub = sinon.stub(Utils, 'mapStores');
       const frameStub = sinon.stub(Frame, 'default');
-      const newFrame = { storage: { set: sinon.stub() }, getDiagramID: sinon.stub().returns('diagram-id-from-frame'), variables: 'frame-variables' };
+      const newFrame = { storage: { set: sinon.stub() }, getProgramID: sinon.stub().returns('program-id-from-frame'), variables: 'frame-variables' };
       frameStub.returns(newFrame);
 
-      const block = {
-        blockID: 'block-id',
-        diagram_id: 'diagram-id',
+      const node = {
+        nodeID: 'node-id',
+        diagram_id: 'program-id',
         variable_map: {
           inputs: [
             ['a', 'b'],
@@ -68,15 +68,15 @@ describe('flowHandler unit tests', () => {
           ] as [string, string][],
         },
       };
-      const topFrame = { setBlockID: sinon.stub() };
+      const topFrame = { setNodeID: sinon.stub() };
       const context = { stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() }, trace: { debug: sinon.stub() } };
       const variables = {};
 
       // assertions
-      expect(flowHandler.handle(block, context as any, variables as any, null as any)).to.eql(null);
+      expect(flowHandler.handle(node, context as any, variables as any, null as any)).to.eql(null);
       expect(frameStub.calledWithNew()).to.eql(true);
-      expect(frameStub.args).to.eql([[{ diagramID: block.diagram_id }]]);
-      expect(mapStoresStub.args).to.eql([[block.variable_map.inputs, variables, newFrame.variables]]);
+      expect(frameStub.args).to.eql([[{ programID: node.diagram_id }]]);
+      expect(mapStoresStub.args).to.eql([[node.variable_map.inputs, variables, newFrame.variables]]);
       expect(newFrame.storage.set.args).to.eql([
         [
           S.OUTPUT_MAP,
@@ -86,9 +86,9 @@ describe('flowHandler unit tests', () => {
           ],
         ],
       ]);
-      expect(topFrame.setBlockID.args).to.eql([[null]]);
+      expect(topFrame.setNodeID.args).to.eql([[null]]);
       expect(context.stack.push.args).to.eql([[newFrame]]);
-      expect(context.trace.debug.args).to.eql([[`entering flow \`${newFrame.getDiagramID()}\``]]);
+      expect(context.trace.debug.args).to.eql([[`entering flow \`${newFrame.getProgramID()}\``]]);
     });
   });
 });

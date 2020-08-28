@@ -1,12 +1,12 @@
-import { Block } from '@/lib/Handler';
+import { Node } from '@voiceflow/api-sdk';
 
-import { CUSTOM_API, GOOGLE_SHEETS, IntegrationBlock, ZAPIER } from './constants';
+import { CUSTOM_API, GOOGLE_SHEETS, IntegrationData, ZAPIER } from './constants';
 
-export const resultMappings: Record<string, (block: Block<IntegrationBlock>, resultData: Record<string, any>) => Record<string, any>> = {
-  [GOOGLE_SHEETS]: (block, resultData) => {
+export const resultMappings: Record<string, (node: Node<'integrations', IntegrationData>, resultData: Record<string, any>) => Record<string, any>> = {
+  [GOOGLE_SHEETS]: (node, resultData) => {
     const newVariables: Record<string, string> = {};
-    if (block.action_data && block.action_data.mapping) {
-      block.action_data.mapping.forEach((m: { arg1: string; arg2: string }) => {
+    if (node.action_data && node.action_data.mapping) {
+      node.action_data.mapping.forEach((m: { arg1: string; arg2: string }) => {
         const col = m.arg1;
         const toVar = m.arg2;
         newVariables[toVar] = col === 'row_number' ? resultData._cell_location.row : resultData[col];
@@ -14,7 +14,7 @@ export const resultMappings: Record<string, (block: Block<IntegrationBlock>, res
     }
     return newVariables;
   },
-  [CUSTOM_API]: (_block, resultData) => {
+  [CUSTOM_API]: (_node, resultData) => {
     return resultData;
   },
   [ZAPIER]: () => ({}),
