@@ -13,7 +13,7 @@ describe('Context unit', () => {
   });
 
   it('constructor', () => {
-    const context = new Context(null as any, { stack: [] } as any, undefined, undefined, null as any);
+    const context = new Context(null as any, { stack: [] } as any, undefined, {} as any, null as any);
     context.callEvent = sinon.stub().returns('foo');
     // assert that events are being initiated correctly
     expect(_.get(context.stack, 'handlers.willChange')()).to.eql('foo');
@@ -21,32 +21,32 @@ describe('Context unit', () => {
 
   it('getRequest', () => {
     const request = { type: 'req', payload: {} };
-    const context = new Context(null as any, { stack: [] } as any, request, undefined, null as any);
+    const context = new Context(null as any, { stack: [] } as any, request, {} as any, null as any);
     expect(context.getRequest()).to.eql(request);
   });
 
   it('setAction', () => {
-    const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined, null as any);
+    const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
     const action = Action.RUNNING;
     context.setAction(action as any);
     expect(_.get(context, 'action')).to.eql(action);
   });
 
   it('getAction', () => {
-    const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined, null as any);
+    const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
     const action = Action.RUNNING;
     context.setAction(action as any);
     expect(context.getAction()).to.eql(action);
   });
 
   it('end', () => {
-    const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined, null as any);
+    const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
     context.end();
     expect(context.getAction()).to.eql(Action.END);
   });
 
   it('hasEnded', () => {
-    const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined, null as any);
+    const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
     expect(context.hasEnded()).to.eql(false);
     context.end();
     expect(context.hasEnded()).to.eql(true);
@@ -56,29 +56,15 @@ describe('Context unit', () => {
     const program = { foo: 'bar' };
     const getProgram = sinon.stub().returns(program);
     const ProgramManagerStub = sinon.stub(ProgramManager, 'default');
-    ProgramManagerStub.returns({ getProgram });
+    ProgramManagerStub.returns({ get: getProgram });
 
-    const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined, null as any);
+    const context = new Context(null as any, { stack: [] } as any, undefined as any, { api: { getProgram } }, null as any);
 
     const programId = 'program-id';
     expect(context.getProgram(programId)).to.eql(program);
     expect(ProgramManagerStub.calledWithNew()).to.eql(true);
-    expect(ProgramManagerStub.args).to.eql([[context, _.get(context, 'fetch')]]);
+    expect(ProgramManagerStub.args).to.eql([[context]]);
     expect(getProgram.args).to.eql([[programId]]);
-  });
-
-  it('getVersion', async () => {
-    const metadata = { foo: 'bar' };
-    const axiosGet = sinon.stub().resolves({ data: metadata });
-
-    const endpoint = 'endpoint';
-    const secret = 'secret';
-    const versionID = 'version-id';
-    const context = new Context(versionID as any, { stack: [] } as any, undefined as any, { endpoint, secret } as any, null as any);
-
-    expect(await context.fetchVersion()).to.eql(metadata);
-    expect(axiosCreate.args).to.eql([[{ baseURL: endpoint, headers: { authorization: `Bearer ${secret}` } }]]);
-    expect(axiosGet.args).to.eql([[`/version/${versionID}`]]);
   });
 
   it('getHandlers', () => {
@@ -88,20 +74,20 @@ describe('Context unit', () => {
   });
 
   it('getRawState', () => {
-    const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined as any, null as any);
+    const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
     expect(context.getRawState()).to.eql({ turn: {}, stack: [], storage: {}, variables: {} });
   });
 
   describe('getFinalState', () => {
     it('throws', () => {
-      const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined as any, null as any);
+      const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
       expect(() => {
         context.getFinalState();
       }).to.throw('context not updated');
     });
 
     it('returns', () => {
-      const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined as any, null as any);
+      const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
       context.setAction(Action.END);
       expect(context.getFinalState()).to.eql({ stack: [], storage: {}, variables: {} });
     });
@@ -109,7 +95,7 @@ describe('Context unit', () => {
 
   describe('update', () => {
     it('catch error', async () => {
-      const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined as any, null as any);
+      const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
       context.setAction(Action.RUNNING);
       const callEventStub = sinon.stub().resolves();
       context.callEvent = callEventStub;
@@ -123,7 +109,7 @@ describe('Context unit', () => {
 
     it('is idle', async () => {
       const cycleStackStub = sinon.stub(cycleStack, 'default');
-      const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined as any, null as any);
+      const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
       const callEventStub = sinon.stub();
       context.callEvent = callEventStub;
       const setActionStub = sinon.stub();
@@ -140,7 +126,7 @@ describe('Context unit', () => {
 
   it('callEvent', async () => {
     const callEventStub = sinon.stub(AbstractLifecycle.prototype, 'callEvent');
-    const context = new Context(null as any, { stack: [] } as any, undefined as any, undefined as any, null as any);
+    const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
     const type = 'type';
     const event = 'event';
     await context.callEvent(type as any, event);

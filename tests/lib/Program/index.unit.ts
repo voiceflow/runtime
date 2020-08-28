@@ -49,7 +49,7 @@ describe('Program unit tests', () => {
       };
       const program = new Program({ id: 'id', lines: nodes as any, startId: 'start' });
       const nodeID = '2';
-      expect(program.getNode(nodeID)).to.eql({ ...nodes[nodeID], nodeID });
+      expect(program.getNode(nodeID)).to.eql({ ...nodes[nodeID], id: nodeID });
     });
   });
 });

@@ -4,6 +4,10 @@ import Stack from '../Context/Stack';
 
 type Matcher = (command: Command, match?: any) => boolean;
 
+export const unimplemented = (error: string) => () => {
+  throw new Error(error);
+};
+
 // eslint-disable-next-line import/prefer-default-export
 export const extractFrameCommand = (stack: Stack, matcher: Matcher, match?: any): { index: number; command: Command } | null => {
   const frames = stack.getFrames();

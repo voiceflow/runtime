@@ -44,7 +44,7 @@ describe('Context cycleHandler unit tests', () => {
       end: sinon.stub(),
       hasEnded: sinon.stub().returns(true),
     };
-    const node = { nodeID };
+    const node = { id: nodeID };
     const program = { getNode: sinon.stub().returns(node) };
     const variableState = {};
 

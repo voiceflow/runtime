@@ -1,4 +1,4 @@
-import { Program, Version } from '@voiceflow/api-sdk';
+import { Program } from '@voiceflow/api-sdk';
 
 import cycleStack from '@/lib/Context/cycleStack';
 import Handler from '@/lib/Handler';
@@ -10,13 +10,14 @@ import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
 import ProgramManager from './utils/programManager';
 
+export interface API {
+  getProgram: (programID: string) => Program | Promise<Program>;
+}
+
 export interface Options {
   handlers?: Handler[];
   services?: Record<string, any>;
-  api: {
-    getProgram: (programID: string) => Program | Promise<Program>;
-    getVersion?: (versionID: string) => Version<any> | Promise<Version<any>>;
-  };
+  api: Partial<API> & Pick<API, 'getProgram'>;
 }
 
 export interface State {
@@ -49,7 +50,7 @@ class Context extends AbstractLifecycle {
   // services
   public services: Record<string, any>;
 
-  public api: Options['api'];
+  public api: API;
 
   private action: Action = Action.IDLE;
 
@@ -165,6 +166,10 @@ class Context extends AbstractLifecycle {
 
   public getHandlers(): Handler[] {
     return this.handlers;
+  }
+
+  public getVersionID() {
+    return this.versionID;
   }
 }
 

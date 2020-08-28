@@ -2,7 +2,7 @@ import { Command, Node, Program } from '@voiceflow/api-sdk';
 
 type MinimalProgram = Partial<Program> & Pick<Program, 'id' | 'lines' | 'startId'>;
 
-class ProgramModel {
+export class ProgramModel {
   private id: string;
 
   private nodes: Record<string, Node>;
