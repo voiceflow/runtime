@@ -8,7 +8,7 @@ export interface TraceFrame {
 }
 
 export enum TraceType {
-  BLOCK = 'node',
+  BLOCK = 'block',
   SPEAK = 'speak',
   FLOW = 'flow',
   STREAM = 'stream',
