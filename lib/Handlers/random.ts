@@ -1,12 +1,17 @@
+import { Node } from '@voiceflow/api-sdk';
+
 import { S } from '@/lib/Constants';
 import { HandlerFactory } from '@/lib/Handler';
 
-export type RandomData = {
-  random?: number;
-  nextIds: string[];
-};
+export type RandomNode = Node<
+  'random',
+  {
+    random?: number;
+    nextIds: string[];
+  }
+>;
 
-const randomHandler: HandlerFactory<'random', RandomData> = () => ({
+const randomHandler: HandlerFactory<RandomNode> = () => ({
   canHandle: (node) => {
     return !!node.random;
   },

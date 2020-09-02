@@ -1,8 +1,6 @@
-import { Node } from '@voiceflow/api-sdk';
+import { CUSTOM_API, GOOGLE_SHEETS, IntegrationNode, ZAPIER } from './constants';
 
-import { CUSTOM_API, GOOGLE_SHEETS, IntegrationData, ZAPIER } from './constants';
-
-export const resultMappings: Record<string, (node: Node<'integrations', IntegrationData>, resultData: Record<string, any>) => Record<string, any>> = {
+export const resultMappings: Record<string, (node: IntegrationNode, resultData: Record<string, any>) => Record<string, any>> = {
   [GOOGLE_SHEETS]: (node, resultData) => {
     const newVariables: Record<string, string> = {};
     if (node.action_data && node.action_data.mapping) {

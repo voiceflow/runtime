@@ -1,20 +1,24 @@
+import { Node } from '@voiceflow/api-sdk';
 import axios from 'axios';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
 
 import { HandlerFactory } from '@/lib/Handler';
 
-export type CodeData = {
-  code: string;
-  fail_id?: string;
-  success_id?: string;
-};
+export type CodeNode = Node<
+  'code',
+  {
+    code: string;
+    fail_id?: string;
+    success_id?: string;
+  }
+>;
 
 export type CodeOptions = {
   endpoint: string;
 };
 
-const CodeHandler: HandlerFactory<'code', CodeData, CodeOptions> = ({ endpoint }) => ({
+const CodeHandler: HandlerFactory<CodeNode, CodeOptions> = ({ endpoint }) => ({
   canHandle: (node) => {
     return !!node.code;
   },

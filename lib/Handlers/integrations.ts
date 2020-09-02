@@ -4,7 +4,7 @@ import safeJSONStringify from 'safe-json-stringify';
 
 import { HandlerFactory } from '@/lib/Handler';
 
-import { CUSTOM_API, ENDPOINTS_MAP, IntegrationData } from './utils/integrations/constants';
+import { CUSTOM_API, ENDPOINTS_MAP, IntegrationNode } from './utils/integrations/constants';
 import { deepVariableSubstitution, resultMappings } from './utils/integrations/utils';
 
 export type IntegrationsOptions = {
@@ -12,10 +12,7 @@ export type IntegrationsOptions = {
   integrationsLambdaEndpoint: string;
 };
 
-const IntegrationsHandler: HandlerFactory<'integrations', IntegrationData, IntegrationsOptions> = ({
-  customAPIEndpoint,
-  integrationsLambdaEndpoint,
-}) => ({
+const IntegrationsHandler: HandlerFactory<IntegrationNode, IntegrationsOptions> = ({ customAPIEndpoint, integrationsLambdaEndpoint }) => ({
   canHandle: (node) => {
     return node.type === 'integrations';
   },

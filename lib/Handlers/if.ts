@@ -1,15 +1,20 @@
+import { Node } from '@voiceflow/api-sdk';
+
 import { HandlerFactory } from '@/lib/Handler';
 import { EventType } from '@/lib/Lifecycle';
 
 import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
-export type IfData = {
-  expressions: string[];
-  nextIds: string[];
-  elseId?: string;
-};
+export type IfNode = Node<
+  'if',
+  {
+    expressions: string[];
+    nextIds: string[];
+    elseId?: string;
+  }
+>;
 
-const IfHandler: HandlerFactory<'if', IfData> = () => ({
+const IfHandler: HandlerFactory<IfNode> = () => ({
   canHandle: (node) => {
     return !!(node.expressions && node.expressions.length < 101);
   },

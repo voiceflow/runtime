@@ -1,19 +1,24 @@
+import { Node } from '@voiceflow/api-sdk';
+
 import { S } from '@/lib/Constants';
 import Frame from '@/lib/Context/Stack/Frame';
 import { HandlerFactory } from '@/lib/Handler';
 
 import { mapStores } from '../Context/utils/variables';
 
-export type FlowData = {
-  diagram_id?: string;
-  variable_map?: {
-    inputs?: [string, string][];
-    outputs?: [string, string][];
-  };
-  nextId?: string;
-};
+export type FlowNode = Node<
+  'flow',
+  {
+    diagram_id?: string;
+    variable_map?: {
+      inputs?: [string, string][];
+      outputs?: [string, string][];
+    };
+    nextId?: string;
+  }
+>;
 
-const FlowHandler: HandlerFactory<'flow', FlowData> = () => ({
+const FlowHandler: HandlerFactory<FlowNode> = () => ({
   canHandle: (node) => {
     return !!node.diagram_id;
   },

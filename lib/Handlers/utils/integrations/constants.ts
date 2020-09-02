@@ -1,4 +1,8 @@
 // constants
+// end constants
+
+import { Node } from '@voiceflow/api-sdk';
+
 export const GOOGLE_SHEETS = 'Google Sheets';
 const RETRIEVE_DATA = 'Retrieve Data';
 const CREATE_DATA = 'Create Data';
@@ -33,13 +37,15 @@ export const ENDPOINTS_MAP: Record<string, Record<string, string>> = {
   },
   [ZAPIER]: { [START_ZAP]: '/zapier/trigger' },
 };
-// end constants
 
-export type IntegrationData = {
-  type: string;
-  fail_id?: string;
-  success_id?: string;
-  action_data?: any;
-  selected_action?: string;
-  selected_integration?: string;
-};
+export type IntegrationNode = Node<
+  'integrations',
+  {
+    type: string;
+    fail_id?: string;
+    success_id?: string;
+    action_data?: any;
+    selected_action?: string;
+    selected_integration?: string;
+  }
+>;

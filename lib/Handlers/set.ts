@@ -1,3 +1,4 @@
+import { Node } from '@voiceflow/api-sdk';
 import Promise from 'bluebird';
 
 import { HandlerFactory } from '@/lib/Handler';
@@ -10,12 +11,15 @@ type SetStep = {
   variable: string;
 };
 
-export type SetData = {
-  sets: Array<SetStep>;
-  nextId?: string;
-};
+export type SetNode = Node<
+  'set',
+  {
+    sets: Array<SetStep>;
+    nextId?: string;
+  }
+>;
 
-const setHandler: HandlerFactory<'set', SetData> = () => ({
+const setHandler: HandlerFactory<SetNode> = () => ({
   canHandle: (node) => {
     return !!(node.sets && node.sets.length < 21);
   },
