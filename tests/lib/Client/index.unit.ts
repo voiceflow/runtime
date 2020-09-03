@@ -2,34 +2,31 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
 
-import Client, { DEFAULT_ENDPOINT } from '@/lib/Client';
+import Client from '@/lib/Client';
 import * as Context from '@/lib/Context';
 import { EventType } from '@/lib/Lifecycle';
 
 describe('client unit tests', () => {
   describe('constructor', () => {
     it('default values', () => {
-      const secret = 'secret';
+      const api = { getProgram: 'test' } as any;
 
-      const client = new Client({ secret });
+      const client = new Client({ api });
       expect(_.get(client, 'options')).to.eql({
-        secret,
-        endpoint: DEFAULT_ENDPOINT,
+        api,
         handlers: [],
         services: {},
       });
     });
 
     it('correct options init', () => {
-      const secret = 'secret';
-      const endpoint = 'endpoint';
+      const api = { getProgram: 'test' } as any;
       const handlers = ['a', 'b'];
       const services = { s1: 'v1' };
 
-      const client = new Client({ secret, endpoint, handlers: handlers as any, services });
+      const client = new Client({ api, handlers: handlers as any, services });
       expect(_.get(client, 'options')).to.eql({
-        secret,
-        endpoint,
+        api,
         handlers,
         services,
       });
@@ -46,7 +43,7 @@ describe('client unit tests', () => {
       const newContext = { foo: 'bar' };
       contextStub.returns(newContext);
 
-      const client = new Client({ secret: 'secret' });
+      const client = new Client({ op0: 'val0' } as any);
 
       const versionID = 'version-id';
       const state = 'state';
@@ -61,14 +58,15 @@ describe('client unit tests', () => {
 
   describe('events', () => {
     it('set, get and call', async () => {
-      const client = new Client({ secret: 'secret' });
+      const api = { getProgram: 'test' } as any;
+      const client = new Client({ api });
 
       const eventCallback = sinon.stub();
-      client.setEvent(EventType.diagramDidFetch, eventCallback);
+      client.setEvent(EventType.programDidFetch, eventCallback);
 
       const event = { foo: 'bar' };
       const context = 'context';
-      await client.callEvent(EventType.diagramDidFetch, event as any, context as any);
+      await client.callEvent(EventType.programDidFetch, event as any, context as any);
       expect(eventCallback.callCount).to.eql(1);
       expect(eventCallback.args).to.eql([[{ ...event, context }]]);
 

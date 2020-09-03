@@ -1,12 +1,17 @@
+import { Node } from '@voiceflow/api-sdk';
+
 import { HandlerFactory } from '@/lib/Handler';
 
-export type EndBlock = {
-  end?: string;
-};
+export type EndNode = Node<
+  'exit',
+  {
+    end?: string;
+  }
+>;
 
-const EndHandler: HandlerFactory<EndBlock> = () => ({
-  canHandle: (block) => {
-    return !!block.end;
+const EndHandler: HandlerFactory<EndNode> = () => ({
+  canHandle: (node) => {
+    return !!node.end;
   },
   handle: (_, context): null => {
     context.stack.pop();

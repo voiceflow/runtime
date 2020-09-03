@@ -35,11 +35,11 @@ describe('Context cycleStack unit tests', () => {
         getSize: sinon.stub().returns(1),
         top: sinon
           .stub()
-          .returns({ getDiagramID: sinon.stub().returns('diagram-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
+          .returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
         getFrames: sinon.stub().returns({}),
       },
       hasEnded: sinon.stub().returns(true),
-      getDiagram: sinon.stub().returns({}),
+      getProgram: sinon.stub().returns({}),
       variables: 'context-variables',
     };
 
@@ -55,29 +55,29 @@ describe('Context cycleStack unit tests', () => {
       const createCombinedVariablesStub = sinon.stub(utils, 'createCombinedVariables').returns(combinedVariables as any);
       const saveCombinedVariablesStub = sinon.stub(utils, 'saveCombinedVariables');
 
-      const diagramID = 'diagram-id';
-      const currentFrame = { getDiagramID: sinon.stub().returns(diagramID), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } };
+      const programID = 'program-id';
+      const currentFrame = { getProgramID: sinon.stub().returns(programID), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } };
       const currentFrames = {};
-      const diagram = {};
+      const program = {};
 
       const context = {
         callEvent: sinon.stub(),
         stack: { getSize: sinon.stub().returns(1), top: sinon.stub().returns(currentFrame), getFrames: sinon.stub().returns(currentFrames) },
         hasEnded: sinon.stub().returns(true),
-        getDiagram: sinon.stub().returns(diagram),
+        getProgram: sinon.stub().returns(program),
         variables: 'context-variables',
       };
 
       await cycleStack(context as any);
 
-      expect(context.getDiagram.args).to.eql([[diagramID]]);
-      expect(currentFrame.initialize.args).to.eql([[diagram]]);
+      expect(context.getProgram.args).to.eql([[programID]]);
+      expect(currentFrame.initialize.args).to.eql([[program]]);
       expect(createCombinedVariablesStub.args).to.eql([[context.variables, currentFrame.variables]]);
       expect(context.callEvent.args).to.eql([
-        [EventType.stateWillExecute, { diagram, variables: combinedVariables }],
-        [EventType.stateDidExecute, { diagram, variables: combinedVariables }],
+        [EventType.stateWillExecute, { program, variables: combinedVariables }],
+        [EventType.stateDidExecute, { program, variables: combinedVariables }],
       ]);
-      expect(cycleHandlerStub.args).to.eql([[context, diagram, combinedVariables]]);
+      expect(cycleHandlerStub.args).to.eql([[context, program, combinedVariables]]);
       expect(saveCombinedVariablesStub.args).to.eql([[combinedVariables, context.variables, currentFrame.variables]]);
     });
 
@@ -97,7 +97,7 @@ describe('Context cycleStack unit tests', () => {
             .returns(0),
           top: sinon
             .stub()
-            .returns({ getDiagramID: sinon.stub().returns('diagram-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
+            .returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
           getFrames: sinon
             .stub()
             .onFirstCall()
@@ -107,7 +107,7 @@ describe('Context cycleStack unit tests', () => {
         },
         end: sinon.stub(),
         hasEnded: sinon.stub().returns(false),
-        getDiagram: sinon.stub().returns({}),
+        getProgram: sinon.stub().returns({}),
         variables: 'context-variables',
       };
 
@@ -135,12 +135,12 @@ describe('Context cycleStack unit tests', () => {
               .returns(0),
             top: sinon
               .stub()
-              .returns({ getDiagramID: sinon.stub().returns('diagram-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
+              .returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
             getFrames: sinon.stub().returns([]),
           },
           end: sinon.stub(),
           hasEnded: sinon.stub().returns(false),
-          getDiagram: sinon.stub().returns({}),
+          getProgram: sinon.stub().returns({}),
           variables: 'context-variables',
         };
 
@@ -169,12 +169,12 @@ describe('Context cycleStack unit tests', () => {
               .returns(1)
               .onSecondCall()
               .returns(0),
-            top: sinon.stub().returns({ getDiagramID: sinon.stub().returns('diagram-id'), initialize: sinon.stub(), variables: topFrameVariables }),
+            top: sinon.stub().returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: topFrameVariables }),
             getFrames: sinon.stub().returns([]),
           },
           end: sinon.stub(),
           hasEnded: sinon.stub().returns(false),
-          getDiagram: sinon.stub().returns({}),
+          getProgram: sinon.stub().returns({}),
           variables: 'context-variables',
         };
 

@@ -1,10 +1,12 @@
-import Diagram, { Command } from '@/lib/Diagram';
+import { Command } from '@voiceflow/api-sdk';
+
+import ProgramModel from '@/lib/Program';
 
 import Store, { State as StoreState } from '../../Store';
 
 export interface State {
-  blockID?: string | null;
-  diagramID: string;
+  nodeID?: string | null;
+  programID: string;
 
   storage: StoreState;
   commands?: Command[];
@@ -12,22 +14,26 @@ export interface State {
 }
 
 export interface Options {
-  blockID?: string | null;
-  diagramID: string;
+  nodeID?: string | null;
+  programID: string;
 
   storage?: StoreState;
   commands?: Command[];
   variables?: StoreState;
+
+  // deprecated
+  blockID?: string | null;
+  diagramID?: string;
 }
 
 class Frame {
   private initialized = false;
 
-  private blockID?: string | null;
+  private nodeID?: string | null;
 
-  private startBlockID: string | null = null;
+  private startNodeID: string | null = null;
 
-  private diagramID: string;
+  private programID: string;
 
   private commands: Command[] = [];
 
@@ -36,8 +42,8 @@ class Frame {
   public variables: Store;
 
   constructor(frameState: Options) {
-    this.blockID = frameState.blockID;
-    this.diagramID = frameState.diagramID;
+    this.nodeID = frameState.nodeID ?? frameState.blockID;
+    this.programID = frameState.programID ?? frameState.diagramID;
 
     this.storage = new Store(frameState.storage);
     this.commands = frameState.commands ?? [];
@@ -46,8 +52,8 @@ class Frame {
 
   public getState(): State {
     return {
-      blockID: this.blockID,
-      diagramID: this.diagramID,
+      nodeID: this.nodeID,
+      programID: this.programID,
 
       storage: this.storage.getState(),
       commands: this.commands,
@@ -55,37 +61,37 @@ class Frame {
     };
   }
 
-  public initialize(diagram: Diagram): void {
+  public initialize(program: ProgramModel): void {
     if (this.initialized) {
       return;
     }
 
     this.initialized = true;
 
-    this.commands = diagram.getCommands();
-    this.startBlockID = diagram.getStartBlockID();
+    this.commands = program.getCommands();
+    this.startNodeID = program.getStartNodeID();
 
-    Store.initialize(this.variables, diagram.getVariables(), 0);
+    Store.initialize(this.variables, program.getVariables(), 0);
 
-    if (this.blockID === undefined) {
-      this.blockID = this.startBlockID;
+    if (this.nodeID === undefined) {
+      this.nodeID = this.startNodeID;
     }
   }
 
-  public getBlockID(): string | null | undefined {
-    return this.blockID;
+  public getNodeID(): string | null | undefined {
+    return this.nodeID;
   }
 
-  public setBlockID(blockID: string | null): void {
-    this.blockID = blockID;
+  public setNodeID(nodeID: string | null): void {
+    this.nodeID = nodeID;
   }
 
-  public getDiagramID(): string {
-    return this.diagramID;
+  public getProgramID(): string {
+    return this.programID;
   }
 
-  public setDiagramID(diagramID: string): void {
-    this.diagramID = diagramID;
+  public setProgramID(programID: string): void {
+    this.programID = programID;
   }
 
   public getCommands(): Command[] {

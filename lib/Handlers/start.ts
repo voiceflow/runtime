@@ -1,17 +1,22 @@
+import { Node } from '@voiceflow/api-sdk';
+
 import { HandlerFactory } from '@/lib/Handler';
 
-export type Start = {
-  type?: string;
-  nextId?: string;
-};
+export type StartNode = Node<
+  'start',
+  {
+    type?: string;
+    nextId?: string;
+  }
+>;
 
-const StartHandler: HandlerFactory<Start> = () => ({
-  canHandle: (block) => {
-    return (Object.keys(block).length === 2 || block.type === 'start') && !!block.nextId;
+const StartHandler: HandlerFactory<StartNode> = () => ({
+  canHandle: (node) => {
+    return (Object.keys(node).length === 2 || node.type === 'start') && !!node.nextId;
   },
-  handle: (block, context) => {
+  handle: (node, context) => {
     context.trace.debug('beginning flow');
-    return block.nextId ?? null;
+    return node.nextId ?? null;
   },
 });
 

@@ -29,7 +29,7 @@ describe('setHandler unit tests', () => {
       shuntingYardStub.onSecondCall().resolves(NaN);
       shuntingYardStub.onThirdCall().resolves(5);
 
-      const block = {
+      const node = {
         sets: [
           { expression: '' }, // no variable
           { variable: 'v1', expression: 'v1-expression' },
@@ -42,16 +42,16 @@ describe('setHandler unit tests', () => {
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState), set: sinon.stub() };
 
-      expect(await setHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.nextId);
+      expect(await setHandler.handle(node as any, context as any, variables as any, null as any)).to.eql(node.nextId);
       expect(shuntingYardStub.args).to.eql([
-        [block.sets[1].expression, { v: variablesState }],
-        [block.sets[2].expression, { v: variablesState }],
-        [block.sets[3].expression, { v: variablesState }],
+        [node.sets[1].expression, { v: variablesState }],
+        [node.sets[2].expression, { v: variablesState }],
+        [node.sets[3].expression, { v: variablesState }],
       ]);
       expect(variables.set.args).to.eql([
-        [block.sets[1].variable, null],
-        [block.sets[2].variable, undefined],
-        [block.sets[3].variable, 5],
+        [node.sets[1].variable, null],
+        [node.sets[2].variable, undefined],
+        [node.sets[3].variable, 5],
       ]);
       expect(context.trace.debug.args).to.eql([
         ['unable to resolve expression `` for `{undefined}`  \n`Error: No Variable Defined`'],
@@ -65,12 +65,12 @@ describe('setHandler unit tests', () => {
     });
 
     it('without nextId', async () => {
-      const block = {
+      const node = {
         sets: [{ expression: '' }],
       };
       const context = { trace: { debug: sinon.stub() }, callEvent: sinon.stub() };
 
-      expect(await setHandler.handle(block as any, context as any, null as any, null as any)).to.eql(null);
+      expect(await setHandler.handle(node as any, context as any, null as any, null as any)).to.eql(null);
     });
   });
 });

@@ -1,17 +1,22 @@
+import { Node } from '@voiceflow/api-sdk';
+
 import { HandlerFactory } from '@/lib/Handler';
 
-export type NextBlock = {
-  nextId?: string;
-};
+export type NextNode = Node<
+  'next',
+  {
+    nextId?: string;
+  }
+>;
 
-const NextHandler: HandlerFactory<NextBlock> = () => ({
-  canHandle: (block) => {
-    return !!block.nextId;
+const NextHandler: HandlerFactory<NextNode> = () => ({
+  canHandle: (node) => {
+    return !!node.nextId;
   },
-  handle: (block, context) => {
+  handle: (node, context) => {
     context.trace.debug('could not handle step - redirecting to the next step');
 
-    return block.nextId ?? null;
+    return node.nextId ?? null;
   },
 });
 

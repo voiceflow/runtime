@@ -16,18 +16,18 @@ const cycleStack = async (context: Context, depth = 0): Promise<void> => {
   const currentFrame = context.stack.top();
   const currentFrames = context.stack.getFrames();
 
-  const diagram = await context.getDiagram(currentFrame.getDiagramID());
+  const program = await context.getProgram(currentFrame.getProgramID());
 
-  // initialize frame with diagram properties
-  currentFrame.initialize(diagram);
+  // initialize frame with program properties
+  currentFrame.initialize(program);
 
   // generate combined variable state (global/local)
   const combinedVariables = createCombinedVariables(context.variables, currentFrame.variables);
 
   try {
-    await context.callEvent(EventType.stateWillExecute, { diagram, variables: combinedVariables });
-    await cycleHandler(context, diagram, combinedVariables);
-    await context.callEvent(EventType.stateDidExecute, { diagram, variables: combinedVariables });
+    await context.callEvent(EventType.stateWillExecute, { program, variables: combinedVariables });
+    await cycleHandler(context, program, combinedVariables);
+    await context.callEvent(EventType.stateDidExecute, { program, variables: combinedVariables });
   } catch (error) {
     await context.callEvent(EventType.stateDidCatch, { error });
   }

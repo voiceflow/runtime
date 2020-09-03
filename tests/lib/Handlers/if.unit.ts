@@ -29,15 +29,15 @@ describe('ifHandler unit tests', () => {
       shuntingYardStub.onFirstCall().throws(evaluateError);
       shuntingYardStub.onSecondCall().resolves(5);
 
-      const block = { expressions: ['first', 'second', 'third'], nextIds: ['first-path', 'second-path', 'third'] };
+      const node = { expressions: ['first', 'second', 'third'], nextIds: ['first-path', 'second-path', 'third'] };
       const context = { trace: { debug: sinon.stub() }, callEvent: sinon.stub() };
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState) };
 
-      expect(await ifHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.nextIds[1]);
+      expect(await ifHandler.handle(node as any, context as any, variables as any, null as any)).to.eql(node.nextIds[1]);
       expect(shuntingYardStub.args).to.eql([
-        [block.expressions[0], { v: variablesState }],
-        [block.expressions[1], { v: variablesState }],
+        [node.expressions[0], { v: variablesState }],
+        [node.expressions[1], { v: variablesState }],
       ]);
 
       expect(context.callEvent.callCount).to.eql(1);
@@ -45,7 +45,7 @@ describe('ifHandler unit tests', () => {
       expect(context.callEvent.args[0][1].error.toString()).to.eql(evaluateError);
 
       expect(context.trace.debug.args).to.eql([
-        [`unable to resolve expression \`${block.expressions[0]}\`  \n\`${evaluateError}\``],
+        [`unable to resolve expression \`${node.expressions[0]}\`  \n\`${evaluateError}\``],
         ['evaluating path 2: `second` to `5`'],
         ['condition true - taking path 2'],
       ]);
@@ -56,15 +56,15 @@ describe('ifHandler unit tests', () => {
       shuntingYardStub.onFirstCall().resolves(null as any);
       shuntingYardStub.onSecondCall().resolves(0);
 
-      const block = { expressions: ['first', 'second'], nextIds: ['first-path', 'second-path'] };
+      const node = { expressions: ['first', 'second'], nextIds: ['first-path', 'second-path'] };
       const context = { trace: { debug: sinon.stub() } };
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState) };
 
-      expect(await ifHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.nextIds[1]);
+      expect(await ifHandler.handle(node as any, context as any, variables as any, null as any)).to.eql(node.nextIds[1]);
       expect(shuntingYardStub.args).to.eql([
-        [block.expressions[0], { v: variablesState }],
-        [block.expressions[1], { v: variablesState }],
+        [node.expressions[0], { v: variablesState }],
+        [node.expressions[1], { v: variablesState }],
       ]);
 
       expect(context.trace.debug.args).to.eql([
@@ -82,11 +82,11 @@ describe('ifHandler unit tests', () => {
       it('with elseId', async () => {
         sinon.stub(Utils, 'evaluateExpression').resolves(null as any);
 
-        const block = { expressions: ['first'], nextIds: ['first-path'], elseId: 'else-id' };
+        const node = { expressions: ['first'], nextIds: ['first-path'], elseId: 'else-id' };
         const context = { trace: { debug: sinon.stub() } };
         const variables = { getState: sinon.stub().returns({}) };
 
-        expect(await ifHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(block.elseId);
+        expect(await ifHandler.handle(node as any, context as any, variables as any, null as any)).to.eql(node.elseId);
 
         expect(context.trace.debug.args).to.eql([['evaluating path 1: `first` to `undefined`'], ['no conditions matched - taking else path']]);
       });
@@ -94,11 +94,11 @@ describe('ifHandler unit tests', () => {
       it('without elseId', async () => {
         sinon.stub(Utils, 'evaluateExpression').resolves(null as any);
 
-        const block = { expressions: ['first'], nextIds: ['first-path'] };
+        const node = { expressions: ['first'], nextIds: ['first-path'] };
         const context = { trace: { debug: sinon.stub() } };
         const variables = { getState: sinon.stub().returns({}) };
 
-        expect(await ifHandler.handle(block as any, context as any, variables as any, null as any)).to.eql(null);
+        expect(await ifHandler.handle(node as any, context as any, variables as any, null as any)).to.eql(null);
 
         expect(context.trace.debug.args).to.eql([['evaluating path 1: `first` to `undefined`'], ['no conditions matched - taking else path']]);
       });

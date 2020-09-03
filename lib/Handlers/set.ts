@@ -1,3 +1,4 @@
+import { Node } from '@voiceflow/api-sdk';
 import Promise from 'bluebird';
 
 import { HandlerFactory } from '@/lib/Handler';
@@ -10,17 +11,20 @@ type SetStep = {
   variable: string;
 };
 
-export type SetBlock = {
-  sets: Array<SetStep>;
-  nextId?: string;
-};
+export type SetNode = Node<
+  'set',
+  {
+    sets: Array<SetStep>;
+    nextId?: string;
+  }
+>;
 
-const setHandler: HandlerFactory<SetBlock> = () => ({
-  canHandle: (block) => {
-    return !!(block.sets && block.sets.length < 21);
+const setHandler: HandlerFactory<SetNode> = () => ({
+  canHandle: (node) => {
+    return !!(node.sets && node.sets.length < 21);
   },
-  handle: async (block, context, variables) => {
-    await Promise.each<SetStep>(block.sets, async (set) => {
+  handle: async (node, context, variables) => {
+    await Promise.each<SetStep>(node.sets, async (set) => {
       try {
         if (!set.variable) throw new Error('No Variable Defined');
 
@@ -35,7 +39,7 @@ const setHandler: HandlerFactory<SetBlock> = () => ({
       }
     });
 
-    return block.nextId || null;
+    return node.nextId || null;
   },
 });
 

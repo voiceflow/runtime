@@ -19,16 +19,16 @@ describe('startHandler unit tests', () => {
 
   describe('handle', () => {
     it('nextId', () => {
-      const block = { nextId: 'next-id' };
+      const node = { nextId: 'next-id' };
       const context = { trace: { debug: sinon.stub() } };
-      expect(startHandler.handle(block as any, context as any, null as any, null as any)).to.eql(block.nextId);
+      expect(startHandler.handle(node as any, context as any, null as any, null as any)).to.eql(node.nextId);
       expect(context.trace.debug.args).to.eql([['beginning flow']]);
     });
 
     it('no nextId', () => {
-      const block = {};
+      const node = {};
       const context = { trace: { debug: sinon.stub() } };
-      expect(startHandler.handle(block as any, context as any, null as any, null as any)).to.eql(null);
+      expect(startHandler.handle(node as any, context as any, null as any, null as any)).to.eql(null);
       expect(context.trace.debug.args).to.eql([['beginning flow']]);
     });
   });
