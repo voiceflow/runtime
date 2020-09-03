@@ -20,6 +20,10 @@ export interface Options {
   storage?: StoreState;
   commands?: Command[];
   variables?: StoreState;
+
+  // deprecated
+  blockID?: string | null;
+  diagramID?: string;
 }
 
 class Frame {
@@ -38,8 +42,8 @@ class Frame {
   public variables: Store;
 
   constructor(frameState: Options) {
-    this.nodeID = frameState.nodeID;
-    this.programID = frameState.programID;
+    this.nodeID = frameState.nodeID ?? frameState.blockID;
+    this.programID = frameState.programID ?? frameState.diagramID;
 
     this.storage = new Store(frameState.storage);
     this.commands = frameState.commands ?? [];
