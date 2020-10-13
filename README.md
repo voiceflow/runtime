@@ -2,91 +2,59 @@
 
 ---
 
-## runtime for executing voiceflow projects and conversational state management across different platforms
+`yarn add @voiceflow/client`
 
-requires `getProgram` function defined.
+`npm i @voiceflow/client`
 
-# Server Package API
+runtime for executing voiceflow projects and conversational state management across different platforms - requires `api` function defined.
 
-## Considerations
+## Implementation Example
 
-All in Typescript
-
-Context/State should be using immer
-
-Almost everything revolves around the Context Instance and passing it around
-
-Very scoped class and object definitions
-
-## Integration Example
-
-```jsx
-import DefaultHandlers from '@voiceflow/handlers';
-import handlers from './handlers';
+### Initialization
+```ts
+import DefaultHandlers from '@voiceflow/client/handlers';
 import Client from '@voiceflow/client';
 
+import CustomHandlers from './handlers';
+import DataAPI from './api';
+
 const client = new Client({
-	secret: PROCESS.ENV.secret_key,
 	handlers: {
 		...DefaultHandlers,
-		...handlers,
+		...CustomHandlers,
 	},
-	endpoint: PROCESS.ENV.endpoint
+	api: DataAPI,
 });
 
 // if you want to inject custom handlers during lifecycle events
-client.setEvent('contextDidMount', (context) => {
-	if (context.storage.get('flag') === 'something') {
-		context.diagrams.pop();
-	}
-
-	return context;
-});
-
-client.setEvent('onError', (err, context) => {
+client.setEvent(EventType., (err, context) => {
 	logger.log(err);
 	throw err;
 });
+```
 
-const handleTestRequest = async (req, res) => {
-
-};
-
-const handlePlatformRequest = async (req, res) => {
-	const { body: { userID, intent/request }, params: { versionID } } = req;
-	let response = {};
+### Handle Interaction Request
+```tsx
+const handleRequest = async (userID, versionID, payload) => {
 	
-	// retrieve the user state
+	// retrieve the previous user state
 	const rawState = DB.fetchState(userID);
-	const context = client.createContext(versionID, rawState, request);
+	const context = client.createContext(versionID, rawState, payload);
 
-	// fetch the metadata for this version (project)
-	const meta = await context.fetchMetadata();
-
-	// modify state based on metadata properties + current state
-	if (meta.something && context.getSessions() > 10) {
-		context.storage.set('yolo', 4);
-		context.variables.set('whatever', 10);
-		context.setEvent(('contextDidMount') => {
-			
-		});
-	}
-
-	// update the state
-	// TODO: a better method ensuring this is only ever called once
-	// maybe it will throw an error if you run updateState twice on the same context instance!
+	// update the state and generate new context (step through the program)
 	context.update();
 
-	// perform platform actions
-	if (context.turn.get('flag')) {
-		// do some platform action
-		response.card = { title: 'falalalala' };
-	}
-
-	// save the user state
+	// save the new user state
 	DB.saveState(userID, context.getFinalState());
 
-	res.send(response); // the SDK usually handles this
+	// generate response based on trace
+	let response = {};
+	context.trace.forEach((trace) => {
+		if (trace.type === 'card') response.card = trace.payload;
+		if (trace.type === 'speak') response.speak += trace.payload;
+	})
+
+	return response; // the SDK usually handles this
 }
 ```
 
@@ -217,52 +185,28 @@ Handler: {
 ## Server/Context Lifecycle Events TBD (chronological)
 
 - can all be async
-- take a look at webpack, has a very robust lifecycle pattern
 
-contextWillMount
-
-updateWillExecute
-
->storageWillUpdate
-
->storageDidUpdate
-
->turnWillUpdate
-
->turnDidUpdate
-
->variableWillUpdate
-
->variableDidUpdate
-
-diagramWillFetch
-
-diagramDidFetch
-
-stackWillPush
-
-stackDidPush
-
-stateWillExecute
-
-handlerWillHandle
-
-handlerDidHandle
-
-handlerDidCatch
-
-stateDidExecute
-
-stateDidCatch
-
-stackWillPop
-
-stackDidPop
-
-updateDidExecute
-
-updateDidCatch
-
-contextWillUnmount
-
-contextDidCatch
+        contextWillMount
+        updateWillExecute
+            storageWillUpdate
+            storageDidUpdate
+            turnWillUpdate
+            turnDidUpdate
+            variableWillUpdate
+            variableDidUpdate
+        diagramWillFetch
+        diagramDidFetch
+        stackWillPush
+        stackDidPush
+        stateWillExecute
+        handlerWillHandle
+        handlerDidHandle
+        handlerDidCatch
+        stateDidExecute
+        stateDidCatch
+        stackWillPop
+        stackDidPop
+        updateDidExecute
+        updateDidCatch
+        contextWillUnmount
+        contextDidCatch
