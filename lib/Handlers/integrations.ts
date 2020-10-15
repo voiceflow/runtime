@@ -1,21 +1,20 @@
+import { IntegrationType, NodeType } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/general-types/build/nodes/integration';
 import axios from 'axios';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
 
 import { HandlerFactory } from '@/lib/Handler';
 
-import { CUSTOM_API, ENDPOINTS_MAP, IntegrationNode } from './utils/integrations/constants';
-import { deepVariableSubstitution, resultMappings } from './utils/integrations/utils';
+import { deepVariableSubstitution, ENDPOINTS_MAP, resultMappings } from './utils/integrations';
 
 export type IntegrationsOptions = {
   customAPIEndpoint: string;
   integrationsLambdaEndpoint: string;
 };
 
-const IntegrationsHandler: HandlerFactory<IntegrationNode, IntegrationsOptions> = ({ customAPIEndpoint, integrationsLambdaEndpoint }) => ({
-  canHandle: (node) => {
-    return node.type === 'integrations';
-  },
+const IntegrationsHandler: HandlerFactory<Node, IntegrationsOptions> = ({ customAPIEndpoint, integrationsLambdaEndpoint }) => ({
+  canHandle: (node) => node.type === NodeType.INTEGRATIONS,
   handle: async (node, context, variables) => {
     if (!node.selected_integration || !node.selected_action) {
       context.trace.debug('no integration or action specified - fail by default');
@@ -29,16 +28,16 @@ const IntegrationsHandler: HandlerFactory<IntegrationNode, IntegrationsOptions> 
 
       const actionBodyData = deepVariableSubstitution(_.cloneDeep(node.action_data), variables.getState());
 
-      const BASE_URL = selectedIntegration === CUSTOM_API ? customAPIEndpoint : integrationsLambdaEndpoint;
+      const BASE_URL = selectedIntegration === IntegrationType.CUSTOM_API ? customAPIEndpoint : integrationsLambdaEndpoint;
       const { data } = await axios.post(`${BASE_URL}${ENDPOINTS_MAP[selectedIntegration][selectedAction]}`, actionBodyData);
-      const resultVariables = selectedIntegration === CUSTOM_API ? data.variables : data;
+
       // map result data to variables
-      const mappedVariables = resultMappings[selectedIntegration](node, resultVariables);
+      const mappedVariables = resultMappings(node, selectedIntegration === IntegrationType.CUSTOM_API ? data.variables : data);
       // add mapped variables to variables store
       variables.merge(mappedVariables);
 
       // if custom api returned error http status nextId to fail port, otherwise success
-      if (selectedIntegration === CUSTOM_API && data.response.status >= 400) {
+      if (selectedIntegration === IntegrationType.CUSTOM_API && data.response.status >= 400) {
         context.trace.debug(`action **${node.selected_action}** for integration **${node.selected_integration}** failed or encountered error`);
         nextId = node.fail_id ?? null;
       } else {

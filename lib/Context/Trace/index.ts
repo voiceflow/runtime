@@ -1,38 +1,15 @@
+import { DebugTraceFrame, TraceFrame, TraceType } from '@voiceflow/general-types';
+
 import { EventType } from '@/lib/Lifecycle';
 
 import Context from '..';
-
-export interface TraceFrame {
-  type: string;
-  payload?: any;
-}
-
-export enum TraceType {
-  BLOCK = 'block',
-  SPEAK = 'speak',
-  FLOW = 'flow',
-  STREAM = 'stream',
-  DEBUG = 'debug',
-  END = 'end',
-  CHOICE = 'choice',
-}
-
-export enum StreamAction {
-  LOOP = 'LOOP',
-  PLAY = 'PLAY',
-  PAUSE = 'PAUSE',
-}
-
-export interface Choice {
-  name: string;
-}
 
 export default class Trace {
   private trace: TraceFrame[] = [];
 
   constructor(private context: Context) {}
 
-  addTrace(frame: TraceFrame) {
+  addTrace<TF extends TraceFrame>(frame: TF | DebugTraceFrame) {
     let stop = false;
 
     this.context.callEvent(EventType.traceWillAdd, {
@@ -47,50 +24,11 @@ export default class Trace {
     this.trace = [...this.trace, frame];
   }
 
-  get() {
-    return this.trace;
+  get<TF extends TraceFrame>(): TF[] {
+    return this.trace as TF[];
   }
 
-  block = (blockID: string) =>
-    this.addTrace({
-      type: TraceType.BLOCK,
-      payload: { blockID },
-    });
-
-  speak = (message: string) =>
-    this.addTrace({
-      type: TraceType.SPEAK,
-      payload: { message },
-    });
-
-  end = () =>
-    this.addTrace({
-      type: TraceType.END,
-    });
-
-  stream = (src: string, token: string, action: StreamAction) =>
-    this.addTrace({
-      type: TraceType.STREAM,
-      payload: { src, action, token },
-    });
-
-  flow(diagramID: string) {
-    this.addTrace({
-      type: TraceType.FLOW,
-      payload: { diagramID },
-    });
+  debug(message: string) {
+    this.addTrace({ type: TraceType.DEBUG, payload: { message } });
   }
-
-  choice(choices: Choice[]) {
-    this.addTrace({
-      type: TraceType.CHOICE,
-      payload: { choices },
-    });
-  }
-
-  debug = (message: string) =>
-    this.addTrace({
-      type: TraceType.DEBUG,
-      payload: { message },
-    });
 }

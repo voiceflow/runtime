@@ -1,9 +1,9 @@
 import { Node } from '@voiceflow/api-sdk';
+import { DebugTraceFrame, TraceFrame } from '@voiceflow/general-types';
 
 import Context from '../Context';
 import Frame from '../Context/Stack/Frame';
 import Storage from '../Context/Store';
-import { TraceFrame } from '../Context/Trace';
 import Program from '../Program';
 
 export enum EventType {
@@ -76,9 +76,9 @@ interface FrameDidFinishEvent extends BaseEvent {
   frame?: Frame;
 }
 
-interface TraceWillAddEvent extends BaseEvent {
-  frame: TraceFrame;
+interface TraceWillAddEvent<TF extends TraceFrame> extends BaseEvent {
   stop: () => void;
+  frame: TF;
 }
 
 interface StackWillChangeEvent extends BaseEvent {
@@ -89,7 +89,7 @@ interface StackDidChangeEvent extends BaseEvent {
   prevFrames: Frame[];
 }
 
-export interface EventMap {
+export interface EventMap<TF extends TraceFrame> {
   [EventType.updateWillExecute]: BaseEvent;
   [EventType.updateDidExecute]: BaseEvent;
   [EventType.updateDidCatch]: UpdateDidCatchEvent;
@@ -118,16 +118,10 @@ export interface EventMap {
   [EventType.variablesWillUpdate]: BaseEvent;
   [EventType.variablesDidUpdate]: BaseEvent;
 
-  [EventType.traceWillAdd]: TraceWillAddEvent;
+  [EventType.traceWillAdd]: TraceWillAddEvent<TF | DebugTraceFrame>;
 }
 
-export type Event<K extends EventType> = EventMap[K];
-export type CallbackEvent<K extends EventType> = Event<K> & { context: Context };
-export type EventCallback<K extends EventType> = (event: CallbackEvent<K>) => void | Promise<void>;
-export type EventCallbackMap = { [key in EventType]: EventCallback<key> };
-
-// export type Event<K extends EventType> = EventMap[K];
-// export type EventCallbackMap = { [key in EventType]: (event: EventMap[key] & { context: Context }) => void | Promise<void> };
-
-// export type EventCallback<K extends EventType> = EventCallbackMap[K];
-// export type CallbackEvent<K extends EventType> = Parameters<EventCallback<K>>[0];
+export type Event<K extends EventType, TF extends TraceFrame = TraceFrame> = EventMap<TF>[K];
+export type CallbackEvent<K extends EventType, TF extends TraceFrame = TraceFrame> = Event<K, TF> & { context: Context };
+export type EventCallback<K extends EventType, TF extends TraceFrame = TraceFrame> = (event: CallbackEvent<K, TF>) => void | Promise<void>;
+export type EventCallbackMap<TF extends TraceFrame = TraceFrame> = { [key in EventType]: EventCallback<key, TF> };

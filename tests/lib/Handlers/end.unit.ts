@@ -22,7 +22,7 @@ describe('EndHandler unit tests', () => {
         stack: { pop: sinon.stub() },
         turn: { set: sinon.stub() },
         end: sinon.stub(),
-        trace: { debug: sinon.stub() },
+        trace: { debug: sinon.stub(), addTrace: sinon.stub() },
       };
       expect(endHandler.handle(null as any, context as any, null as any, null as any)).to.eql(null);
       expect(context.stack.pop.callCount).to.eql(1);

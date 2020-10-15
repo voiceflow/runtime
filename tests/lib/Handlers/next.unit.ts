@@ -3,7 +3,7 @@ import sinon from 'sinon';
 
 import NextHandler from '@/lib/Handlers/next';
 
-describe('EndHandler unit tests', () => {
+describe('Next unit tests', () => {
   const nextHandler = NextHandler();
 
   describe('canHandle', () => {

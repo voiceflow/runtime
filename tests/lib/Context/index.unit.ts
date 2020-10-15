@@ -75,7 +75,7 @@ describe('Context unit', () => {
 
   it('getRawState', () => {
     const context = new Context(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
-    expect(context.getRawState()).to.eql({ turn: {}, stack: [], storage: {}, variables: {} });
+    expect(context.getRawState()).to.eql({ stack: [], storage: {}, variables: {} });
   });
 
   describe('getFinalState', () => {

@@ -1,13 +1,16 @@
 import { Command } from '@voiceflow/api-sdk';
 
-import Stack from '../Context/Stack';
+import Stack from '@/lib/Context/Stack';
 
-type Matcher<C extends Command = Command> = (command: C, match?: any) => boolean;
+export * from './intent';
+export * from './variable';
+
+export type CommandMatcher<C extends Command = Command> = (command: C, match?: any) => boolean;
 
 // eslint-disable-next-line import/prefer-default-export
 export const extractFrameCommand = <C extends Command = Command>(
   stack: Stack,
-  matcher: Matcher<C>,
+  matcher: CommandMatcher<C>,
   match?: any
 ): { index: number; command: C } | null => {
   const frames = stack.getFrames();

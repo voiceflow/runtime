@@ -1,20 +1,20 @@
+import { IntegrationType } from '@voiceflow/general-types';
 import { expect } from 'chai';
-import sinon from 'sinon';
 
-import { CUSTOM_API, GOOGLE_SHEETS, ZAPIER } from '@/lib/Handlers/utils/integrations/constants';
-import { _replacer, deepVariableSubstitution, resultMappings } from '@/lib/Handlers/utils/integrations/utils';
+import { _replacer, deepVariableSubstitution, resultMappings } from '@/lib/Handlers/utils/integrations';
 
 describe('handlers integrations utils unit tests', () => {
   describe('resultMappings', () => {
     describe('GOOGLE_SHEETS', () => {
       it('no mappings', () => {
         const resultData = { foo: 'bar' };
-        expect(resultMappings[GOOGLE_SHEETS]({} as any, resultData as any)).to.eql({});
+        expect(resultMappings({ selected_integration: IntegrationType.GOOGLE_SHEETS } as any, resultData as any)).to.eql({});
       });
 
       it('with mappings', () => {
         const resultData = { _cell_location: { row: 'val1' }, foo: 'val2' };
         const node = {
+          selected_integration: IntegrationType.GOOGLE_SHEETS,
           action_data: {
             mapping: [
               { arg1: 'row_number', arg2: 'var1' },
@@ -22,17 +22,17 @@ describe('handlers integrations utils unit tests', () => {
             ],
           },
         };
-        expect(resultMappings[GOOGLE_SHEETS](node as any, resultData as any)).to.eql({ var1: 'val1', var2: 'val2' });
+        expect(resultMappings(node as any, resultData as any)).to.eql({ var1: 'val1', var2: 'val2' });
       });
     });
 
     it('CUSTOM_API', () => {
       const resultData = { foo: 'bar' };
-      expect(resultMappings[CUSTOM_API](null as any, resultData as any)).to.eql(resultData);
+      expect(resultMappings({ selected_integration: IntegrationType.CUSTOM_API } as any, resultData as any)).to.eql(resultData);
     });
 
     it('ZAPIER', () => {
-      expect(resultMappings[ZAPIER](null as any, null as any)).to.eql({});
+      expect(resultMappings({ selected_integration: IntegrationType.ZAPIER } as any, null as any)).to.eql({});
     });
   });
 

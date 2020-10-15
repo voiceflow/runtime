@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/api-sdk';
+import { Node } from '@voiceflow/general-types/build/nodes/flow';
 
 import { S } from '@/lib/Constants';
 import Frame from '@/lib/Context/Stack/Frame';
@@ -6,22 +6,8 @@ import { HandlerFactory } from '@/lib/Handler';
 
 import { mapStores } from '../Context/utils/variables';
 
-export type FlowNode = Node<
-  'flow',
-  {
-    diagram_id?: string;
-    variable_map?: {
-      inputs?: [string, string][];
-      outputs?: [string, string][];
-    };
-    nextId?: string;
-  }
->;
-
-const FlowHandler: HandlerFactory<FlowNode> = () => ({
-  canHandle: (node) => {
-    return !!node.diagram_id;
-  },
+const FlowHandler: HandlerFactory<Node> = () => ({
+  canHandle: (node) => !!node.diagram_id,
   handle: (node, context, variables) => {
     if (!node.diagram_id) {
       return node.nextId || null;
@@ -32,6 +18,7 @@ const FlowHandler: HandlerFactory<FlowNode> = () => ({
     // map node variable map input to frame
     mapStores(node.variable_map?.inputs || [], variables, newFrame.variables);
 
+    // TODO: remove storage
     // attach node variable map outputs to frame
     newFrame.storage.set(
       S.OUTPUT_MAP,
@@ -43,7 +30,9 @@ const FlowHandler: HandlerFactory<FlowNode> = () => ({
     topFrame.setNodeID(node.nextId ?? null);
 
     context.stack.push(newFrame);
+
     context.trace.debug(`entering flow \`${newFrame.getProgramID()}\``);
+
     return null;
   },
 });

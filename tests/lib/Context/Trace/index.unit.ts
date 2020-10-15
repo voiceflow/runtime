@@ -1,8 +1,9 @@
+import { TraceFrame } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
 
-import Trace, { StreamAction, TraceFrame, TraceType } from '@/lib/Context/Trace';
+import Trace from '@/lib/Context/Trace';
 import { EventType } from '@/lib/Lifecycle';
 
 describe('Context Trace unit tests', () => {
@@ -40,62 +41,5 @@ describe('Context Trace unit tests', () => {
     const trace = [{}, {}];
     _.set(traceObj, 'trace', trace);
     expect(traceObj.get()).to.eql(trace);
-  });
-
-  it('block', () => {
-    const trace = new Trace({ callEvent: sinon.stub() } as any);
-
-    const blockID = 'block-id';
-    trace.block(blockID);
-    expect(trace.get()).to.eql([{ type: TraceType.BLOCK, payload: { blockID } }]);
-  });
-
-  it('speak', () => {
-    const trace = new Trace({ callEvent: sinon.stub() } as any);
-
-    const message = 'message';
-    trace.speak(message);
-    expect(trace.get()).to.eql([{ type: TraceType.SPEAK, payload: { message } }]);
-  });
-
-  it('end', () => {
-    const trace = new Trace({ callEvent: sinon.stub() } as any);
-
-    trace.end();
-    expect(trace.get()).to.eql([{ type: TraceType.END }]);
-  });
-
-  it('stream', () => {
-    const trace = new Trace({ callEvent: sinon.stub() } as any);
-
-    const src = 'src';
-    const token = 'token';
-    const action = StreamAction.PLAY;
-    trace.stream(src, token, action);
-    expect(trace.get()).to.eql([{ type: TraceType.STREAM, payload: { src, action, token } }]);
-  });
-
-  it('flow', () => {
-    const trace = new Trace({ callEvent: sinon.stub() } as any);
-
-    const diagramID = 'diagram-id';
-    trace.flow(diagramID);
-    expect(trace.get()).to.eql([{ type: TraceType.FLOW, payload: { diagramID } }]);
-  });
-
-  it('choice', () => {
-    const trace = new Trace({ callEvent: sinon.stub() } as any);
-
-    const choices = [{}, {}];
-    trace.choice(choices as any);
-    expect(trace.get()).to.eql([{ type: TraceType.CHOICE, payload: { choices } }]);
-  });
-
-  it('debug', () => {
-    const trace = new Trace({ callEvent: sinon.stub() } as any);
-
-    const message = 'msg';
-    trace.debug(message);
-    expect(trace.get()).to.eql([{ type: TraceType.DEBUG, payload: { message } }]);
   });
 });

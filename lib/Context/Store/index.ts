@@ -14,7 +14,7 @@ class Store {
 
   private readonly willUpdate?: WillUpdate;
 
-  static initialize = (store: Store, keys: string[], initialValue: any = 0): void => {
+  static initialize = (store: Store, keys: string[], initialValue: unknown = 0): void => {
     const keysToMerge = keys.reduce((acc, key) => {
       if (store.get(key) === undefined) {
         acc[key] = initialValue;
@@ -37,20 +37,20 @@ class Store {
     this.willUpdate = willUpdate;
   }
 
-  public getState(): State {
-    return this.store;
+  public getState<S extends State>(): S {
+    return this.store as S;
   }
 
-  public get<K extends keyof State>(key: K): State[K] {
+  public get<T extends unknown>(key: string): undefined | T {
     return this.store[key];
   }
 
-  public has<K extends keyof State>(key: K): boolean {
+  public has(key: string): boolean {
     // eslint-disable-next-line no-prototype-builtins
     return this.store.hasOwnProperty(key);
   }
 
-  public update(nextState: State): void {
+  public update<S extends State>(nextState: S): void {
     const prevState = this.store;
 
     this.willUpdate?.(this.store, nextState);
@@ -60,21 +60,21 @@ class Store {
     this.didUpdate?.(prevState, this.store);
   }
 
-  public produce(producer: (draft: Draft<State>) => void): void {
+  public produce<S extends State>(producer: (draft: Draft<S>) => void): void {
     this.update(produce(this.store, producer));
   }
 
-  public merge(payload: Partial<State>): void {
-    this.produce((draft: Draft<State>) => Object.assign(draft, payload));
+  public merge<S extends State>(payload: Partial<S>): void {
+    this.produce((draft: Draft<S>) => Object.assign(draft, payload));
   }
 
-  public set<K extends keyof State>(key: K, value: any): void {
+  public set<T extends unknown>(key: string, value: T): void {
     this.produce((draft: Draft<State>) => {
       draft[key] = value;
     });
   }
 
-  public delete<K extends keyof State>(key: K): void {
+  public delete(key: string): void {
     this.produce((draft: Draft<State>) => {
       delete draft[key];
     });
@@ -84,15 +84,15 @@ class Store {
     return Object.keys(this.store);
   }
 
-  public reduce<T>(callback: (acc: T, value: { key: string; value: any }, index: number) => T, initial: T): T {
+  public reduce<T>(callback: (acc: T, value: { key: string; value: unknown }, index: number) => T, initial: T): T {
     return this.keys().reduce((acc, key, i) => callback(acc, { key, value: this.get(key) }, i), initial);
   }
 
-  public map<T>(callback: (value: { key: string; value: any }, index: number) => T): T[] {
+  public map<T>(callback: (value: { key: string; value: unknown }, index: number) => T): T[] {
     return this.reduce<T[]>((acc, ...args) => [...acc, callback(...args)], []);
   }
 
-  public forEach(callback: (value: { key: string; value: any }, index: number) => void) {
+  public forEach(callback: (value: { key: string; value: unknown }, index: number) => void) {
     this.reduce<void[]>((_, ...args) => [callback(...args)], []);
   }
 

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import IntegrationsHandler from '@/lib/Handlers/integrations';
-import { ENDPOINTS_MAP } from '@/lib/Handlers/utils/integrations/constants';
+import { ENDPOINTS_MAP } from '@/lib/Handlers/utils/integrations';
 
 const DEFAULT_OPTIONS = { customAPIEndpoint: '', integrationsLambdaEndpoint: '' };
 
@@ -141,9 +141,7 @@ describe('integrationsHandler unit tests', () => {
       expect(context.trace.debug.args).to.eql([
         [`action **${node.selected_action}** for integration **${node.selected_integration}** successfully triggered`],
       ]);
-      expect(axiosPost.args).to.eql([
-        [`${integrationsLambdaEndpoint}${ENDPOINTS_MAP[node.selected_integration][node.selected_action]}`, undefined],
-      ]);
+      expect(axiosPost.args).to.eql([[`${integrationsLambdaEndpoint}${ENDPOINTS_MAP[node.selected_integration][node.selected_action]}`, undefined]]);
       expect(variables.merge.args).to.eql([[{}]]);
     });
   });
