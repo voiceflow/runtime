@@ -7,8 +7,8 @@ import { Event, EventType } from '@/lib/Lifecycle';
 import Frame, { State as FrameState } from './Frame';
 
 type Handlers = {
-  willChange?: (event: Event<EventType.stackWillChange>) => void;
   didChange?: (event: Event<EventType.stackDidChange>) => void;
+  willChange?: (event: Event<EventType.stackWillChange>) => void;
 };
 
 class Stack {

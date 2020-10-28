@@ -1,20 +1,12 @@
-import { Node } from '@voiceflow/api-sdk';
+import { Node } from '@voiceflow/general-types/build/nodes/random';
 
 import { S } from '@/lib/Constants';
 import { HandlerFactory } from '@/lib/Handler';
 
-export type RandomNode = Node<
-  'random',
-  {
-    random?: number;
-    nextIds: string[];
-  }
->;
+type RandomStorage = Partial<Record<string, string[]>>;
 
-const randomHandler: HandlerFactory<RandomNode> = () => ({
-  canHandle: (node) => {
-    return !!node.random;
-  },
+const randomHandler: HandlerFactory<Node> = () => ({
+  canHandle: (node) => !!node.random,
   handle: async (node, context) => {
     let nextId: string;
 
@@ -30,16 +22,16 @@ const randomHandler: HandlerFactory<RandomNode> = () => ({
       let used: Set<string>;
       const { storage } = context;
 
-      if (!storage.get(S.RANDOMS)) {
+      if (!storage.get<RandomStorage>(S.RANDOMS)) {
         // initialize randoms
-        storage.set(S.RANDOMS, {});
+        storage.set<RandomStorage>(S.RANDOMS, {});
       }
 
-      if (storage.get(S.RANDOMS)[node.id]?.length) {
-        used = new Set(storage.get(S.RANDOMS)[node.id]);
+      if (storage.get<RandomStorage>(S.RANDOMS)?.[node.id]?.length) {
+        used = new Set(storage.get<RandomStorage>(S.RANDOMS)![node.id]);
       } else {
         used = new Set();
-        storage.set(S.RANDOMS, { ...storage.get(S.RANDOMS), [node.id]: [] });
+        storage.set(S.RANDOMS, { ...storage.get<RandomStorage>(S.RANDOMS), [node.id]: [] });
       }
 
       // get all unused choices
@@ -48,14 +40,18 @@ const randomHandler: HandlerFactory<RandomNode> = () => ({
         // all choices have been used
         choices = node.nextIds;
         // reset used choices
-        storage.set(S.RANDOMS, { ...storage.get(S.RANDOMS), [node.id]: [] });
+        storage.set<RandomStorage>(S.RANDOMS, { ...storage.get<RandomStorage>(S.RANDOMS), [node.id]: [] });
       }
 
       nextId = choices[Math.floor(Math.random() * choices.length)];
-      storage.set(S.RANDOMS, { ...storage.get(S.RANDOMS), [node.id]: [...storage.get(S.RANDOMS)[node.id], nextId] });
+      storage.set<RandomStorage>(S.RANDOMS, {
+        ...storage.get<RandomStorage>(S.RANDOMS),
+        [node.id]: [...storage.get<RandomStorage>(S.RANDOMS)![node.id]!, nextId],
+      });
     } else {
       nextId = node.nextIds[Math.floor(Math.random() * node.nextIds.length)];
     }
+
     context.trace.debug('going down random path');
 
     return nextId;

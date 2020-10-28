@@ -9,5 +9,6 @@ export { EventType, Event, EventCallback, CallbackEvent } from '@/lib/Lifecycle'
 export * from '@/lib/Constants';
 export * from '@/lib/Util';
 export * from '@/lib/Handlers';
+export * from '@/lib/DataAPI';
 
 export { default } from '@/lib/Client';

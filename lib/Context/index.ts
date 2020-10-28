@@ -1,23 +1,18 @@
-import { Program } from '@voiceflow/api-sdk';
-
 import cycleStack from '@/lib/Context/cycleStack';
 import Handler from '@/lib/Handler';
 import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/lib/Lifecycle';
 
+import { DataAPI } from '../DataAPI';
 import Request from './Request';
 import Stack, { FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
 import ProgramManager from './utils/programManager';
 
-export interface API {
-  getProgram: (programID: string) => Program | Promise<Program>;
-}
-
-export interface Options {
+export interface Options<DA extends DataAPI = DataAPI> {
+  api: DA;
   handlers?: Handler[];
   services?: Record<string, any>;
-  api: Partial<API> & Pick<API, 'getProgram'>;
 }
 
 export interface State {
@@ -33,8 +28,7 @@ export enum Action {
   END,
 }
 
-class Context extends AbstractLifecycle {
-  // temporary turn variables
+class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
   public turn: Store;
 
   public stack: Stack;
@@ -50,7 +44,7 @@ class Context extends AbstractLifecycle {
   // services
   public services: Record<string, any>;
 
-  public api: API;
+  public api: DA;
 
   private action: Action = Action.IDLE;
 
@@ -62,7 +56,7 @@ class Context extends AbstractLifecycle {
     public versionID: string,
     state: State,
     private request: Request | null = null,
-    { services = {}, handlers = [], api }: Options,
+    { services = {}, handlers = [], api }: Options<DA>,
     events: Lifecycle
   ) {
     super(events);

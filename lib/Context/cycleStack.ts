@@ -48,7 +48,7 @@ const cycleStack = async (context: Context, depth = 0): Promise<void> => {
     const topFrame = context.stack.top();
 
     if (poppedFrame?.storage.get(S.OUTPUT_MAP) && topFrame) {
-      mapStores(poppedFrame.storage.get(S.OUTPUT_MAP), combinedVariables, topFrame.variables);
+      mapStores(poppedFrame.storage.get<[string, string][]>(S.OUTPUT_MAP)!, combinedVariables, topFrame.variables);
     }
   }
 

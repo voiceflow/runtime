@@ -8,3 +8,4 @@ export { default as RandomHandler } from './random';
 export { default as SetHandler } from './set';
 export { default as StartHandler } from './start';
 export { default as NextHandler } from './next';
+export { default as ResetHandler } from './reset';
