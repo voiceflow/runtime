@@ -151,6 +151,7 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
 
   public getRawState(): State {
     return {
+      turn: this.turn.getState(),
       stack: this.stack.getState(),
       storage: this.storage.getState(),
       variables: this.variables.getState(),
