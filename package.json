@@ -1,10 +1,10 @@
 {
-  "name": "@voiceflow/client",
-  "description": "controller for executing voiceflow projects",
+  "name": "@voiceflow/runtime",
+  "description": "Runtime for executing voiceflow projects",
   "version": "0.1.0",
   "author": "Voiceflow",
   "bugs": {
-    "url": "https://github.com/voiceflow/controller/issues"
+    "url": "https://github.com/voiceflow/runtime/issues"
   },
   "config": {
     "commitizen": {
@@ -70,7 +70,7 @@
     "ttypescript": "^1.5.8",
     "typescript": "^3.7.4"
   },
-  "homepage": "https://github.com/voiceflow/backend-template#readme",
+  "homepage": "https://github.com/voiceflow/runtime#readme",
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
@@ -97,7 +97,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/voiceflow/client.git"
+    "url": "git+https://github.com/voiceflow/runtime.git"
   },
   "scripts": {
     "build": "npm run clean && ttsc --project ./tsconfig.build.json",
