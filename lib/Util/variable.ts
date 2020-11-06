@@ -29,7 +29,11 @@ export const sanitizeVariables = (variables: Record<string, any>) =>
     return acc;
   }, {});
 
-export const transformStringVariableToNumber = (str: string | null): number | string | null => {
+export const transformStringVariableToNumber = (str: string | number | null): number | string | null => {
+  if (typeof str === 'number') {
+    return str;
+  }
+
   if (str?.startsWith('0') && str.length > 1) {
     return str;
   }
