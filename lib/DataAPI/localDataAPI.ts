@@ -18,6 +18,10 @@ class LocalDataAPI<P extends Program<any, any>, V extends Version<any>> implemen
     this.programs = content.programs;
   }
 
+  public init = async () => {
+    // no-op
+  };
+
   public getVersion = async () => this.version;
 
   public getProgram = async (programID: string) => this.programs[programID];

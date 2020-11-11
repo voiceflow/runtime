@@ -6,6 +6,8 @@ export interface DataAPI<
   P extends Program<Node, Command> = Program<Node, Command>,
   V extends Version<VersionPlatformData> = Version<VersionPlatformData>
 > {
+  init(): Promise<void>;
+
   fetchDisplayById(displayId: number): Promise<null | Display>;
 
   getProgram(programID: string): Promise<P>;
