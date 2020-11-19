@@ -1,5 +1,7 @@
 # Voiceflow Runtime
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4765cb6865d44d7d847d84a387997f81)](https://app.codacy.com/gh/voiceflow/runtime?utm_source=github.com&utm_medium=referral&utm_content=voiceflow/runtime&utm_campaign=Badge_Grade_Settings)
+
 runtime SDK for executing voiceflow projects and conversational state management across different platforms.
 
 > ⚠️ **This repository is still undergoing active development**: Major breaking changes may be pushed periodically and the documentation may become outdated - a stable version has not been released
