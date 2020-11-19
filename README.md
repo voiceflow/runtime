@@ -1,40 +1,84 @@
-# Voiceflow Client
+# Voiceflow Runtime
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a46fdcffdb54387bd8c9ba81153eba3)](https://www.codacy.com/gh/voiceflow/runtime/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=voiceflow/runtime&amp;utm_campaign=Badge_Grade)
+[![CircleCI](https://circleci.com/gh/voiceflow/runtime/tree/master.svg?style=shield&circle-token=d2fee4e418aa5f2a3499ac21cbc5f86c2e0fcdf4)](https://circleci.com/gh/voiceflow/runtime/tree/master)
+[![codecov](https://codecov.io/gh/voiceflow/runtime/branch/master/graph/badge.svg?token=BFMKN3VPSU)](https://codecov.io/gh/voiceflow/runtime)
+
+runtime SDK for executing voiceflow projects and conversational state management across different platforms.
+
+> ⚠️ **This repository is still undergoing active development**: Major breaking changes may be pushed periodically and the documentation may become outdated - a stable version has not been released
+
+`yarn add @voiceflow/runtime`
+
+`npm i @voiceflow/runtime`
 
 ---
 
-`yarn add @voiceflow/client`
+## Concepts
 
-`npm i @voiceflow/client`
+![ci pipeline](https://user-images.githubusercontent.com/5643574/99609472-fa5f6880-29dd-11eb-8635-7f8496ddd7de.png)
 
-runtime for executing voiceflow projects and conversational state management across different platforms - requires `api` function defined.
+At a very high level, you can think of the whole Voiceflow system like code:
+* The frontend creator system allows conversation designers to "write" in a visual programming language, like an IDE. Each of their `diagrams` is like a function/instruction.
+* When they press *Upload* or *Export* all their flow `diagrams` are "compiled" into `programs`
+* The `runtime` is like the CPU that reads these `programs` and executes them based on end user input.
+	* these `programs` can be read through **Local Project Files** or through an **Voiceflow API** where they are hosted with Voiceflow databases
+	* the runtime handles state management and tracks the user's state at each turn of conversation
 
-## Implementation Example
+Where conversational state management differs from traditional code execution is that it is heavily I/O based and always blocked when awaiting user input:
+
+It is important to understand the Conversation Request/Response Webhook Model
+
+![client architecture](https://user-images.githubusercontent.com/5643574/99591510-e7886c00-29bc-11eb-83b2-843f75ff3cac.png)
+
+The **end user session storage** is determined by the implementation of the runtime, but stores the most sensitive data in this architecture (what the user has said, where they are in the conversation, variables, etc.)
+
+### Anatomy of an Interaction (Alexa Example)
+As a practical example, here's what happens when a user speaks to a custom skill (app) on their Alexa device. Most other conversational platforms function in this manner - if it is a text/or chat, it would be the exact same, just without a voice-to-text/text-to-voice layer.
+
+1. user says something to alexa, alexa uses natural language processing to transcribe user intent, then sends it via **webhook** (along with other metadata i.e. _userID_) to `alexa-runtime`, which implements `@voiceflow/runtime`
+2. fetch user state (JSON format) from **end user session storage** based on a _userID_ identifier
+3. fetch the current program (flow) that the user is on from **Voiceflow API/Local Project File**
+4. go through nodes in the flow and update the user state
+5. save the final user state to **end user session storage**
+6. generate a **webhook** response based on the final user state, send back to alexa
+7. alexa interprets response and speaks to user
+
+repeat all steps each time a user speaks to the alexa skill, to perform a conversation.
+([here's Amazon Alexa's documentation](https://developer.amazon.com/en-US/docs/alexa/custom-skills/request-and-response-json-reference.html))
+
+---
+
+## Implementation Example (Generic Conversation Platform)
 
 ### Initialization
 ```ts
-import DefaultHandlers from '@voiceflow/client/handlers';
-import Client from '@voiceflow/client';
+import Client, { 
+	LocalDataApi,
+} from '@voiceflow/runtime';
 
 import CustomHandlers from './handlers';
-import DataAPI from './api';
 
 const client = new Client({
 	handlers: {
 		...DefaultHandlers,
 		...CustomHandlers,
 	},
-	api: DataAPI,
+	api: new LocalDataApi({ projectSource: PROJECT_SOURCE /* local project file */ }),
 });
 
 // if you want to inject custom handlers during lifecycle events
-client.setEvent(EventType., (err, context) => {
+client.setEvent(EventType.handlerDidCatch, (err, context) => {
 	logger.log(err);
 	throw err;
 });
 ```
 
+`Client` can be initialized with either `LocalDataApi`, which reads a local file for project and program source, or `ServerDataApi`, which requires an API key (`adminToken`) and endpoint (`dataEndpoint`) and fetches the data remotely.
+
+
 ### Handle Interaction Request
-```tsx
+```ts
+// incoming webhook request
 const handleRequest = async (userID, versionID, payload) => {
 	
 	// retrieve the previous user state
@@ -47,166 +91,75 @@ const handleRequest = async (userID, versionID, payload) => {
 	// save the new user state
 	DB.saveState(userID, context.getFinalState());
 
-	// generate response based on trace
+	// generate a response based on trace
 	let response = {};
 	context.trace.forEach((trace) => {
 		if (trace.type === 'card') response.card = trace.payload;
 		if (trace.type === 'speak') response.speak += trace.payload;
-	})
+	});
 
 	return response; // the SDK usually handles this
 }
 ```
 
+### Custom Node Handler
+```ts
+import { HandlerFactory, replaceVariables } from '@voiceflow/runtime';
+
+// create a handler for a particular node type
+export const CustomNodeHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
+	// return a boolean whether or not this handler can handle a particular node
+	canHandle: (node) => {
+		return node.type === 'CUSTOM_NODE' && typeof node.custom === 'string';
+	},
+	// perform side effects and return the next node to go to
+	handle: (node, context, variables) => {
+		if (context.storage.get('customSetting')) {
+			// add something to the trace to help generate the response
+			context.trace.addTrace({
+				type: 'card',
+				payload: node.custom,
+			});
+			// maybe add something to analytics when this block is triggered
+			metrics.log(node.custom);
+		}
+
+		// if you return null it will immediately end the current flow
+		return node.nextId;
+	},
+});
+```
+**Return Types**
+* return `null`: ends the current flow, and pops it off the stack
+* return different `nodeID`: as long as the nodeID is present in the current flow program, it will attempt to be handled next - if it is not found, same behavior as return `null`
+* return self `nodeID`: if the handler's `handle()` returns the same nodeID as the node it is handling, then the execution of this interaction (`context.update()`) will end in the exact same state and wait for the next user interaction/webhook. The next request will begin on this same node. You would do this to await user input. Example: [Choice Node](https://github.com/voiceflow/alexa-runtime/blob/master/lib/services/voiceflow/handlers/interaction.ts)
+
+---
 ## Vocabulary
-
-**context**: general purpose object that provides an API to manipulate state
-
-**platform**: alexa, google, IVR, messenger, slack, twilio
-
-**secret**: secret key sent to Voiceflow server-data-api to fetch metadata or diagrams
-
-**storage**: object full of things you want to persist between requests
-
-**stack**: diagram stack
-
-**frame**: diagram stack frame
 
 **request**: what the end user has done (intent, push button, etc)
 
-**diagram**: full diagram object (equivalent to text/code in memory model) (READ ONLY)
+**context**: general purpose object that provides an API to manipulate state
 
-**block**: block metadata (currently referred to as line in most of server)
+**platform**: alexa, google, IVR, messenger, slack, twilio, etc.
+
+**frame**: program frame - contains local variables, pointers, etc.
+
+**stack**: stack of program frames (like code execution stack)
+
+**program**: flow program object (equivalent to text/code in memory model) (READ ONLY)
+
+**node**: node metadata - each individual step/block in the program
 
 **variables**: global variables
 
+**storage**: object full of things you want to persist between requests
+
 **turn**: object full of things that only matter during this turn
 
-**handlers:** array of handlers that handle specific block functionalities 
+**handlers:** array of handlers that handle specific node functionalities 
 
+---
 ## Documentation
 
-### Voiceflow
-
-```tsx
-Voiceflow: {
-	constructor: fn({ secret: string, handlers: Handler[], endpoint: string, defaults: { storage: Object, turn: Object, variables: Object } }) // creates the object
-	createContext: fn(versionID: string, rawState: Object) => context: Context // generates a context object
-
-	getHandlers: fn() => Handler[]
-	// LIFECYCLE EVENTS (directly overwrite these)
-	onError: fn(err: Error, context: Context) => context: Context
-}
-```
-
-## Store
-
-```tsx
-Store: {
-	produce: (producer: (draft: Draft<object>) => void)=> void
-	update: (key: string, value: any) => void
-	merge: (payload: object) => void
-	delete: (key: string) => void
-	getState: () => object
-	get: (key:string) => any
-}
-```
-
-### Frame
-
-```tsx
-Frame: {
-	getState,
-	storage: Store,
-	variables: Store,
-	triggers: object[],
-	diagramID,
-	lineID,
-}
-```
-
-### Context
-
-```tsx
-Context: {
-	constructor: fn( versionID: string, rawState: Object, turn?: Object ) // creates the object
-
-	update: async fn() => undefined // triggers entire lifecycle call - can only be done once per object
-
-	getState: fn() => Object // returns state in rawState JSON format
-
-	produce: (({variables, storage, turn}) => {
-		//mutate
-	})
-
-	// storage properties
-	variables: Store
-
-	storage: Store
-
-	// temporary turn variables
-	turn: Store
-
-	stack: {
-		initialize,
-		getState, // serialize
-		top, // read top item
-		pop,
-		lift, // pop off a certain number of things
-		push
-	}
-
-	fetchDiagram: async fn(diagramID) => JSON // get 
-	fetchMetadata: async fn() => JSON // get
-
-	// context controls
-	action
-
-	finish: fn() => rawState
-
-	isTesting: fn() => boolean
-
-	// LIFECYCLE EVENTS (directly overwrite these) - this overrides Voiceflow lifecycle events
-	onError: fn(err, context)
-}
-```
-
-### Handlers
-
-there are default ones and ones provided by the package
-
-```tsx
-Handler: {
-	canHandle: fn(block: Block, context: Context) => boolean,
-	handle: (block: Block, context: Context) => (next)blockID
-}
-```
-
-## Server/Context Lifecycle Events TBD (chronological)
-
-- can all be async
-
-        contextWillMount
-        updateWillExecute
-            storageWillUpdate
-            storageDidUpdate
-            turnWillUpdate
-            turnDidUpdate
-            variableWillUpdate
-            variableDidUpdate
-        diagramWillFetch
-        diagramDidFetch
-        stackWillPush
-        stackDidPush
-        stateWillExecute
-        handlerWillHandle
-        handlerDidHandle
-        handlerDidCatch
-        stateDidExecute
-        stateDidCatch
-        stackWillPop
-        stackDidPop
-        updateDidExecute
-        updateDidCatch
-        contextWillUnmount
-        contextDidCatch
+### (in progress)
