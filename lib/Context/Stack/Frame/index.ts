@@ -82,7 +82,7 @@ class Frame {
     return this.nodeID;
   }
 
-  public setNodeID(nodeID: string | null): void {
+  public setNodeID(nodeID?: string | null): void {
     this.nodeID = nodeID;
   }
 
