@@ -17,7 +17,7 @@ runtime SDK for executing voiceflow projects and conversational state management
 
 ![ci pipeline](https://user-images.githubusercontent.com/5643574/99609472-fa5f6880-29dd-11eb-8635-7f8496ddd7de.png)
 
-At a very high level, you can think of the whole Voiceflow system like code:
+At a very high level, the whole Voiceflow system can be demostrated through a programming anology:
 * The frontend creator system allows conversation designers to "write" in a visual programming language, like an IDE. Each of their `diagrams` is like a function/instruction.
 * When they press *Upload* or *Export* all their flow `diagrams` are "compiled" into `programs`
 * The `runtime` is like the CPU that reads these `programs` and executes them based on end user input.
@@ -28,7 +28,7 @@ Where conversational state management differs from traditional code execution is
 
 It is important to understand the Conversation Request/Response Webhook Model
 
-![client architecture](https://user-images.githubusercontent.com/5643574/99591510-e7886c00-29bc-11eb-83b2-843f75ff3cac.png)
+<img src="https://user-images.githubusercontent.com/5643574/99591510-e7886c00-29bc-11eb-83b2-843f75ff3cac.png" width=400 />
 
 The **end user session storage** is determined by the implementation of the runtime, but stores the most sensitive data in this architecture (what the user has said, where they are in the conversation, variables, etc.)
 
@@ -66,7 +66,7 @@ const client = new Client({
 	api: new LocalDataApi({ projectSource: PROJECT_SOURCE /* local project file */ }),
 });
 
-// if you want to inject custom handlers during lifecycle events
+// inject custom handlers during lifecycle events
 client.setEvent(EventType.handlerDidCatch, (err, context) => {
 	logger.log(err);
 	throw err;
@@ -98,7 +98,8 @@ const handleRequest = async (userID, versionID, payload) => {
 		if (trace.type === 'speak') response.speak += trace.payload;
 	});
 
-	return response; // the SDK usually handles this
+	// often platforms have SDKs to help you build out a response
+	return response;
 }
 ```
 
@@ -124,7 +125,7 @@ export const CustomNodeHandler: HandlerFactory<Node, typeof utilsObj> = (utils) 
 			metrics.log(node.custom);
 		}
 
-		// if you return null it will immediately end the current flow
+		// if return null it will immediately end the current flow
 		return node.nextId;
 	},
 });
@@ -153,7 +154,7 @@ export const CustomNodeHandler: HandlerFactory<Node, typeof utilsObj> = (utils) 
 
 **variables**: global variables
 
-**storage**: object full of things you want to persist between requests
+**storage**: object full of things to persist between requests
 
 **turn**: object full of things that only matter during this turn
 

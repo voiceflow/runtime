@@ -137,6 +137,10 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
     }
   }
 
+  /**
+   * @returns final state JSON of the context to be saved to persistent storage
+   * does not include the `turn` store
+   */
   public getFinalState(): State {
     if (this.action === Action.IDLE) {
       throw new Error('context not updated');
@@ -158,10 +162,17 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
     };
   }
 
+  /**
+   * @returns node handlers this context was insantiated with
+   * not recommended but they could be mutated
+   */
   public getHandlers(): Handler[] {
     return this.handlers;
   }
 
+  /**
+   * @returns voiceflow project versionID this context is reading
+   */
   public getVersionID() {
     return this.versionID;
   }
