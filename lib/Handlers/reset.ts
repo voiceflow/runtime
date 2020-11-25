@@ -11,7 +11,7 @@ const ResetHandler: HandlerFactory<ResetNode> = () => ({
   canHandle: (node) => !!node.reset,
   handle: (_, context) => {
     context.stack.popTo(1);
-    context.stack.top().setNodeID(null);
+    context.stack.top().setNodeID(undefined);
 
     return null;
   },
