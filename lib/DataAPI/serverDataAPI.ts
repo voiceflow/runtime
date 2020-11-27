@@ -4,18 +4,24 @@ import { AxiosInstance, AxiosStatic } from 'axios';
 import { DataAPI, Display } from './types';
 
 class ServerDataAPI<P extends Program<any, any>, V extends Version<any>> implements DataAPI<P, V> {
-  private client!: AxiosInstance;
+  protected client!: AxiosInstance;
 
   private axios: AxiosStatic;
+
+  private platform: string;
 
   private dataEndpoint: string;
 
   private adminToken: string;
 
-  constructor({ adminToken, dataEndpoint }: { adminToken: string; dataEndpoint: string }, { axios }: { axios: AxiosStatic }) {
+  constructor(
+    { platform, adminToken, dataEndpoint }: { platform: string; adminToken: string; dataEndpoint: string },
+    { axios }: { axios: AxiosStatic }
+  ) {
     this.axios = axios;
-    this.dataEndpoint = dataEndpoint;
+    this.platform = platform;
     this.adminToken = adminToken;
+    this.dataEndpoint = dataEndpoint;
   }
 
   public init = async () => {
@@ -23,10 +29,7 @@ class ServerDataAPI<P extends Program<any, any>, V extends Version<any>> impleme
       data: { token: VF_DATA_SECRET },
     } = await this.axios.post(
       `${this.dataEndpoint}/generate-platform-token`,
-      {
-        platform: 'alexa',
-        ttl_min: 525600,
-      },
+      { platform: this.platform, ttl_min: 525600 },
       { headers: { admintoken: this.adminToken } }
     );
 
@@ -44,12 +47,6 @@ class ServerDataAPI<P extends Program<any, any>, V extends Version<any>> impleme
 
   public getProgram = async (programID: string) => {
     const { data } = await this.client.get<P>(`/diagrams/${programID}`);
-
-    return data;
-  };
-
-  public getTestProgram = async (programID: string) => {
-    const { data } = await this.client.get<P>(`/test/diagrams/${programID}`);
 
     return data;
   };

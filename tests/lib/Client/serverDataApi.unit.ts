@@ -80,16 +80,6 @@ describe('serverDataAPI client unit tests', () => {
     expect(axios.get.args).to.eql([[`/diagrams/${programId}`]]);
   });
 
-  it('getTestProgram', async () => {
-    const data = { foo: 'bar' };
-    const axios = { get: sinon.stub().returns({ data }) };
-    const client = await getServerDataApi(axios);
-
-    const programId = '1';
-    expect(await client.getTestProgram(programId)).to.eql(data);
-    expect(axios.get.args).to.eql([[`/test/diagrams/${programId}`]]);
-  });
-
   it('getVersion', async () => {
     const data = { foo: 'bar' };
     const axios = { get: sinon.stub().returns({ data }) };

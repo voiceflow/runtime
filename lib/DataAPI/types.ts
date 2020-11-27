@@ -12,7 +12,5 @@ export interface DataAPI<
 
   getProgram(programID: string): Promise<P>;
 
-  getTestProgram(programID: string): Promise<P>;
-
   getVersion(versionID: string): Promise<V>;
 }
