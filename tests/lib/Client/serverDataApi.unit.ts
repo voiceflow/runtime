@@ -5,7 +5,7 @@ import ServerDataAPI from '@/lib/DataAPI/serverDataAPI';
 
 const getServerDataApi = async (axiosInstance: Record<string, Function>) => {
   const axios = { create: sinon.stub().returns(axiosInstance), post: sinon.stub().returns({ data: { token: 'secret-token' } }) };
-  const testConfig = { dataEndpoint: 'data-endpoint', adminToken: 'admin-token' };
+  const testConfig = { platform: 'alexa', dataEndpoint: 'data-endpoint', adminToken: 'admin-token' };
 
   const client = new ServerDataAPI(testConfig, { axios } as any);
   await client.init();
@@ -16,12 +16,14 @@ const getServerDataApi = async (axiosInstance: Record<string, Function>) => {
 describe('serverDataAPI client unit tests', () => {
   describe('new', () => {
     it('works correctly', async () => {
+      const platform = 'alexa';
       const dataSecret = 'secret-token';
       const adminToken = 'admin-token';
       const dataEndpoint = 'random';
 
       const axios = { post: sinon.stub().returns({ data: { token: dataSecret } }), create: sinon.stub() };
       const testConfig = {
+        platform,
         adminToken,
         dataEndpoint,
       };
