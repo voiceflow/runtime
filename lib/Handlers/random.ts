@@ -3,12 +3,12 @@ import { Node } from '@voiceflow/general-types/build/nodes/random';
 import { S } from '@/lib/Constants';
 import { HandlerFactory } from '@/lib/Handler';
 
-type RandomStorage = Partial<Record<string, string[]>>;
+type RandomStorage = Partial<Record<string, (string | null)[]>>;
 
 const randomHandler: HandlerFactory<Node> = () => ({
   canHandle: (node) => !!node.random,
   handle: async (node, context) => {
-    let nextId: string;
+    let nextId: string | null;
 
     if (!node.nextIds.length) {
       context.trace.debug('no random paths connected - exiting');
@@ -19,7 +19,7 @@ const randomHandler: HandlerFactory<Node> = () => ({
       [nextId] = node.nextIds;
     } else if (node.random === 2) {
       // no duplicates random node
-      let used: Set<string>;
+      let used: Set<string | null>;
       const { storage } = context;
 
       if (!storage.get<RandomStorage>(S.RANDOMS)) {
@@ -44,6 +44,7 @@ const randomHandler: HandlerFactory<Node> = () => ({
       }
 
       nextId = choices[Math.floor(Math.random() * choices.length)];
+
       storage.set<RandomStorage>(S.RANDOMS, {
         ...storage.get<RandomStorage>(S.RANDOMS),
         [node.id]: [...storage.get<RandomStorage>(S.RANDOMS)![node.id]!, nextId],

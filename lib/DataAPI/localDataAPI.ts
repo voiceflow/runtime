@@ -26,10 +26,6 @@ class LocalDataAPI<P extends Program<any, any>, V extends Version<any>> implemen
 
   public getProgram = async (programID: string) => this.programs[programID];
 
-  public getTestProgram = async () => {
-    throw new Error('local implementation does not support tests');
-  };
-
   public fetchDisplayById = async () => null;
 }
 
