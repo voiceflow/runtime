@@ -24,7 +24,7 @@ export default class Trace {
     this.traces = [...this.traces, frame];
   }
 
-  get<TF extends TraceFrame>(): TF[] {
+  getState<TF extends TraceFrame>(): TF[] {
     return this.traces as TF[];
   }
 

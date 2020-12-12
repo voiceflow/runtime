@@ -15,7 +15,7 @@ describe('Context Trace unit tests', () => {
       const frame = { foo: 'bar' };
       trace.addTrace(frame as any);
 
-      expect(_.get(trace, 'trace')).to.eql([frame]);
+      expect(_.get(trace, 'traces')).to.eql([frame]);
       expect(context.callEvent.callCount).to.eql(1);
       expect(context.callEvent.args[0][0]).to.eql(EventType.traceWillAdd);
       expect(context.callEvent.args[0][1].frame).to.eql(frame);
@@ -32,14 +32,14 @@ describe('Context Trace unit tests', () => {
       const trace = new Trace(context as any);
       trace.addTrace({ foo: 'bar' } as any);
 
-      expect(_.get(trace, 'trace')).to.eql([]);
+      expect(_.get(trace, 'traces')).to.eql([]);
     });
   });
 
   it('get', () => {
     const traceObj = new Trace(null as any);
     const trace = [{}, {}];
-    _.set(traceObj, 'trace', trace);
-    expect(traceObj.get()).to.eql(trace);
+    _.set(traceObj, 'traces', trace);
+    expect(traceObj.getState()).to.eql(trace);
   });
 });

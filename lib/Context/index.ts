@@ -149,7 +149,7 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
       stack: this.stack.getState(),
       storage: this.storage.getState(),
       variables: this.variables.getState(),
-      trace: this.trace.get(),
+      trace: this.trace.getState(),
     };
   }
 
@@ -159,7 +159,7 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
       stack: this.stack.getState(),
       storage: this.storage.getState(),
       variables: this.variables.getState(),
-      trace: this.trace.get(),
+      trace: this.trace.getState(),
     };
   }
 
