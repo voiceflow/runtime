@@ -1,3 +1,5 @@
+import { TraceFrame } from '@voiceflow/general-types';
+
 import cycleStack from '@/lib/Context/cycleStack';
 import Handler from '@/lib/Handler';
 import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/lib/Lifecycle';
@@ -20,6 +22,7 @@ export interface State {
   stack: FrameState[];
   storage: StorageState;
   variables: StorageState;
+  trace: TraceFrame[];
 }
 
 export enum Action {
@@ -137,7 +140,7 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
     }
   }
 
-  public getFinalState(): State {
+  public getFinalState(): Omit<State, 'turn'> {
     if (this.action === Action.IDLE) {
       throw new Error('context not updated');
     }
@@ -146,6 +149,7 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
       stack: this.stack.getState(),
       storage: this.storage.getState(),
       variables: this.variables.getState(),
+      trace: this.trace.get(),
     };
   }
 
@@ -155,6 +159,7 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
       stack: this.stack.getState(),
       storage: this.storage.getState(),
       variables: this.variables.getState(),
+      trace: this.trace.get(),
     };
   }
 

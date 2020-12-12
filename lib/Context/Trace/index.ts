@@ -5,7 +5,7 @@ import { EventType } from '@/lib/Lifecycle';
 import Context from '..';
 
 export default class Trace {
-  private trace: TraceFrame[] = [];
+  private traces: TraceFrame[] = [];
 
   constructor(private context: Context) {}
 
@@ -21,11 +21,11 @@ export default class Trace {
 
     if (stop) return;
 
-    this.trace = [...this.trace, frame];
+    this.traces = [...this.traces, frame];
   }
 
   get<TF extends TraceFrame>(): TF[] {
-    return this.trace as TF[];
+    return this.traces as TF[];
   }
 
   debug(message: string) {
