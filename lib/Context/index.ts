@@ -3,7 +3,6 @@ import Handler from '@/lib/Handler';
 import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/lib/Lifecycle';
 
 import { DataAPI } from '../DataAPI';
-import Request from './Request';
 import Stack, { FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
@@ -28,7 +27,7 @@ export enum Action {
   END,
 }
 
-class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
+class Context<I extends Record<string, unknown> = Record<string, unknown>, DA extends DataAPI = DataAPI> extends AbstractLifecycle {
   public turn: Store;
 
   public stack: Stack;
@@ -55,7 +54,7 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
   constructor(
     public versionID: string,
     state: State,
-    private request: Request | null = null,
+    private input: I | null = null,
     { services = {}, handlers = [], api }: Options<DA>,
     events: Lifecycle
   ) {
@@ -92,8 +91,12 @@ class Context<DA extends DataAPI = DataAPI> extends AbstractLifecycle {
     this.programManager = new ProgramManager(this);
   }
 
-  getRequest(): Request | null {
-    return this.request;
+  setInput(input: I) {
+    this.input = input;
+  }
+
+  getInput(): I | null {
+    return this.input;
   }
 
   public setAction(type: Action): void {

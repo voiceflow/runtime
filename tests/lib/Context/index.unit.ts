@@ -19,10 +19,17 @@ describe('Context unit', () => {
     expect(_.get(context.stack, 'handlers.willChange')()).to.eql('foo');
   });
 
-  it('getRequest', () => {
-    const request = { type: 'req', payload: {} };
-    const context = new Context(null as any, { stack: [] } as any, request, {} as any, null as any);
-    expect(context.getRequest()).to.eql(request);
+  it('getInput', () => {
+    const input = { type: 'req', payload: {} };
+    const context = new Context(null as any, { stack: [] } as any, input, {} as any, null as any);
+    expect(context.getInput()).to.eql(input);
+  });
+
+  it('setInput', () => {
+    const input = { type: 'req', payload: {} };
+    const context = new Context(null as any, { stack: [] } as any, 'oldInput' as any, {} as any, null as any);
+    expect(context.setInput(input)).to.eq(undefined);
+    expect(context.getInput()).to.eql(input);
   });
 
   it('setAction', () => {
