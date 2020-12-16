@@ -17,5 +17,4 @@ export interface RequestHandler<I> {
 }
 
 // for request handlers that generate the context
-export type ContextRequestParams<I> = Omit<RequestParams<I>, 'context'> & { state?: Omit<State, 'trace'> };
-export type ContextRequestHandler<I> = (params: ContextRequestParams<I>) => RequestParams<I> | Promise<RequestParams<I>>;
+export type InitRequestHandler<I> = (params: Partial<RequestParams<I>>) => RequestParams<I> | Promise<RequestParams<I>>;
