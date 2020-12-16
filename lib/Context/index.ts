@@ -7,7 +7,7 @@ export { Context, ContextHandle, ContextHandler, InitContextHandler } from './ty
 export class ContextBuilder<R> {
   private pipes: ContextHandler<R>[][] = [];
 
-  addPipe(handlers: ContextHandler<R>[]) {
+  addHandlers(...handlers: ContextHandler<R>[]) {
     this.pipes.push(handlers);
   }
 
