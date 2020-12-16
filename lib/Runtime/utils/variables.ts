@@ -1,4 +1,4 @@
-import Store from '@/lib/Context/Store';
+import Store from '@/lib/Runtime/Store';
 
 export const createCombinedVariables = (global: Store, local: Store): Store => {
   return Store.merge(global, local);

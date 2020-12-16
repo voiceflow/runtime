@@ -32,15 +32,15 @@ describe('reset handler unit tests', async () => {
         setNodeID: sinon.stub(),
       };
 
-      const context = {
+      const runtime = {
         stack: {
           popTo: sinon.stub(),
           top: sinon.stub().returns(topFrame),
         },
       };
 
-      expect(resetHandler.handle(null as any, context as any, null as any, null as any)).to.eql(null);
-      expect(context.stack.popTo.args).to.eql([[1]]);
+      expect(resetHandler.handle(null as any, runtime as any, null as any, null as any)).to.eql(null);
+      expect(runtime.stack.popTo.args).to.eql([[1]]);
       expect(topFrame.setNodeID.args).to.eql([[undefined]]);
     });
   });

@@ -1,10 +1,10 @@
 import { Node } from '@voiceflow/api-sdk';
 import { DebugTraceFrame, TraceFrame } from '@voiceflow/general-types';
 
-import Context from '../Context';
-import Frame from '../Context/Stack/Frame';
-import Storage from '../Context/Store';
 import Program from '../Program';
+import Runtime from '../Runtime';
+import Frame from '../Runtime/Stack/Frame';
+import Storage from '../Runtime/Store';
 
 export enum EventType {
   updateWillExecute = 'updateWillExecute',
@@ -122,6 +122,6 @@ export interface EventMap<TF extends TraceFrame> {
 }
 
 export type Event<K extends EventType, TF extends TraceFrame = TraceFrame> = EventMap<TF>[K];
-export type CallbackEvent<K extends EventType, TF extends TraceFrame = TraceFrame> = Event<K, TF> & { context: Context };
+export type CallbackEvent<K extends EventType, TF extends TraceFrame = TraceFrame> = Event<K, TF> & { runtime: Runtime };
 export type EventCallback<K extends EventType, TF extends TraceFrame = TraceFrame> = (event: CallbackEvent<K, TF>) => void | Promise<void>;
 export type EventCallbackMap<TF extends TraceFrame = TraceFrame> = { [key in EventType]: EventCallback<key, TF> };

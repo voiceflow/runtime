@@ -2,17 +2,17 @@ import { DebugTraceFrame, TraceFrame, TraceType } from '@voiceflow/general-types
 
 import { EventType } from '@/lib/Lifecycle';
 
-import Context from '..';
+import Runtime from '..';
 
 export default class Trace {
   private trace: TraceFrame[] = [];
 
-  constructor(private context: Context) {}
+  constructor(private runtime: Runtime) {}
 
   addTrace<TF extends TraceFrame>(frame: TF | DebugTraceFrame) {
     let stop = false;
 
-    this.context.callEvent(EventType.traceWillAdd, {
+    this.runtime.callEvent(EventType.traceWillAdd, {
       frame,
       stop: () => {
         stop = true;

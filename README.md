@@ -67,7 +67,7 @@ const client = new Client({
 });
 
 // if you want to inject custom handlers during lifecycle events
-client.setEvent(EventType.handlerDidCatch, (err, context) => {
+client.setEvent(EventType.handlerDidCatch, (err, runtime) => {
 	logger.log(err);
 	throw err;
 });
@@ -83,17 +83,17 @@ const handleRequest = async (userID, versionID, payload) => {
 	
 	// retrieve the previous user state
 	const rawState = DB.fetchState(userID);
-	const context = client.createContext(versionID, rawState, payload);
+	const runtime = client.createRuntime(versionID, rawState, payload);
 
-	// update the state and generate new context (step through the program)
-	context.update();
+	// update the state and generate new runtime (step through the program)
+	runtime.update();
 
 	// save the new user state
-	DB.saveState(userID, context.getFinalState());
+	DB.saveState(userID, runtime.getFinalState());
 
 	// generate a response based on trace
 	let response = {};
-	context.trace.forEach((trace) => {
+	runtime.trace.forEach((trace) => {
 		if (trace.type === 'card') response.card = trace.payload;
 		if (trace.type === 'speak') response.speak += trace.payload;
 	});
@@ -113,10 +113,10 @@ export const CustomNodeHandler: HandlerFactory<Node, typeof utilsObj> = (utils) 
 		return node.type === 'CUSTOM_NODE' && typeof node.custom === 'string';
 	},
 	// perform side effects and return the next node to go to
-	handle: (node, context, variables) => {
-		if (context.storage.get('customSetting')) {
+	handle: (node, runtime, variables) => {
+		if (runtime.storage.get('customSetting')) {
 			// add something to the trace to help generate the response
-			context.trace.addTrace({
+			runtime.trace.addTrace({
 				type: 'card',
 				payload: node.custom,
 			});
@@ -132,14 +132,14 @@ export const CustomNodeHandler: HandlerFactory<Node, typeof utilsObj> = (utils) 
 **Return Types**
 * return `null`: ends the current flow, and pops it off the stack
 * return different `nodeID`: as long as the nodeID is present in the current flow program, it will attempt to be handled next - if it is not found, same behavior as return `null`
-* return self `nodeID`: if the handler's `handle()` returns the same nodeID as the node it is handling, then the execution of this interaction (`context.update()`) will end in the exact same state and wait for the next user interaction/webhook. The next request will begin on this same node. You would do this to await user input. Example: [Choice Node](https://github.com/voiceflow/alexa-runtime/blob/master/lib/services/voiceflow/handlers/interaction.ts)
+* return self `nodeID`: if the handler's `handle()` returns the same nodeID as the node it is handling, then the execution of this interaction (`runtime.update()`) will end in the exact same state and wait for the next user interaction/webhook. The next request will begin on this same node. You would do this to await user input. Example: [Choice Node](https://github.com/voiceflow/alexa-runtime/blob/master/lib/services/voiceflow/handlers/interaction.ts)
 
 ---
 ## Vocabulary
 
 **request**: what the end user has done (intent, push button, etc)
 
-**context**: general purpose object that provides an API to manipulate state
+**runtime**: general purpose object that provides an API to manipulate state
 
 **platform**: alexa, google, IVR, messenger, slack, twilio, etc.
 

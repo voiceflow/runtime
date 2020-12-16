@@ -1,173 +1,37 @@
-import cycleStack from '@/lib/Context/cycleStack';
-import Handler from '@/lib/Handler';
-import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/lib/Lifecycle';
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
+import { Context, ContextHandler, InitContextHandler } from './types';
 
-import { DataAPI } from '../DataAPI';
-import Stack, { FrameState } from './Stack';
-import Store, { State as StorageState } from './Store';
-import Trace from './Trace';
-import ProgramManager from './utils/programManager';
+export { Context, ContextHandle, ContextHandler, InitContextHandler } from './types';
 
-export interface Options<DA extends DataAPI = DataAPI> {
-  api: DA;
-  handlers?: Handler[];
-  services?: Record<string, any>;
-}
+export class ContextBuilder<R> {
+  private pipes: ContextHandler<R>[][] = [];
 
-export interface State {
-  turn?: StorageState;
-  stack: FrameState[];
-  storage: StorageState;
-  variables: StorageState;
-}
-
-export enum Action {
-  IDLE,
-  RUNNING,
-  END,
-}
-
-class Context<I extends Record<string, unknown> = Record<string, unknown>, DA extends DataAPI = DataAPI> extends AbstractLifecycle {
-  public turn: Store;
-
-  public stack: Stack;
-
-  // storage variables
-  public storage: Store;
-
-  // global variables
-  public variables: Store;
-
-  public trace: Trace;
-
-  // services
-  public services: Record<string, any>;
-
-  public api: DA;
-
-  private action: Action = Action.IDLE;
-
-  private handlers: Handler[];
-
-  private programManager: ProgramManager;
-
-  constructor(
-    public versionID: string,
-    state: State,
-    private input: I | null = null,
-    { services = {}, handlers = [], api }: Options<DA>,
-    events: Lifecycle
-  ) {
-    super(events);
-
-    const createEvent = <K extends EventType>(type: K) => (event: Event<K>) => this.callEvent(type, event);
-
-    this.services = services;
-    this.handlers = handlers;
-    this.api = api;
-
-    this.stack = new Stack(state.stack, {
-      willChange: createEvent(EventType.stackWillChange),
-      didChange: createEvent(EventType.stackDidChange),
-    });
-
-    this.turn = new Store(state.turn, {
-      didUpdate: createEvent(EventType.turnDidUpdate),
-      willUpdate: createEvent(EventType.turnWillUpdate),
-    });
-
-    this.storage = new Store(state.storage, {
-      didUpdate: createEvent(EventType.storageDidUpdate),
-      willUpdate: createEvent(EventType.storageWillUpdate),
-    });
-
-    this.variables = new Store(state.variables, {
-      didUpdate: createEvent(EventType.variablesDidUpdate),
-      willUpdate: createEvent(EventType.variablesWillUpdate),
-    });
-
-    this.trace = new Trace(this);
-
-    this.programManager = new ProgramManager(this);
+  addPipe(handlers: ContextHandler<R>[]) {
+    this.pipes.push(handlers);
   }
 
-  setInput(input: I) {
-    this.input = input;
-  }
+  async handle(_request: Context<R>) {
+    let request: Context<R> = _request;
 
-  getInput(): I | null {
-    return this.input;
-  }
+    for (const handlers of this.pipes) {
+      for (const handler of handlers) {
+        request = await handler.handle(request);
 
-  public setAction(type: Action): void {
-    this.action = type;
-  }
-
-  public getAction(): Action {
-    return this.action;
-  }
-
-  public end(): void {
-    this.setAction(Action.END);
-  }
-
-  public hasEnded(): boolean {
-    return this.getAction() === Action.END;
-  }
-
-  public async callEvent<K extends EventType>(type: K, event: Event<K>) {
-    await super.callEvent<K>(type, event, this);
-  }
-
-  public getProgram(programID: string) {
-    return this.programManager.get(programID);
-  }
-
-  public async update(): Promise<void> {
-    try {
-      await this.callEvent(EventType.updateWillExecute, {});
-
-      if (this.action !== Action.IDLE) {
-        throw new Error('context updated twice');
+        if (request.end) break;
       }
-
-      this.setAction(Action.RUNNING);
-      await cycleStack(this);
-
-      await this.callEvent(EventType.updateDidExecute, {});
-    } catch (error) {
-      await this.callEvent(EventType.updateDidCatch, { error });
-    }
-  }
-
-  public getFinalState(): State {
-    if (this.action === Action.IDLE) {
-      throw new Error('context not updated');
     }
 
-    return {
-      stack: this.stack.getState(),
-      storage: this.storage.getState(),
-      variables: this.variables.getState(),
-    };
-  }
-
-  public getRawState(): State {
-    return {
-      turn: this.turn.getState(),
-      stack: this.stack.getState(),
-      storage: this.storage.getState(),
-      variables: this.variables.getState(),
-    };
-  }
-
-  public getHandlers(): Handler[] {
-    return this.handlers;
-  }
-
-  public getVersionID() {
-    return this.versionID;
+    return request;
   }
 }
 
-export default Context;
+export class TurnBuilder<R> extends ContextBuilder<R> {
+  constructor(private init: InitContextHandler<R>) {
+    super();
+  }
+
+  async handle(_request: Partial<Context<R>>) {
+    return super.handle(await this.init(_request));
+  }
+}

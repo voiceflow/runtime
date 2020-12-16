@@ -1,4 +1,4 @@
-import Context from '../Context';
+import Runtime from '../Runtime';
 import { CallbackEvent, Event, EventCallback, EventCallbackMap, EventType } from './types';
 
 export { EventType, Event, EventCallbackMap, EventCallback, CallbackEvent };
@@ -18,8 +18,8 @@ class Lifecycle {
     return (this.events as EventCallbackMap)[type];
   }
 
-  public async callEvent<K extends EventType>(type: K, event: Event<K>, context: Context): Promise<void> {
-    await this.getEvent<K>(type)?.({ ...event, context });
+  public async callEvent<K extends EventType>(type: K, event: Event<K>, runtime: Runtime): Promise<void> {
+    await this.getEvent<K>(type)?.({ ...event, runtime });
   }
 }
 
@@ -30,8 +30,8 @@ export abstract class AbstractLifecycle {
     this.events.setEvent<K>(type, callback);
   }
 
-  public async callEvent<K extends EventType>(type: K, event: Event<K>, context: Context) {
-    await this.events.callEvent<K>(type, event, context);
+  public async callEvent<K extends EventType>(type: K, event: Event<K>, runtime: Runtime) {
+    await this.events.callEvent<K>(type, event, runtime);
   }
 }
 

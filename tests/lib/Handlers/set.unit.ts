@@ -38,11 +38,11 @@ describe('setHandler unit tests', () => {
         ],
         nextId: 'next-id',
       };
-      const context = { trace: { debug: sinon.stub() }, callEvent: sinon.stub() };
+      const runtime = { trace: { debug: sinon.stub() }, callEvent: sinon.stub() };
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState), set: sinon.stub() };
 
-      expect(await setHandler.handle(node as any, context as any, variables as any, null as any)).to.eql(node.nextId);
+      expect(await setHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
       expect(shuntingYardStub.args).to.eql([
         [node.sets[1].expression, { v: variablesState }],
         [node.sets[2].expression, { v: variablesState }],
@@ -53,24 +53,24 @@ describe('setHandler unit tests', () => {
         [node.sets[2].variable, undefined],
         [node.sets[3].variable, 5],
       ]);
-      expect(context.trace.debug.args).to.eql([
+      expect(runtime.trace.debug.args).to.eql([
         ['unable to resolve expression `` for `{undefined}`  \n`Error: No Variable Defined`'],
         ['setting `{v1}`  \nevaluating `v1-expression` to `undefined`'],
         ['setting `{v2}`  \nevaluating `v2-expression` to `undefined`'],
         ['setting `{v3}`  \nevaluating `v3-expression` to `5`'],
       ]);
-      expect(context.callEvent.callCount).to.eql(1);
-      expect(context.callEvent.args[0][0]).to.eql(EventType.handlerDidCatch);
-      expect(context.callEvent.args[0][1].error.toString()).to.eql('Error: No Variable Defined');
+      expect(runtime.callEvent.callCount).to.eql(1);
+      expect(runtime.callEvent.args[0][0]).to.eql(EventType.handlerDidCatch);
+      expect(runtime.callEvent.args[0][1].error.toString()).to.eql('Error: No Variable Defined');
     });
 
     it('without nextId', async () => {
       const node = {
         sets: [{ expression: '' }],
       };
-      const context = { trace: { debug: sinon.stub() }, callEvent: sinon.stub() };
+      const runtime = { trace: { debug: sinon.stub() }, callEvent: sinon.stub() };
 
-      expect(await setHandler.handle(node as any, context as any, null as any, null as any)).to.eql(null);
+      expect(await setHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
     });
   });
 });

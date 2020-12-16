@@ -7,11 +7,11 @@ type RandomStorage = Partial<Record<string, (string | null)[]>>;
 
 const randomHandler: HandlerFactory<Node> = () => ({
   canHandle: (node) => !!node.random,
-  handle: async (node, context) => {
+  handle: async (node, runtime) => {
     let nextId: string | null;
 
     if (!node.nextIds.length) {
-      context.trace.debug('no random paths connected - exiting');
+      runtime.trace.debug('no random paths connected - exiting');
       return null;
     }
 
@@ -20,7 +20,7 @@ const randomHandler: HandlerFactory<Node> = () => ({
     } else if (node.random === 2) {
       // no duplicates random node
       let used: Set<string | null>;
-      const { storage } = context;
+      const { storage } = runtime;
 
       if (!storage.get<RandomStorage>(S.RANDOMS)) {
         // initialize randoms
@@ -53,7 +53,7 @@ const randomHandler: HandlerFactory<Node> = () => ({
       nextId = node.nextIds[Math.floor(Math.random() * node.nextIds.length)];
     }
 
-    context.trace.debug('going down random path');
+    runtime.trace.debug('going down random path');
 
     return nextId;
   },

@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { S } from '@/lib/Constants';
-import * as Frame from '@/lib/Context/Stack/Frame';
-import * as Utils from '@/lib/Context/utils/variables';
 import FlowHandler from '@/lib/Handlers/flow';
+import * as Frame from '@/lib/Runtime/Stack/Frame';
+import * as Utils from '@/lib/Runtime/utils/variables';
 
 describe('flowHandler unit tests', () => {
   const flowHandler = FlowHandler();
@@ -33,18 +33,18 @@ describe('flowHandler unit tests', () => {
 
       const node = { nodeID: 'node-id', diagram_id: 'program-id', nextId: 'next-id' };
       const topFrame = { setNodeID: sinon.stub() };
-      const context = { stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() }, trace: { debug: sinon.stub() } };
+      const runtime = { stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() }, trace: { debug: sinon.stub() } };
       const variables = {};
 
       // assertions
-      expect(flowHandler.handle(node, context as any, variables as any, null as any)).to.eql(null);
+      expect(flowHandler.handle(node, runtime as any, variables as any, null as any)).to.eql(null);
       expect(frameStub.calledWithNew()).to.eql(true);
       expect(frameStub.args).to.eql([[{ programID: node.diagram_id }]]);
       expect(mapStoresStub.args).to.eql([[[], variables, newFrame.variables]]);
       expect(newFrame.storage.set.args).to.eql([[S.OUTPUT_MAP, undefined]]);
       expect(topFrame.setNodeID.args).to.eql([[node.nextId]]);
-      expect(context.stack.push.args).to.eql([[newFrame]]);
-      expect(context.trace.debug.args).to.eql([[`entering flow \`${newFrame.getProgramID()}\``]]);
+      expect(runtime.stack.push.args).to.eql([[newFrame]]);
+      expect(runtime.trace.debug.args).to.eql([[`entering flow \`${newFrame.getProgramID()}\``]]);
     });
 
     it('with variable_map', () => {
@@ -69,11 +69,11 @@ describe('flowHandler unit tests', () => {
         },
       };
       const topFrame = { setNodeID: sinon.stub() };
-      const context = { stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() }, trace: { debug: sinon.stub() } };
+      const runtime = { stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() }, trace: { debug: sinon.stub() } };
       const variables = {};
 
       // assertions
-      expect(flowHandler.handle(node, context as any, variables as any, null as any)).to.eql(null);
+      expect(flowHandler.handle(node, runtime as any, variables as any, null as any)).to.eql(null);
       expect(frameStub.calledWithNew()).to.eql(true);
       expect(frameStub.args).to.eql([[{ programID: node.diagram_id }]]);
       expect(mapStoresStub.args).to.eql([[node.variable_map.inputs, variables, newFrame.variables]]);
@@ -87,8 +87,8 @@ describe('flowHandler unit tests', () => {
         ],
       ]);
       expect(topFrame.setNodeID.args).to.eql([[null]]);
-      expect(context.stack.push.args).to.eql([[newFrame]]);
-      expect(context.trace.debug.args).to.eql([[`entering flow \`${newFrame.getProgramID()}\``]]);
+      expect(runtime.stack.push.args).to.eql([[newFrame]]);
+      expect(runtime.trace.debug.args).to.eql([[`entering flow \`${newFrame.getProgramID()}\``]]);
     });
   });
 });

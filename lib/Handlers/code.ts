@@ -11,7 +11,7 @@ export type CodeOptions = {
 
 const CodeHandler: HandlerFactory<Node, CodeOptions> = ({ endpoint }) => ({
   canHandle: (node) => !!node.code,
-  handle: async (node, context, variables) => {
+  handle: async (node, runtime, variables) => {
     try {
       const variablesState = variables.getState();
 
@@ -28,13 +28,13 @@ const CodeHandler: HandlerFactory<Node, CodeOptions> = ({ endpoint }) => ({
         return acc;
       }, '');
 
-      context.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`);
+      runtime.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`);
 
       variables.merge(result.data);
 
       return node.success_id ?? null;
     } catch (error) {
-      context.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data)}\``);
+      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data)}\``);
 
       return node.fail_id ?? null;
     }

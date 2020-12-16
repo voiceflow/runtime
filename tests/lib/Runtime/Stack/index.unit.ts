@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import Stack, { Frame } from '@/lib/Context/Stack';
+import Stack, { Frame } from '@/lib/Runtime/Stack';
 
-describe('Context Stack unit tests', () => {
+describe('Runtime Stack unit tests', () => {
   it('getState', () => {
     const frames = [{ nodeID: 'one' }, { nodeID: 'two' }];
     const stack = new Stack(frames as any, null as any);

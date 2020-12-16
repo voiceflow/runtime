@@ -2,18 +2,18 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
 
-import cycleHandler, * as file from '@/lib/Context/cycleHandler';
 import { EventType } from '@/lib/Lifecycle';
+import cycleHandler, * as file from '@/lib/Runtime/cycleHandler';
 
-describe('Context cycleHandler unit tests', () => {
+describe('Runtime cycleHandler unit tests', () => {
   it('no node', async () => {
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
-    const context = { stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) } };
+    const runtime = { stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) } };
     const program = { getNode: sinon.stub().returns(null) };
     const variableState = {};
 
-    await cycleHandler(context as any, program as any, variableState as any);
+    await cycleHandler(runtime as any, program as any, variableState as any);
     expect(program.getNode.args).to.eql([[nodeID]]);
   });
 
@@ -21,7 +21,7 @@ describe('Context cycleHandler unit tests', () => {
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
     const handlers = [{ canHandle: () => false }, { canHandle: () => false }];
-    const context = {
+    const runtime = {
       stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
       getHandlers: sinon.stub().returns(handlers),
     };
@@ -29,7 +29,7 @@ describe('Context cycleHandler unit tests', () => {
     const program = { getNode: sinon.stub().returns(node) };
     const variableState = {};
 
-    await cycleHandler(context as any, program as any, variableState as any);
+    await cycleHandler(runtime as any, program as any, variableState as any);
     expect(program.getNode.args).to.eql([[nodeID]]);
   });
 
@@ -37,7 +37,7 @@ describe('Context cycleHandler unit tests', () => {
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
     const handlers = [{ canHandle: () => false }, { canHandle: () => true, handle: sinon.stub().resolves(nodeID) }];
-    const context = {
+    const runtime = {
       callEvent: sinon.stub(),
       stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
       getHandlers: sinon.stub().returns(handlers),
@@ -48,12 +48,12 @@ describe('Context cycleHandler unit tests', () => {
     const program = { getNode: sinon.stub().returns(node) };
     const variableState = {};
 
-    await cycleHandler(context as any, program as any, variableState as any);
-    expect(context.callEvent.args).to.eql([
+    await cycleHandler(runtime as any, program as any, variableState as any);
+    expect(runtime.callEvent.args).to.eql([
       [EventType.handlerWillHandle, { node, variables: variableState }],
       [EventType.handlerDidHandle, { node, variables: variableState }],
     ]);
-    expect(context.end.callCount).to.eql(1);
+    expect(runtime.end.callCount).to.eql(1);
   });
 
   it('handle error', async () => {
@@ -61,7 +61,7 @@ describe('Context cycleHandler unit tests', () => {
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
     const error = new Error('random err');
     const handlers = [{ canHandle: () => false }, { canHandle: () => true, handle: sinon.stub().throws(error) }];
-    const context = {
+    const runtime = {
       callEvent: sinon.stub(),
       stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
       getHandlers: sinon.stub().returns(handlers),
@@ -71,8 +71,8 @@ describe('Context cycleHandler unit tests', () => {
     const program = { getNode: sinon.stub().returns(node) };
     const variableState = {};
 
-    await cycleHandler(context as any, program as any, variableState as any);
-    expect(context.callEvent.args).to.eql([
+    await cycleHandler(runtime as any, program as any, variableState as any);
+    expect(runtime.callEvent.args).to.eql([
       [EventType.handlerWillHandle, { node, variables: variableState }],
       [EventType.handlerDidCatch, { error }],
     ]);
@@ -82,7 +82,7 @@ describe('Context cycleHandler unit tests', () => {
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
     const handlers = [{ canHandle: () => false }, { canHandle: () => true, handle: sinon.stub().resolves('next-id') }];
-    const context = {
+    const runtime = {
       callEvent: sinon.stub(),
       stack: {
         getFrames: sinon
@@ -100,8 +100,8 @@ describe('Context cycleHandler unit tests', () => {
     const program = { getNode: sinon.stub().returns(node) };
     const variableState = {};
 
-    await cycleHandler(context as any, program as any, variableState as any);
-    expect(context.stack.getFrames.callCount).to.eql(2);
+    await cycleHandler(runtime as any, program as any, variableState as any);
+    expect(runtime.stack.getFrames.callCount).to.eql(2);
   });
 
   it('cycle multiple times', async () => {
@@ -110,7 +110,7 @@ describe('Context cycleHandler unit tests', () => {
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID), setNodeID: sinon.stub() };
     const handlers = [{ canHandle: () => false }, { canHandle: () => true, handle: sinon.stub().resolves('next-id') }];
-    const context = {
+    const runtime = {
       callEvent: sinon.stub(),
       stack: {
         getFrames: sinon.stub().returns([]),
@@ -124,8 +124,8 @@ describe('Context cycleHandler unit tests', () => {
     const variableState = {};
 
     // the fact that finishes means that i > HANDLER_OVERFLOW was hit
-    await cycleHandler(context as any, program as any, variableState as any);
-    expect(context.hasEnded.callCount).to.eql(cyclesLimit + 1);
+    await cycleHandler(runtime as any, program as any, variableState as any);
+    expect(runtime.hasEnded.callCount).to.eql(cyclesLimit + 1);
     expect(referenceFrame.setNodeID.args[0]).to.eql(['next-id']);
   });
 });

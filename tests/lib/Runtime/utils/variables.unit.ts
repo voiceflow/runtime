@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 
-import Store from '@/lib/Context/Store';
-import { createCombinedVariables, mapStores, saveCombinedVariables } from '@/lib/Context/utils/variables';
+import Store from '@/lib/Runtime/Store';
+import { createCombinedVariables, mapStores, saveCombinedVariables } from '@/lib/Runtime/utils/variables';
 
-describe('Context utils variables', () => {
+describe('Runtime utils variables', () => {
   it('createCombinedVariables', () => {
     const globalVar = 'global-val';
     const global = new Store({ globalVar });

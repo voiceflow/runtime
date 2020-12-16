@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
 
-import Frame from '@/lib/Context/Stack/Frame/index';
+import Frame from '@/lib/Runtime/Stack/Frame/index';
 
-describe('Context Stack Frame unit tests', () => {
+describe('Runtime Stack Frame unit tests', () => {
   it('getState', () => {
     const options = {
       nodeID: 'node-id',

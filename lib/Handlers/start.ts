@@ -4,8 +4,8 @@ import { HandlerFactory } from '@/lib/Handler';
 
 const StartHandler: HandlerFactory<Node> = () => ({
   canHandle: (node) => (Object.keys(node).length === 2 || node.type === 'start') && !!node.nextId,
-  handle: (node, context) => {
-    context.trace.debug('beginning flow');
+  handle: (node, runtime) => {
+    runtime.trace.debug('beginning flow');
     return node.nextId ?? null;
   },
 });
