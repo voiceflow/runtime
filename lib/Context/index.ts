@@ -9,6 +9,7 @@ export class ContextBuilder<R> {
 
   addHandlers(...handlers: ContextHandler<R>[]) {
     this.pipes.push(handlers);
+    return this;
   }
 
   async handle(_request: Context<R>) {

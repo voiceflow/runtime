@@ -17,4 +17,8 @@ export interface ContextHandler<R> {
 }
 
 // for request handlers that generate the runtime
-export type InitContextHandler<R> = (params: Partial<Context<R>>) => Context<R> | Promise<Context<R>>;
+export type InitContextHandle<R> = (params: Partial<Context<R>>) => Context<R> | Promise<Context<R>>;
+
+export interface InitContextHandler<R> {
+  handle: InitContextHandle<R>;
+}
