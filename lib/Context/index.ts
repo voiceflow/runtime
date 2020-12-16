@@ -33,6 +33,6 @@ export class TurnBuilder<R> extends ContextBuilder<R> {
   }
 
   async handle(_request: Partial<Context<R>>) {
-    return super.handle(await this.init(_request));
+    return super.handle(await this.init.handle(_request));
   }
 }
