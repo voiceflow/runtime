@@ -16,6 +16,8 @@ export class ContextBuilder<R> {
     let request: Context<R> = _request;
 
     for (const handlers of this.pipes) {
+      request.end = false;
+
       for (const handler of handlers) {
         request = await handler.handle(request);
 
