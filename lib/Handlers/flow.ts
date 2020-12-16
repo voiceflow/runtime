@@ -1,14 +1,14 @@
 import { Node } from '@voiceflow/general-types/build/nodes/flow';
 
 import { S } from '@/lib/Constants';
-import Frame from '@/lib/Context/Stack/Frame';
 import { HandlerFactory } from '@/lib/Handler';
+import Frame from '@/lib/Runtime/Stack/Frame';
 
-import { mapStores } from '../Context/utils/variables';
+import { mapStores } from '../Runtime/utils/variables';
 
 const FlowHandler: HandlerFactory<Node> = () => ({
   canHandle: (node) => !!node.diagram_id,
-  handle: (node, context, variables) => {
+  handle: (node, runtime, variables) => {
     if (!node.diagram_id) {
       return node.nextId || null;
     }
@@ -26,12 +26,12 @@ const FlowHandler: HandlerFactory<Node> = () => ({
       node.variable_map?.outputs?.map((val) => [val[1], val[0]])
     );
 
-    const topFrame = context.stack.top();
+    const topFrame = runtime.stack.top();
     topFrame.setNodeID(node.nextId ?? null);
 
-    context.stack.push(newFrame);
+    runtime.stack.push(newFrame);
 
-    context.trace.debug(`entering flow \`${newFrame.getProgramID()}\``);
+    runtime.trace.debug(`entering flow \`${newFrame.getProgramID()}\``);
 
     return null;
   },

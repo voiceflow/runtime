@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import Store from '@/lib/Context/Store';
+import Store from '@/lib/Runtime/Store';
 
-describe('Context Store unit tests', () => {
+describe('Runtime Store unit tests', () => {
   it('getState', () => {
     const payload = { foo: 'bar' };
     const store = new Store(payload);

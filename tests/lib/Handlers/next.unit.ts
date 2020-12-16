@@ -19,19 +19,19 @@ describe('Next unit tests', () => {
   describe('handle', () => {
     it('returns nextId', () => {
       const nextId = 'next-id';
-      const context = {
+      const runtime = {
         trace: { debug: sinon.stub() },
       };
-      expect(nextHandler.handle({ nextId } as any, context as any, null as any, null as any)).to.eql(nextId);
-      expect(context.trace.debug.args).to.eql([['could not handle step - redirecting to the next step']]);
+      expect(nextHandler.handle({ nextId } as any, runtime as any, null as any, null as any)).to.eql(nextId);
+      expect(runtime.trace.debug.args).to.eql([['could not handle step - redirecting to the next step']]);
     });
 
     it('returns null', () => {
-      const context = {
+      const runtime = {
         trace: { debug: sinon.stub() },
       };
-      expect(nextHandler.handle({} as any, context as any, null as any, null as any)).to.eql(null);
-      expect(context.trace.debug.args).to.eql([['could not handle step - redirecting to the next step']]);
+      expect(nextHandler.handle({} as any, runtime as any, null as any, null as any)).to.eql(null);
+      expect(runtime.trace.debug.args).to.eql([['could not handle step - redirecting to the next step']]);
     });
   });
 });

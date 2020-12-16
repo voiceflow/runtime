@@ -3,8 +3,8 @@ import _ from 'lodash';
 import sinon from 'sinon';
 
 import Client from '@/lib/Client';
-import * as Context from '@/lib/Context';
 import { EventType } from '@/lib/Lifecycle';
+import * as Runtime from '@/lib/Runtime';
 
 describe('client unit tests', () => {
   describe('constructor', () => {
@@ -33,15 +33,15 @@ describe('client unit tests', () => {
     });
   });
 
-  describe('createContext', () => {
+  describe('createRuntime', () => {
     afterEach(() => {
       sinon.restore();
     });
 
-    it('correct init of context', () => {
-      const contextStub = sinon.stub(Context, 'default');
-      const newContext = { foo: 'bar' };
-      contextStub.returns(newContext);
+    it('correct init of runtime', () => {
+      const runtimeStub = sinon.stub(Runtime, 'default');
+      const newRuntime = { foo: 'bar' };
+      runtimeStub.returns(newRuntime);
 
       const client = new Client({ op0: 'val0' } as any);
 
@@ -50,9 +50,9 @@ describe('client unit tests', () => {
       const request = 'request';
       const options = { op1: 'val1' };
 
-      expect(client.createContext(versionID, state as any, request as any, options as any)).to.eql(newContext);
-      expect(contextStub.calledWithNew()).to.eql(true);
-      expect(contextStub.args).to.eql([[versionID, state, request, { ..._.get(client, 'options'), ...options }, _.get(client, 'events')]]);
+      expect(client.createRuntime(versionID, state as any, request as any, options as any)).to.eql(newRuntime);
+      expect(runtimeStub.calledWithNew()).to.eql(true);
+      expect(runtimeStub.args).to.eql([[versionID, state, request, { ..._.get(client, 'options'), ...options }, _.get(client, 'events')]]);
     });
   });
 
@@ -65,13 +65,13 @@ describe('client unit tests', () => {
       client.setEvent(EventType.programDidFetch, eventCallback);
 
       const event = { foo: 'bar' };
-      const context = 'context';
-      await client.callEvent(EventType.programDidFetch, event as any, context as any);
+      const runtime = 'runtime';
+      await client.callEvent(EventType.programDidFetch, event as any, runtime as any);
       expect(eventCallback.callCount).to.eql(1);
-      expect(eventCallback.args).to.eql([[{ ...event, context }]]);
+      expect(eventCallback.args).to.eql([[{ ...event, runtime }]]);
 
       // event not found
-      expect(async () => client.callEvent('random' as any, event as any, context as any)).not.throw();
+      expect(async () => client.callEvent('random' as any, event as any, runtime as any)).not.throw();
     });
   });
 });

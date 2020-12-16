@@ -1,6 +1,6 @@
 import { Command } from '@voiceflow/api-sdk';
 
-import Stack from '@/lib/Context/Stack';
+import Stack from '@/lib/Runtime/Stack';
 
 export * from './intent';
 export * from './variable';

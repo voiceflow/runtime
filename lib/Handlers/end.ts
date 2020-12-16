@@ -5,19 +5,19 @@ import { HandlerFactory } from '@/lib/Handler';
 
 const EndHandler: HandlerFactory<Node> = () => ({
   canHandle: (node) => !!node.end,
-  handle: (_, context): null => {
-    context.stack.top().setNodeID(null);
+  handle: (_, runtime): null => {
+    runtime.stack.top().setNodeID(null);
 
     // pop all program frames that are already ended
-    while (!context.stack.top().getNodeID() && !context.stack.isEmpty()) {
-      context.stack.pop();
+    while (!runtime.stack.top().getNodeID() && !runtime.stack.isEmpty()) {
+      runtime.stack.pop();
     }
 
-    context.turn.set('end', true);
-    context.trace.addTrace<TraceFrame>({ type: TraceType.END });
-    context.trace.debug('exiting session - saving location/resolving stack');
+    runtime.turn.set('end', true);
+    runtime.trace.addTrace<TraceFrame>({ type: TraceType.END });
+    runtime.trace.debug('exiting session - saving location/resolving stack');
 
-    context.end();
+    runtime.end();
 
     return null;
   },

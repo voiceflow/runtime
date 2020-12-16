@@ -1,6 +1,6 @@
-import Context from '@/lib/Context';
 import { EventType } from '@/lib/Lifecycle';
 import ProgramModel from '@/lib/Program';
+import Runtime from '@/lib/Runtime';
 
 /**
  * use this class for CPU caching strategies when fetching programs/memory
@@ -9,13 +9,13 @@ import ProgramModel from '@/lib/Program';
 class ProgramManager {
   private cachedProgram: ProgramModel | null = null;
 
-  constructor(private context: Context) {}
+  constructor(private runtime: Runtime) {}
 
   public async get(programID: string): Promise<ProgramModel> {
     let program: ProgramModel | undefined;
 
     // Event.programWillFetch can optionally override the program
-    await this.context.callEvent(EventType.programWillFetch, {
+    await this.runtime.callEvent(EventType.programWillFetch, {
       programID,
       override: (_program: ProgramModel | undefined) => {
         program = _program;
@@ -28,10 +28,10 @@ class ProgramManager {
     }
 
     if (!program) {
-      program = new ProgramModel(await this.context.api.getProgram(programID));
+      program = new ProgramModel(await this.runtime.api.getProgram(programID));
     }
 
-    this.context.callEvent(EventType.programDidFetch, { programID, program });
+    this.runtime.callEvent(EventType.programDidFetch, { programID, program });
 
     this.cachedProgram = program;
     return program;
