@@ -9,6 +9,6 @@ export * from '@/lib/Constants';
 export * from '@/lib/Util';
 export * from '@/lib/Handlers';
 export * from '@/lib/DataAPI';
-export * from '@/lib/Request';
+export * from '@/lib/Context';
 
 export { default } from '@/lib/Client';
