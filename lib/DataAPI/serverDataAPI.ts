@@ -1,9 +1,10 @@
-import { Program, Version } from '@voiceflow/api-sdk';
+import { BasePlatformData, Program, Project, Version } from '@voiceflow/api-sdk';
 import { AxiosInstance, AxiosStatic } from 'axios';
 
 import { DataAPI, Display } from './types';
 
-class ServerDataAPI<P extends Program<any, any>, V extends Version<any>> implements DataAPI<P, V> {
+class ServerDataAPI<P extends Program<any, any>, V extends Version<any>, PJ extends Project<any, any> = Project<BasePlatformData, BasePlatformData>>
+  implements DataAPI<P, V, PJ> {
   protected client!: AxiosInstance;
 
   private axios: AxiosStatic;
@@ -53,6 +54,12 @@ class ServerDataAPI<P extends Program<any, any>, V extends Version<any>> impleme
 
   public getVersion = async (versionID: string) => {
     const { data } = await this.client.get<V>(`/version/${versionID}`);
+
+    return data;
+  };
+
+  public getProject = async (projectID: string) => {
+    const { data } = await this.client.get<PJ>(`/project/${projectID}`);
 
     return data;
   };

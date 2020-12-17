@@ -26,6 +26,10 @@ class LocalDataAPI<P extends Program<any, any>, V extends Version<any>> implemen
 
   public getProgram = async (programID: string) => this.programs[programID];
 
+  public getProject = async () => {
+    throw new Error();
+  };
+
   public fetchDisplayById = async () => null;
 }
 
