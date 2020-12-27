@@ -25,23 +25,16 @@ describe('Runtime unit', () => {
     expect(runtime.getRequest()).to.eql(input);
   });
 
-  it('setRequest', () => {
-    const input = { type: 'req', payload: {} };
-    const runtime = new Runtime(null as any, { stack: [] } as any, 'oldInput' as any, {} as any, null as any);
-    expect(runtime.setRequest(input)).to.eq(undefined);
-    expect(runtime.getRequest()).to.eql(input);
-  });
-
   it('setAction', () => {
     const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
-    const action = Action.RUNNING;
+    const action = Action.RESPONSE;
     runtime.setAction(action as any);
     expect(_.get(runtime, 'action')).to.eql(action);
   });
 
   it('getAction', () => {
     const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
-    const action = Action.RUNNING;
+    const action = Action.RESPONSE;
     runtime.setAction(action as any);
     expect(runtime.getAction()).to.eql(action);
   });
@@ -103,7 +96,7 @@ describe('Runtime unit', () => {
   describe('update', () => {
     it('catch error', async () => {
       const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
-      runtime.setAction(Action.RUNNING);
+      runtime.setAction(Action.REQUEST);
       const callEventStub = sinon.stub().resolves();
       runtime.callEvent = callEventStub;
       await runtime.update();
@@ -126,7 +119,7 @@ describe('Runtime unit', () => {
         [EventType.updateWillExecute, {}],
         [EventType.updateDidExecute, {}],
       ]);
-      expect(setActionStub.args).to.eql([[Action.RUNNING]]);
+      expect(setActionStub.args).to.eql([[Action.REQUEST]]);
       expect(cycleStackStub.args).to.eql([[runtime]]);
     });
   });
