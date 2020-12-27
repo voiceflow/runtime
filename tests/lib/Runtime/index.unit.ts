@@ -107,9 +107,25 @@ describe('Runtime unit', () => {
       expect(callEventStub.args[1][1].error.message).to.eql('runtime updated twice');
     });
 
-    it('is idle', async () => {
+    it('response action', async () => {
       const cycleStackStub = sinon.stub(cycleStack, 'default');
       const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+      const callEventStub = sinon.stub();
+      runtime.callEvent = callEventStub;
+      const setActionStub = sinon.stub();
+      runtime.setAction = setActionStub;
+      await runtime.update();
+      expect(callEventStub.args).to.eql([
+        [EventType.updateWillExecute, {}],
+        [EventType.updateDidExecute, {}],
+      ]);
+      expect(setActionStub.args).to.eql([[Action.RESPONSE]]);
+      expect(cycleStackStub.args).to.eql([[runtime]]);
+    });
+
+    it('request action', async () => {
+      const cycleStackStub = sinon.stub(cycleStack, 'default');
+      const runtime = new Runtime(null as any, { stack: [] } as any, true as any, {} as any, null as any);
       const callEventStub = sinon.stub();
       runtime.callEvent = callEventStub;
       const setActionStub = sinon.stub();
