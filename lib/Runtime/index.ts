@@ -23,11 +23,12 @@ export interface State {
 
 export enum Action {
   IDLE,
-  RUNNING,
+  REQUEST,
+  RESPONSE,
   END,
 }
 
-class Runtime<R extends Record<string, unknown> = Record<string, unknown>, DA extends DataAPI = DataAPI> extends AbstractLifecycle {
+class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends AbstractLifecycle {
   public turn: Store;
 
   public stack: Stack;
@@ -91,10 +92,6 @@ class Runtime<R extends Record<string, unknown> = Record<string, unknown>, DA ex
     this.programManager = new ProgramManager(this);
   }
 
-  setRequest(request: R) {
-    this.request = request;
-  }
-
   getRequest(): R | null {
     return this.request;
   }
@@ -131,7 +128,7 @@ class Runtime<R extends Record<string, unknown> = Record<string, unknown>, DA ex
         throw new Error('runtime updated twice');
       }
 
-      this.setAction(Action.RUNNING);
+      this.setAction(this.request ? Action.REQUEST : Action.RESPONSE);
       await cycleStack(this);
 
       await this.callEvent(EventType.updateDidExecute, {});
