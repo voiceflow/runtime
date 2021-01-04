@@ -2,7 +2,7 @@ import { DataAPI } from '@/lib/DataAPI';
 import { AbstractLifecycle } from '@/lib/Lifecycle';
 import Runtime, { Options as RuntimeOptions, State as RuntimeState } from '@/lib/Runtime';
 
-class Controller<I extends Record<string, unknown> = Record<string, unknown>, D extends DataAPI = DataAPI> extends AbstractLifecycle {
+class Controller<R extends any = any, D extends DataAPI = DataAPI> extends AbstractLifecycle {
   private options: Pick<RuntimeOptions<D>, 'api' | 'handlers' | 'services'>;
 
   constructor({ api, handlers = [], services = {} }: RuntimeOptions<D>) {
@@ -15,8 +15,8 @@ class Controller<I extends Record<string, unknown> = Record<string, unknown>, D 
     };
   }
 
-  public createRuntime(versionID: string, state: RuntimeState, input?: I, options?: RuntimeOptions<D>): Runtime<I, D> {
-    return new Runtime<I, D>(versionID, state, input, { ...this.options, ...options }, this.events);
+  public createRuntime(versionID: string, state: RuntimeState, request?: R, options?: RuntimeOptions<D>): Runtime<R, D> {
+    return new Runtime<R, D>(versionID, state, request, { ...this.options, ...options }, this.events);
   }
 }
 
