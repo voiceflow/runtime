@@ -4,7 +4,7 @@ import { Context, ContextHandler, InitContextHandler } from './types';
 
 export { Context, ContextHandle, ContextHandler, InitContextHandler } from './types';
 
-export class ContextBuilder<C extends Context<any, any>> {
+export class ContextBuilder<C extends Context<any, any, any>> {
   private pipes: ContextHandler<C>[][] = [];
 
   addHandlers(...handlers: ContextHandler<C>[]) {
@@ -29,7 +29,7 @@ export class ContextBuilder<C extends Context<any, any>> {
   }
 }
 
-export class TurnBuilder<C extends Context<any, any>> extends ContextBuilder<C> {
+export class TurnBuilder<C extends Context<any, any, any>> extends ContextBuilder<C> {
   constructor(private init: InitContextHandler<C>) {
     super();
   }
