@@ -2,23 +2,24 @@ import { TraceFrame } from '@voiceflow/general-types';
 
 import { State } from '@/lib/Runtime';
 
-export type Context<R = Record<string, unknown>> = {
+export type Context<R = Record<string, unknown>, T = TraceFrame, D = Record<string, unknown>> = {
   request: R;
   state: Omit<State, 'trace'>;
   versionID: string;
-  trace?: TraceFrame[];
+  trace?: T[];
   end?: boolean;
+  data: D;
 };
 
-export type ContextHandle<R = Record<string, unknown>> = (request: Context<R>) => Context<R> | Promise<Context<R>>;
+export type ContextHandle<C extends Context<any, any, any>> = (request: C) => C | Promise<C>;
 
-export interface ContextHandler<R> {
-  handle: ContextHandle<R>;
+export interface ContextHandler<C extends Context<any, any, any>> {
+  handle: ContextHandle<C>;
 }
 
 // for request handlers that generate the runtime
-export type InitContextHandle<R> = (params: Partial<Context<R>>) => Context<R> | Promise<Context<R>>;
+export type InitContextHandle<C extends Context<any, any, any>> = (params: Partial<C>) => C | Promise<C>;
 
-export interface InitContextHandler<R> {
-  handle: InitContextHandle<R>;
+export interface InitContextHandler<C extends Context<any, any, any>> {
+  handle: InitContextHandle<C>;
 }
