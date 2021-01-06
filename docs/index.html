@@ -1,0 +1,377 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Voiceflow Runtime - v0.1.0</title>
+	<meta name="description" content="Documentation for Voiceflow Runtime - v0.1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">Voiceflow Runtime - v0.1.0</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>Voiceflow Runtime - v0.1.0</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#voiceflow-runtime" id="voiceflow-runtime" style="color: inherit; text-decoration: none;">
+					<h1>Voiceflow Runtime</h1>
+				</a>
+				<p><a href="https://www.codacy.com/gh/voiceflow/runtime/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=voiceflow/runtime&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/8a46fdcffdb54387bd8c9ba81153eba3" alt="Codacy Badge"></a>
+					<a href="https://circleci.com/gh/voiceflow/runtime/tree/master"><img src="https://circleci.com/gh/voiceflow/runtime/tree/master.svg?style=shield&circle-token=d2fee4e418aa5f2a3499ac21cbc5f86c2e0fcdf4" alt="CircleCI"></a>
+				<a href="https://codecov.io/gh/voiceflow/runtime"><img src="https://codecov.io/gh/voiceflow/runtime/branch/master/graph/badge.svg?token=BFMKN3VPSU" alt="codecov"></a></p>
+				<p>runtime SDK for executing voiceflow projects and conversational state management across different platforms.</p>
+				<blockquote>
+					<p>⚠️ <strong>This repository is still undergoing active development</strong>: Major breaking changes may be pushed periodically and the documentation may become outdated - a stable version has not been released</p>
+				</blockquote>
+				<p><code>yarn add @voiceflow/runtime</code></p>
+				<p><code>npm i @voiceflow/runtime</code></p>
+				<hr>
+				<a href="#concepts" id="concepts" style="color: inherit; text-decoration: none;">
+					<h2>Concepts</h2>
+				</a>
+				<p><img src="https://user-images.githubusercontent.com/5643574/99609472-fa5f6880-29dd-11eb-8635-7f8496ddd7de.png" alt="ci pipeline"></p>
+				<p>At a very high level, you can think of the whole Voiceflow system like code:</p>
+				<ul>
+					<li>The frontend creator system allows conversation designers to &quot;write&quot; in a visual programming language, like an IDE. Each of their <code>diagrams</code> is like a function/instruction.</li>
+					<li>When they press <em>Upload</em> or <em>Export</em> all their flow <code>diagrams</code> are &quot;compiled&quot; into <code>programs</code></li>
+					<li>The <code>runtime</code> is like the CPU that reads these <code>programs</code> and executes them based on end user input.<ul>
+							<li>these <code>programs</code> can be read through <strong>Local Project Files</strong> or through an <strong>Voiceflow API</strong> where they are hosted with Voiceflow databases</li>
+							<li>the runtime handles state management and tracks the user&#39;s state at each turn of conversation</li>
+						</ul>
+					</li>
+				</ul>
+				<p>Where conversational state management differs from traditional code execution is that it is heavily I/O based and always blocked when awaiting user input:</p>
+				<p>It is important to understand the Conversation Request/Response Webhook Model</p>
+				<p><img src="https://user-images.githubusercontent.com/5643574/99591510-e7886c00-29bc-11eb-83b2-843f75ff3cac.png" alt="client architecture"></p>
+				<p>The <strong>end user session storage</strong> is determined by the implementation of the runtime, but stores the most sensitive data in this architecture (what the user has said, where they are in the conversation, variables, etc.)</p>
+				<a href="#anatomy-of-an-interaction-alexa-example" id="anatomy-of-an-interaction-alexa-example" style="color: inherit; text-decoration: none;">
+					<h3>Anatomy of an Interaction (Alexa Example)</h3>
+				</a>
+				<p>As a practical example, here&#39;s what happens when a user speaks to a custom skill (app) on their Alexa device. Most other conversational platforms function in this manner - if it is a text/or chat, it would be the exact same, just without a voice-to-text/text-to-voice layer.</p>
+				<ol>
+					<li>user says something to alexa, alexa uses natural language processing to transcribe user intent, then sends it via <strong>webhook</strong> (along with other metadata i.e. <em>userID</em>) to <code>alexa-runtime</code>, which implements <code>@voiceflow/runtime</code></li>
+					<li>fetch user state (JSON format) from <strong>end user session storage</strong> based on a <em>userID</em> identifier</li>
+					<li>fetch the current program (flow) that the user is on from <strong>Voiceflow API/Local Project File</strong></li>
+					<li>go through nodes in the flow and update the user state</li>
+					<li>save the final user state to <strong>end user session storage</strong></li>
+					<li>generate a <strong>webhook</strong> response based on the final user state, send back to alexa</li>
+					<li>alexa interprets response and speaks to user</li>
+				</ol>
+				<p>repeat all steps each time a user speaks to the alexa skill, to perform a conversation.
+				(<a href="https://developer.amazon.com/en-US/docs/alexa/custom-skills/request-and-response-json-reference.html">here&#39;s Amazon Alexa&#39;s documentation</a>)</p>
+				<hr>
+				<a href="#implementation-example-generic-conversation-platform" id="implementation-example-generic-conversation-platform" style="color: inherit; text-decoration: none;">
+					<h2>Implementation Example (Generic Conversation Platform)</h2>
+				</a>
+				<a href="#initialization" id="initialization" style="color: inherit; text-decoration: none;">
+					<h3>Initialization</h3>
+				</a>
+				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">Client</span><span style="color: #000000">, { </span>
+<span style="color: #000000">    </span><span style="color: #001080">LocalDataApi</span><span style="color: #000000">,</span>
+<span style="color: #000000">} </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@voiceflow/runtime&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">CustomHandlers</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;./handlers&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">client</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Client</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">handlers:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        ...</span><span style="color: #001080">DefaultHandlers</span><span style="color: #000000">,</span>
+<span style="color: #000000">        ...</span><span style="color: #001080">CustomHandlers</span><span style="color: #000000">,</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">    </span><span style="color: #001080">api:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">LocalDataApi</span><span style="color: #000000">({ </span><span style="color: #001080">projectSource:</span><span style="color: #000000"> </span><span style="color: #0070C1">PROJECT_SOURCE</span><span style="color: #000000"> </span><span style="color: #008000">/* local project file */</span><span style="color: #000000"> }),</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #008000">// if you want to inject custom handlers during lifecycle events</span>
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">setEvent</span><span style="color: #000000">(</span><span style="color: #001080">EventType</span><span style="color: #000000">.</span><span style="color: #001080">handlerDidCatch</span><span style="color: #000000">, (</span><span style="color: #001080">err</span><span style="color: #000000">, </span><span style="color: #001080">runtime</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">logger</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">err</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">throw</span><span style="color: #000000"> </span><span style="color: #001080">err</span><span style="color: #000000">;</span>
+<span style="color: #000000">});</span>
+</code></pre>
+				<p><code>Client</code> can be initialized with either <code>LocalDataApi</code>, which reads a local file for project and program source, or <code>ServerDataApi</code>, which requires an API key (<code>adminToken</code>) and endpoint (<code>dataEndpoint</code>) and fetches the data remotely.</p>
+				<a href="#handle-interaction-request" id="handle-interaction-request" style="color: inherit; text-decoration: none;">
+					<h3>Handle Interaction Request</h3>
+				</a>
+				<pre><code class="language-ts"><span style="color: #008000">// incoming webhook request</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">handleRequest</span><span style="color: #000000"> = </span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">userID</span><span style="color: #000000">, </span><span style="color: #001080">versionID</span><span style="color: #000000">, </span><span style="color: #001080">payload</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// retrieve the previous user state</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">rawState</span><span style="color: #000000"> = </span><span style="color: #0070C1">DB</span><span style="color: #000000">.</span><span style="color: #795E26">fetchState</span><span style="color: #000000">(</span><span style="color: #001080">userID</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">runtime</span><span style="color: #000000"> = </span><span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">createRuntime</span><span style="color: #000000">(</span><span style="color: #001080">versionID</span><span style="color: #000000">, </span><span style="color: #001080">rawState</span><span style="color: #000000">, </span><span style="color: #001080">payload</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// update the state and generate new runtime (step through the program)</span>
+<span style="color: #000000">    </span><span style="color: #001080">runtime</span><span style="color: #000000">.</span><span style="color: #795E26">update</span><span style="color: #000000">();</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// save the new user state</span>
+<span style="color: #000000">    </span><span style="color: #0070C1">DB</span><span style="color: #000000">.</span><span style="color: #795E26">saveState</span><span style="color: #000000">(</span><span style="color: #001080">userID</span><span style="color: #000000">, </span><span style="color: #001080">runtime</span><span style="color: #000000">.</span><span style="color: #795E26">getFinalState</span><span style="color: #000000">());</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// generate a response based on trace</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">response</span><span style="color: #000000"> = {};</span>
+<span style="color: #000000">    </span><span style="color: #001080">runtime</span><span style="color: #000000">.</span><span style="color: #001080">trace</span><span style="color: #000000">.</span><span style="color: #795E26">forEach</span><span style="color: #000000">((</span><span style="color: #001080">trace</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">trace</span><span style="color: #000000">.</span><span style="color: #001080">type</span><span style="color: #000000"> === </span><span style="color: #A31515">&#039;card&#039;</span><span style="color: #000000">) </span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #001080">card</span><span style="color: #000000"> = </span><span style="color: #001080">trace</span><span style="color: #000000">.</span><span style="color: #001080">payload</span><span style="color: #000000">;</span>
+<span style="color: #000000">        </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">trace</span><span style="color: #000000">.</span><span style="color: #001080">type</span><span style="color: #000000"> === </span><span style="color: #A31515">&#039;speak&#039;</span><span style="color: #000000">) </span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #001080">speak</span><span style="color: #000000"> += </span><span style="color: #001080">trace</span><span style="color: #000000">.</span><span style="color: #001080">payload</span><span style="color: #000000">;</span>
+<span style="color: #000000">    });</span>
+
+<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">response</span><span style="color: #000000">; </span><span style="color: #008000">// the SDK usually handles this</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<a href="#custom-node-handler" id="custom-node-handler" style="color: inherit; text-decoration: none;">
+					<h3>Custom Node Handler</h3>
+				</a>
+				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">HandlerFactory</span><span style="color: #000000">, </span><span style="color: #001080">replaceVariables</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@voiceflow/runtime&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #008000">// create a handler for a particular node type</span>
+<span style="color: #AF00DB">export</span><span style="color: #000000"> </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">CustomNodeHandler</span><span style="color: #000000">: </span><span style="color: #267F99">HandlerFactory</span><span style="color: #000000">&lt;</span><span style="color: #267F99">Node</span><span style="color: #000000">, </span><span style="color: #0000FF">typeof</span><span style="color: #000000"> </span><span style="color: #267F99">utilsObj</span><span style="color: #000000">&gt; = (</span><span style="color: #001080">utils</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> ({</span>
+<span style="color: #000000">    </span><span style="color: #008000">// return a boolean whether or not this handler can handle a particular node</span>
+<span style="color: #000000">    </span><span style="color: #795E26">canHandle</span><span style="color: #001080">:</span><span style="color: #000000"> (</span><span style="color: #001080">node</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">node</span><span style="color: #000000">.</span><span style="color: #001080">type</span><span style="color: #000000"> === </span><span style="color: #A31515">&#039;CUSTOM_NODE&#039;</span><span style="color: #000000"> &amp;&amp; </span><span style="color: #0000FF">typeof</span><span style="color: #000000"> </span><span style="color: #001080">node</span><span style="color: #000000">.</span><span style="color: #001080">custom</span><span style="color: #000000"> === </span><span style="color: #A31515">&#039;string&#039;</span><span style="color: #000000">;</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">    </span><span style="color: #008000">// perform side effects and return the next node to go to</span>
+<span style="color: #000000">    </span><span style="color: #795E26">handle</span><span style="color: #001080">:</span><span style="color: #000000"> (</span><span style="color: #001080">node</span><span style="color: #000000">, </span><span style="color: #001080">runtime</span><span style="color: #000000">, </span><span style="color: #001080">variables</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">runtime</span><span style="color: #000000">.</span><span style="color: #001080">storage</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;customSetting&#039;</span><span style="color: #000000">)) {</span>
+<span style="color: #000000">            </span><span style="color: #008000">// add something to the trace to help generate the response</span>
+<span style="color: #000000">            </span><span style="color: #001080">runtime</span><span style="color: #000000">.</span><span style="color: #001080">trace</span><span style="color: #000000">.</span><span style="color: #795E26">addTrace</span><span style="color: #000000">({</span>
+<span style="color: #000000">                </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;card&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">                </span><span style="color: #001080">payload:</span><span style="color: #000000"> </span><span style="color: #001080">node</span><span style="color: #000000">.</span><span style="color: #001080">custom</span><span style="color: #000000">,</span>
+<span style="color: #000000">            });</span>
+<span style="color: #000000">            </span><span style="color: #008000">// maybe add something to analytics when this block is triggered</span>
+<span style="color: #000000">            </span><span style="color: #001080">metrics</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">node</span><span style="color: #000000">.</span><span style="color: #001080">custom</span><span style="color: #000000">);</span>
+<span style="color: #000000">        }</span>
+
+<span style="color: #000000">        </span><span style="color: #008000">// if you return null it will immediately end the current flow</span>
+<span style="color: #000000">        </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">node</span><span style="color: #000000">.</span><span style="color: #001080">nextId</span><span style="color: #000000">;</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">});</span>
+</code></pre>
+				<p><strong>Return Types</strong></p>
+				<ul>
+					<li>return <code>null</code>: ends the current flow, and pops it off the stack</li>
+					<li>return different <code>nodeID</code>: as long as the nodeID is present in the current flow program, it will attempt to be handled next - if it is not found, same behavior as return <code>null</code></li>
+					<li>return self <code>nodeID</code>: if the handler&#39;s <code>handle()</code> returns the same nodeID as the node it is handling, then the execution of this interaction (<code>runtime.update()</code>) will end in the exact same state and wait for the next user interaction/webhook. The next request will begin on this same node. You would do this to await user input. Example: <a href="https://github.com/voiceflow/alexa-runtime/blob/master/lib/services/voiceflow/handlers/interaction.ts">Choice Node</a></li>
+				</ul>
+				<hr>
+				<a href="#vocabulary" id="vocabulary" style="color: inherit; text-decoration: none;">
+					<h2>Vocabulary</h2>
+				</a>
+				<p><strong>request</strong>: what the end user has done (intent, push button, etc)</p>
+				<p><strong>runtime</strong>: general purpose object that provides an API to manipulate state</p>
+				<p><strong>platform</strong>: alexa, google, IVR, messenger, slack, twilio, etc.</p>
+				<p><strong>frame</strong>: program frame - contains local variables, pointers, etc.</p>
+				<p><strong>stack</strong>: stack of program frames (like code execution stack)</p>
+				<p><strong>program</strong>: flow program object (equivalent to text/code in memory model) (READ ONLY)</p>
+				<p><strong>node</strong>: node metadata - each individual step/block in the program</p>
+				<p><strong>variables</strong>: global variables</p>
+				<p><strong>storage</strong>: object full of things you want to persist between requests</p>
+				<p><strong>turn</strong>: object full of things that only matter during this turn</p>
+				<p><strong>handlers:</strong> array of handlers that handle specific node functionalities </p>
+				<hr>
+				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+					<h2>Documentation</h2>
+				</a>
+				<a href="#in-progress" id="in-progress" style="color: inherit; text-decoration: none;">
+					<h3>(in progress)</h3>
+				</a>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/client.html">Client</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/constants.html">Constants</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/constants_flags.html">Constants/flags</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/context.html">Context</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/context_types.html">Context/types</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/dataapi.html">DataAPI</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/dataapi_localdataapi.html">DataAPI/local<wbr>DataAPI</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/dataapi_serverdataapi.html">DataAPI/server<wbr>DataAPI</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/dataapi_types.html">DataAPI/types</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handler.html">Handler</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers.html">Handlers</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_code.html">Handlers/code</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_end.html">Handlers/end</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_flow.html">Handlers/flow</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_if.html">Handlers/if</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_integrations.html">Handlers/integrations</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_next.html">Handlers/next</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_random.html">Handlers/random</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_reset.html">Handlers/reset</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_set.html">Handlers/set</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_start.html">Handlers/start</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_utils_integrations.html">Handlers/utils/integrations</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_utils_mathjsworker.html">Handlers/utils/math<wbr>JsWorker</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/handlers_utils_shuntingyard.html">Handlers/utils/shunting<wbr>Yard</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lifecycle.html">Lifecycle</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lifecycle_types.html">Lifecycle/types</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/program.html">Program</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/runtime.html">Runtime</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/runtime_stack.html">Runtime/<wbr>Stack</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/runtime_stack_frame.html">Runtime/<wbr>Stack/<wbr>Frame</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/runtime_store.html">Runtime/<wbr>Store</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/runtime_trace.html">Runtime/<wbr>Trace</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/runtime_cyclehandler.html">Runtime/cycle<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/runtime_cyclestack.html">Runtime/cycle<wbr>Stack</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/runtime_utils_programmanager.html">Runtime/utils/program<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/runtime_utils_variables.html">Runtime/utils/variables</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/util.html">Util</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/util_intent.html">Util/intent</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/util_variable.html">Util/variable</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer>
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

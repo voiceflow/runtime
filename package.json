@@ -68,7 +68,8 @@
     "ts-node": "^8.5.4",
     "tsconfig-paths": "^3.9.0",
     "ttypescript": "^1.5.8",
-    "typescript": "^3.7.4"
+    "typedoc": "^0.20.12",
+    "typescript": "^3.9"
   },
   "homepage": "https://github.com/voiceflow/runtime#readme",
   "husky": {
@@ -103,6 +104,7 @@
     "build": "npm run clean && ttsc --project ./tsconfig.build.json",
     "clean": "rimraf build",
     "deploy:staging": "git push origin $(git branch | grep \\* | cut -d ' ' -f2):staging -f",
+    "docs:gen": "typedoc ./lib",
     "gen-certs": "scripts/generate_certs.sh",
     "local": "NODE_ENV=local ts-node -r tsconfig-paths/register start.ts",
     "local:watch": "NODE_ENV=local forever --watch -c \"ts-node -r tsconfig-paths/register\" start.ts",

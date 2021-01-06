@@ -1,3 +1,8 @@
+/**
+ * Stack Frame documentation
+ * @packageDocumentation
+ */
+
 import { Command } from '@voiceflow/api-sdk';
 
 import ProgramModel from '@/lib/Program';
@@ -80,10 +85,40 @@ class Frame {
     }
   }
 
+  /**
+   * Get the frame's node id.
+   *
+   * @remarks
+   * Some remark for getNodeID().
+   *
+   * @returns the frame's node id
+   *
+   * @example
+   * Here's a simple usage example
+   * ```typescript
+   *  const nodeID = frame.getNodeID();
+   * ```
+   */
   public getNodeID(): string | null | undefined {
     return this.nodeID;
   }
 
+  /**
+   * Set the frame's node id.
+   *
+   * @remarks
+   * Some remark for setNodeID().
+   *
+   * @param nodeID - the node id to set
+   * @returns void
+   *
+   * @example
+   * Here's a simple usage example
+   * ```typescript
+   *  const newNodeID = '123abc';
+   *  frame.setNodeID(newNodeID);
+   * ```
+   */
   public setNodeID(nodeID?: string | null): void {
     this.nodeID = nodeID;
   }
