@@ -873,24 +873,10 @@
     semver "^6.3.0"
     tsutils "^3.17.1"
 
-"@voiceflow/api-sdk@1.19.0":
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.19.0.tgz#99b9a55df30bf2875e93182de81f41abb6f32ee0"
-  integrity sha512-FHcpjqSyfMEGGYFpjOmtDGxY3p/bN7aQ8oTVZPzqm1iZ/psFT8wwSBpxPkbwi+XEkYfuq10ZtloDURar+BkDSg==
-  dependencies:
-    "@types/atob" "^2.1.2"
-    "@voiceflow/logger" "^1.1.10"
-    atob "^2.1.2"
-    axios "^0.19.2"
-    core-js "^3.6.5"
-    io-ts "^2.2.8"
-    regenerator-runtime "^0.13.5"
-    superstruct "^0.10.12"
-
-"@voiceflow/api-sdk@1.19.1":
-  version "1.19.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.19.1.tgz#310b70d69029a351936ffb6f4eeebecda3e44cca"
-  integrity sha512-YKyypv6L6WpiyG6a3qegJetYBfHD5RXBnjLJesXGsd4pD39URJeflrIIQsREr0OFV0mnuzC5sgfuFxOZkK1Mpg==
+"@voiceflow/api-sdk@1.20.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.20.0.tgz#dc22943b084f5a5419968d1c10a026cb0b081554"
+  integrity sha512-2sCZB+wDYZCJV5O7zsKbARU10a/lmEXG5tenBcc8l/+E1Dii8jr2ox8mYLPAv8EqnL8UhPg56ncqZ+E7DpOqPA==
   dependencies:
     "@types/atob" "^2.1.2"
     "@voiceflow/logger" "^1.1.10"
@@ -931,12 +917,12 @@
     eslint-plugin-sonarjs "^0.4.0"
     eslint-plugin-xss "^0.1.9"
 
-"@voiceflow/general-types@1.12.0":
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.12.0.tgz#5995ffa217432a330819648058790f10247c58c5"
-  integrity sha512-ks/Qq4KeREkCtNUFPwp8QKFvXS5hnumCB3zH0YuyNYMBx+18b0uBbLVlUx94WHFlmjCccWsncpFLk7lWavGb8Q==
+"@voiceflow/general-types@1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.15.0.tgz#0df4b95b7259e9013f8fa4b0d4b01d562d3103d8"
+  integrity sha512-D9lP77tyZ46SjIIj4SEfJ7cioIMpsZlGJAlUM6mTZTfPdUj9F5I1WEPZgMhUcoPgEXo9WDH19/OkokhbJOmkWQ==
   dependencies:
-    "@voiceflow/api-sdk" "1.19.0"
+    "@voiceflow/api-sdk" "1.20.0"
 
 "@voiceflow/git-branch-check@^1.0.6":
   version "1.0.6"
@@ -5375,7 +5361,7 @@ lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
   integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
 
-lodash@^4.17.20:
+lodash@^4.17.19, lodash@^4.17.20:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
