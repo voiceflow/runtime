@@ -2,7 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 import { Context, ContextHandler, InitContextHandler } from './types';
 
-export { Context, ContextHandle, ContextHandler, InitContextHandler } from './types';
+export { Context, ContextHandle, ContextHandler, InitContextHandler, PartialContext } from './types';
 
 export class ContextBuilder<C extends Context<any, any, any>> {
   private pipes: ContextHandler<C>[][] = [];

@@ -1,4 +1,4 @@
-import { DebugTraceFrame, TraceFrame, TraceType } from '@voiceflow/general-types';
+import { DebugTrace, TraceFrame, TraceType } from '@voiceflow/general-types';
 
 import { EventType } from '@/lib/Lifecycle';
 
@@ -9,7 +9,7 @@ export default class Trace {
 
   constructor(private runtime: Runtime) {}
 
-  addTrace<TF extends TraceFrame>(frame: TF | DebugTraceFrame) {
+  addTrace<TF extends TraceFrame>(frame: TF | DebugTrace) {
     let stop = false;
 
     this.runtime.callEvent(EventType.traceWillAdd, {
