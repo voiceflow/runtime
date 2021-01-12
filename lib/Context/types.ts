@@ -18,7 +18,7 @@ export interface ContextHandler<C extends Context<any, any, any>> {
 }
 
 // for request handlers that generate the runtime
-export type PartialContext<C extends Context<any, any, any>> = Partial<C> & { data?: Partial<C['data']> };
+export type PartialContext<C extends Context<any, any, any>> = Omit<Partial<C>, 'data'> & { data?: Partial<C['data']> };
 export type InitContextHandle<C extends Context<any, any, any>> = (params: PartialContext<C>) => C | Promise<C>;
 
 export interface InitContextHandler<C extends Context<any, any, any>> {
