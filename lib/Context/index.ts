@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { Context, ContextHandler, InitContextHandler } from './types';
+
+import { Context, ContextHandler, InitContextHandler, PartialContext } from './types';
 
 export { Context, ContextHandle, ContextHandler, InitContextHandler, PartialContext } from './types';
 
@@ -34,7 +35,7 @@ export class TurnBuilder<C extends Context<any, any, any>> extends ContextBuilde
     super();
   }
 
-  async handle(_request: Partial<C>) {
+  async handle(_request: PartialContext<C>) {
     return super.handle(await this.init.handle(_request));
   }
 }
