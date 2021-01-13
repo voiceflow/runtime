@@ -106,12 +106,17 @@
     "deploy:staging": "git push origin $(git branch | grep \\* | cut -d ' ' -f2):staging -f",
     "docs:gen": "typedoc ./lib",
     "gen-certs": "scripts/generate_certs.sh",
+    "lint": "eslint \"lib/**/*.{js,ts}\"",
+    "lint:fix": "yarn lint --fix",
+    "lint:quiet": "yarn lint --quiet",
     "local": "NODE_ENV=local ts-node -r tsconfig-paths/register start.ts",
     "local:watch": "NODE_ENV=local forever --watch -c \"ts-node -r tsconfig-paths/register\" start.ts",
     "prepare": "npm run build",
     "start": "NODE_ENV=production node --max-old-space-size=8192 build/start.js",
-    "test": "NODE_ENV=test nyc ts-mocha --paths --opts mocha.opts",
-    "test:single": "NODE_ENV=test ts-mocha --paths --opts mocha-single.opts"
+    "test": "yarn test:unit && yarn test:integration",
+    "test:integration": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/integration/mocha.it.opts",
+    "test:single": "NODE_ENV=test ts-mocha --paths --opts ./config/tests/single/mocha.single.opts",
+    "test:unit": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/unit/mocha.unit.opts"
   },
   "types": "build/index.d.ts"
 }
