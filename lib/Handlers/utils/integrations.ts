@@ -56,7 +56,7 @@ export const resultMappings = (node: Node, resultData: any): Record<string, stri
 
 export const _replacer = (match: string, inner: string, variablesMap: Record<string, any>, uriEncode = false) => {
   if (inner in variablesMap) {
-    return uriEncode ? encodeURI(variablesMap[inner]) : variablesMap[inner];
+    return uriEncode ? encodeURI(decodeURI(variablesMap[inner])) : variablesMap[inner];
   }
   return match;
 };
