@@ -3,8 +3,8 @@ import { BasePlatformData, Command, Node, Program, Project, Version, VersionPlat
 export type Display = { document?: string };
 
 export interface DataAPI<
-  P extends Program<Node, Command> = Program<Node, Command>,
-  V extends Version<VersionPlatformData> = Version<VersionPlatformData>,
+  P extends Program<any, any> = Program<Node, Command>,
+  V extends Version<any> = Version<VersionPlatformData>,
   PJ extends Project<any, any> = Project<BasePlatformData, BasePlatformData>
 > {
   init(): Promise<void>;
