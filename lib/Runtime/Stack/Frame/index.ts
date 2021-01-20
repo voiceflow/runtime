@@ -47,8 +47,8 @@ class Frame {
   public variables: Store;
 
   constructor(frameState: Options) {
-    if (frameState.hasOwnProperty('blockID')) this.nodeID = frameState.blockID;
-    if (frameState.hasOwnProperty('nodeID')) this.nodeID = frameState.nodeID;
+    if (frameState.blockID) this.nodeID = frameState.blockID;
+    if (frameState.nodeID) this.nodeID = frameState.nodeID;
 
     this.programID = frameState.diagramID ?? frameState.programID;
 
