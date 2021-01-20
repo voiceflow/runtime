@@ -9,6 +9,4 @@ engines:
   eslint:
     enabled: true
 languages:
-  javascript:
-    extensions:
-      - '-css.resource'
+  typescript
