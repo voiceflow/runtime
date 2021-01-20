@@ -106,13 +106,18 @@
     "deploy:staging": "git push origin $(git branch | grep \\* | cut -d ' ' -f2):staging -f",
     "docs:gen": "typedoc ./lib",
     "gen-certs": "scripts/generate_certs.sh",
-    "lint:report": "eslint \"./**/*.{js,ts}\" --format json -o report.json",
+    "lint": "eslint \"lib/**/*.{js,ts}\"",
+    "lint:fix": "yarn lint --fix",
+    "lint:quiet": "yarn lint --quiet",
+    "lint:report": "yarn lint --format json -o report.json",
     "local": "NODE_ENV=local ts-node -r tsconfig-paths/register start.ts",
     "local:watch": "NODE_ENV=local forever --watch -c \"ts-node -r tsconfig-paths/register\" start.ts",
     "prepare": "npm run build",
     "start": "NODE_ENV=production node --max-old-space-size=8192 build/start.js",
-    "test": "NODE_ENV=test nyc ts-mocha --paths --opts mocha.opts",
-    "test:single": "NODE_ENV=test ts-mocha --paths --opts mocha-single.opts"
+    "test": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.{unit,it}.ts'",
+    "test:integration": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.it.ts'",
+    "test:single": "NODE_ENV=test ts-mocha --paths --opts ./config/tests/mocha.opts",
+    "test:unit": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'"
   },
   "types": "build/index.d.ts"
 }
