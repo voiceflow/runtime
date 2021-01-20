@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   codecov: codecov/codecov@1.0.2
   vfcommon: voiceflow/common@0.0.16
+  sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
   build-and-test:
@@ -20,6 +21,11 @@ jobs:
             yarn test
       - codecov/upload:
           file: nyc_coverage/lcov.info
+      - run:
+          name: 'Run tests'
+          command: |
+            yarn lint:report
+      - sonarcloud/scan
 
 workflows:
   test-and-release:

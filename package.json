@@ -106,6 +106,7 @@
     "deploy:staging": "git push origin $(git branch | grep \\* | cut -d ' ' -f2):staging -f",
     "docs:gen": "typedoc ./lib",
     "gen-certs": "scripts/generate_certs.sh",
+    "lint:report": "eslint \"./**/*.{js,ts}\" -o report.json",
     "local": "NODE_ENV=local ts-node -r tsconfig-paths/register start.ts",
     "local:watch": "NODE_ENV=local forever --watch -c \"ts-node -r tsconfig-paths/register\" start.ts",
     "prepare": "npm run build",
