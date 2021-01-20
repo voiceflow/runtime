@@ -1,0 +1,14 @@
+---
+engines:
+  coverage:
+    enabled: false
+  duplication:
+    enabled: true
+  metric:
+    enabled: true
+  eslint:
+    enabled: true
+languages:
+  javascript:
+    extensions:
+      - '-css.resource'
