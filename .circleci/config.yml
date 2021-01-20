@@ -27,6 +27,7 @@ jobs:
             yarn lint:report
       - sonarcloud/scan
 
+
 workflows:
   test-and-release:
     jobs:
