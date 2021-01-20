@@ -9,4 +9,9 @@ engines:
   eslint:
     enabled: true
 languages:
-  typescript
+  javascript:
+    extensions:
+      - '*.js'
+  typescript:
+      extensions:
+        - '*.ts'
