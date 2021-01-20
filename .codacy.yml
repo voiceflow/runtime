@@ -9,8 +9,8 @@ engines:
   eslint:
     enabled: false
   pmd:
-    enabled: false
+    enabled: true
   remarklint:
-    enabled: false
+    enabled: true
   jacksonlinter:
-    enabled: false
+    enabled: true
