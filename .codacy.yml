@@ -7,7 +7,7 @@ engines:
   metric:
     enabled: true
   eslint:
-    enabled: true
+    enabled: false
 languages:
   javascript:
     extensions:
