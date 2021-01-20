@@ -24,7 +24,7 @@ jobs:
       - run:
           name: 'Run tests'
           command: |
-            yarn lint:report || return 0
+            yarn lint:report || echo 'keep going'
       - sonarcloud/scan
 
 workflows:
