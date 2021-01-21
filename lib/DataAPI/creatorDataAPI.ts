@@ -37,17 +37,17 @@ class CreatorDataAPI<P extends Program<any, any>, V extends Version<any>, PJ ext
 
   public getProgram = async (programID: string) => {
     if (this.prototype) {
-      return this.client.prototypeProgram.get<P>(programID, []);
+      return (await this.client.prototypeProgram.get(programID)) as P;
     }
-    return this.client.program.get<P>(programID, []);
+    return (await this.client.program.get(programID)) as P;
   };
 
   public getVersion = async (versionID: string) => {
-    return this.client.version.get<V>(versionID, []);
+    return (await this.client.version.get(versionID)) as V;
   };
 
   public getProject = async (projectID: string) => {
-    return this.client.project.get<PJ>(projectID, []);
+    return (await this.client.project.get(projectID)) as PJ;
   };
 }
 

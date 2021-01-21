@@ -53,7 +53,7 @@ describe('creatorDataAPI client unit tests', () => {
       const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
       expect(await creatorDataAPI.getProgram(programID)).to.eql(program);
-      expect(Client.prototypeProgram.get.args).to.eql([[programID, []]]);
+      expect(Client.prototypeProgram.get.args).to.eql([[programID]]);
       expect(Client.program.get.callCount).to.eql(0);
     });
 
@@ -70,7 +70,7 @@ describe('creatorDataAPI client unit tests', () => {
       const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
       expect(await creatorDataAPI.getProgram(programID)).to.eql(program);
-      expect(Client.program.get.args).to.eql([[programID, []]]);
+      expect(Client.program.get.args).to.eql([[programID]]);
       expect(Client.prototypeProgram.get.callCount).to.eql(0);
     });
   });
@@ -88,7 +88,7 @@ describe('creatorDataAPI client unit tests', () => {
     const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
     expect(await creatorDataAPI.getVersion(versionID)).to.eql(version);
-    expect(Client.version.get.args).to.eql([[versionID, []]]);
+    expect(Client.version.get.args).to.eql([[versionID]]);
   });
 
   it('getProject', async () => {
@@ -104,6 +104,6 @@ describe('creatorDataAPI client unit tests', () => {
     const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
     expect(await creatorDataAPI.getProject(projectID)).to.eql(project);
-    expect(Client.project.get.args).to.eql([[projectID, []]]);
+    expect(Client.project.get.args).to.eql([[projectID]]);
   });
 });
