@@ -4,25 +4,36 @@ import sinon from 'sinon';
 import CreatorDataAPI from '@/lib/DataAPI/creatorDataAPI';
 
 describe('creatorDataAPI client unit tests', () => {
+  beforeEach(() => {
+    sinon.restore();
+  });
+
   describe('new', () => {
     it('works correctly', async () => {
-      const client = sinon.stub();
+      const VFClient = sinon.stub();
+      const VF = sinon.stub().returns({
+        generateClient: VFClient,
+      });
 
       const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey', prototype: true };
 
-      const creatorDataAPI = new CreatorDataAPI(config, client as any);
+      const creatorDataAPI = new CreatorDataAPI(config, VF as any);
       await creatorDataAPI.init();
 
-      expect(client.args).to.eql([[{ apiEndpoint: config.endpoint, authorization: config.authorization, clientKey: config.clientKey }]]);
+      expect(VF.args).to.eql([[{ apiEndpoint: config.endpoint, clientKey: config.clientKey }]]);
+      expect(VFClient.args).to.eql([[{ authorization: config.authorization }]]);
     });
   });
 
   describe('fetchDisplayById', () => {
     it('no data', async () => {
-      const client = sinon.stub();
+      const VFClient = sinon.stub();
+      const VF = sinon.stub().returns({
+        generateClient: VFClient,
+      });
 
       const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey', prototype: true };
-      const creatorDataAPI = new CreatorDataAPI(config, client as any);
+      const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
       expect(await creatorDataAPI.fetchDisplayById()).to.eql(null);
     });
@@ -33,10 +44,13 @@ describe('creatorDataAPI client unit tests', () => {
       const programID = 'programID';
       const program = 'program';
       const Client = { program: { get: sinon.stub().resolves(program) }, prototypeProgram: { get: sinon.stub().resolves(program) } };
-      const client = sinon.stub().returns(Client);
+      const VFClient = sinon.stub().returns(Client);
+      const VF = sinon.stub().returns({
+        generateClient: VFClient,
+      });
 
       const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey' };
-      const creatorDataAPI = new CreatorDataAPI(config, client as any);
+      const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
       expect(await creatorDataAPI.getProgram(programID)).to.eql(program);
       expect(Client.prototypeProgram.get.args).to.eql([[programID, []]]);
@@ -47,10 +61,13 @@ describe('creatorDataAPI client unit tests', () => {
       const programID = 'programID';
       const program = 'program';
       const Client = { program: { get: sinon.stub().resolves(program) }, prototypeProgram: { get: sinon.stub().resolves(program) } };
-      const client = sinon.stub().returns(Client);
+      const VFClient = sinon.stub().returns(Client);
+      const VF = sinon.stub().returns({
+        generateClient: VFClient,
+      });
 
       const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey', prototype: false };
-      const creatorDataAPI = new CreatorDataAPI(config, client as any);
+      const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
       expect(await creatorDataAPI.getProgram(programID)).to.eql(program);
       expect(Client.program.get.args).to.eql([[programID, []]]);
@@ -62,10 +79,13 @@ describe('creatorDataAPI client unit tests', () => {
     const versionID = 'versionID';
     const version = 'version';
     const Client = { version: { get: sinon.stub().resolves(version) } };
-    const client = sinon.stub().returns(Client);
+    const VFClient = sinon.stub().returns(Client);
+    const VF = sinon.stub().returns({
+      generateClient: VFClient,
+    });
 
     const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey' };
-    const creatorDataAPI = new CreatorDataAPI(config, client as any);
+    const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
     expect(await creatorDataAPI.getVersion(versionID)).to.eql(version);
     expect(Client.version.get.args).to.eql([[versionID, []]]);
@@ -75,10 +95,13 @@ describe('creatorDataAPI client unit tests', () => {
     const projectID = 'projectID';
     const project = 'project';
     const Client = { project: { get: sinon.stub().resolves(project) } };
-    const client = sinon.stub().returns(Client);
+    const VFClient = sinon.stub().returns(Client);
+    const VF = sinon.stub().returns({
+      generateClient: VFClient,
+    });
 
     const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey' };
-    const creatorDataAPI = new CreatorDataAPI(config, client as any);
+    const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
     expect(await creatorDataAPI.getProject(projectID)).to.eql(project);
     expect(Client.project.get.args).to.eql([[projectID, []]]);

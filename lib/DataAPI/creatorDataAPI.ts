@@ -1,10 +1,10 @@
-import { BasePlatformData, Client as VoiceflowClient, Program, Project, Version } from '@voiceflow/api-sdk';
+import Voiceflow, { BasePlatformData, Client, Program, Project, Version } from '@voiceflow/api-sdk';
 
 import { DataAPI } from './types';
 
 class CreatorDataAPI<P extends Program<any, any>, V extends Version<any>, PJ extends Project<any, any> = Project<BasePlatformData, BasePlatformData>>
   implements DataAPI<P, V, PJ> {
-  protected client: VoiceflowClient;
+  protected client: Client;
 
   private prototype: boolean;
 
@@ -20,9 +20,9 @@ class CreatorDataAPI<P extends Program<any, any>, V extends Version<any>, PJ ext
       clientKey?: string;
       prototype?: boolean;
     },
-    Client = VoiceflowClient
+    VFClient = Voiceflow
   ) {
-    this.client = new Client({ apiEndpoint: endpoint, authorization, clientKey });
+    this.client = new VFClient({ apiEndpoint: endpoint, clientKey }).generateClient({ authorization });
 
     this.prototype = prototype;
   }
