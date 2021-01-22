@@ -38,4 +38,14 @@ export class TurnBuilder<C extends Context<any, any, any>> extends ContextBuilde
   async handle(_request: PartialContext<C>) {
     return super.handle(await this.init.handle(_request));
   }
+
+  async resolve(_request: PartialContext<C>) {
+    const { request, state, trace } = await this.handle(_request);
+
+    return {
+      request,
+      state,
+      trace,
+    };
+  }
 }
