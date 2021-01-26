@@ -1,5 +1,5 @@
 module.exports = {
-  out: './docs/runtime',
+  out: './docs',
   name: 'Voiceflow Runtime',
   includeVersion: true,
   tsconfig: 'tsconfig.build.json',

@@ -2,12 +2,8 @@
  command = "yarn docs:gen"
  publish = "docs"
 
-[[redirects]]
-  from = "/*"
-  to = "runtime/:splat"
-  status = 200
 
 [[redirects]]
   from = "/runtime/*"
-  to = "runtime/:splat"
+  to = "/:splat"
   status = 200
