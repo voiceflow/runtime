@@ -25,3 +25,6 @@ scratch.*
 
 # build folder
 build
+
+#Sonar report
+sonar/
