@@ -6,3 +6,8 @@
   from = "/*"
   to = "runtime/:splat"
   status = 200
+
+  [[redirects]]
+  from = "/runtime/*"
+  to = "runtime/:splat"
+  status = 200
