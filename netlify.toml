@@ -1,0 +1,3 @@
+[build]
+ command = "yarn docs:gen"
+ publish = "docs"
