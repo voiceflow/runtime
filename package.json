@@ -69,6 +69,7 @@
     "tsconfig-paths": "^3.9.0",
     "ttypescript": "^1.5.8",
     "typedoc": "^0.20.12",
+    "typedoc-plugin-sourcefile-url": "^1.0.6",
     "typescript": "^3.9"
   },
   "homepage": "https://github.com/voiceflow/runtime#readme",
