@@ -7,7 +7,7 @@
   to = "runtime/:splat"
   status = 200
 
-  [[redirects]]
+[[redirects]]
   from = "/runtime/*"
   to = "runtime/:splat"
   status = 200
