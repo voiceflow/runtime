@@ -1,7 +1,8 @@
 # Voiceflow Runtime
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a46fdcffdb54387bd8c9ba81153eba3)](https://www.codacy.com/gh/voiceflow/runtime/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=voiceflow/runtime&amp;utm_campaign=Badge_Grade)
-[![CircleCI](https://circleci.com/gh/voiceflow/runtime/tree/master.svg?style=shield&circle-token=d2fee4e418aa5f2a3499ac21cbc5f86c2e0fcdf4)](https://circleci.com/gh/voiceflow/runtime/tree/master)
-[![codecov](https://codecov.io/gh/voiceflow/runtime/branch/master/graph/badge.svg?token=BFMKN3VPSU)](https://codecov.io/gh/voiceflow/runtime)
+
+[![circleci](https://circleci.com/gh/voiceflow/runtime/tree/master.svg?style=shield)](https://circleci.com/gh/voiceflow/runtime/tree/master)
+[![codecov](https://codecov.io/gh/voiceflow/runtime/branch/master/graph/badge.svg)](https://codecov.io/gh/voiceflow/runtime)
+[![sonar quality gate](https://sonarcloud.io/api/project_badges/measure?project=voiceflow_runtime&metric=alert_status)](https://sonarcloud.io/dashboard?id=voiceflow_runtime)
 
 runtime SDK for executing voiceflow projects and conversational state management across different platforms.
 
@@ -52,7 +53,7 @@ repeat all steps each time a user speaks to the alexa skill, to perform a conver
 
 ### Initialization
 ```ts
-import Client, { 
+import Client, {
 	LocalDataApi,
 } from '@voiceflow/runtime';
 
@@ -80,7 +81,7 @@ client.setEvent(EventType.handlerDidCatch, (err, runtime) => {
 ```ts
 // incoming webhook request
 const handleRequest = async (userID, versionID, payload) => {
-	
+
 	// retrieve the previous user state
 	const rawState = DB.fetchState(userID);
 	const runtime = client.createRuntime(versionID, rawState, payload);
@@ -157,7 +158,7 @@ export const CustomNodeHandler: HandlerFactory<Node, typeof utilsObj> = (utils) 
 
 **turn**: object full of things that only matter during this turn
 
-**handlers:** array of handlers that handle specific node functionalities 
+**handlers:** array of handlers that handle specific node functionalities
 
 ---
 ## Documentation
