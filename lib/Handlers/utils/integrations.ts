@@ -53,25 +53,3 @@ export const resultMappings = (node: Node, resultData: any): Record<string, stri
     }
   }
 };
-
-export const _replacer = (match: string, inner: string, variablesMap: Record<string, any>, uriEncode = false) => {
-  if (inner in variablesMap) {
-    return uriEncode ? encodeURI(decodeURI(variablesMap[inner])) : variablesMap[inner];
-  }
-  return match;
-};
-
-export const deepVariableSubstitution = <T extends {}>(bodyData: T, variableMap: Record<string, unknown>): T => {
-  const _recurse = (subCollection: any, uriEncode = false) => {
-    if (subCollection && typeof subCollection === 'object') {
-      Object.keys(subCollection).forEach((key) => {
-        subCollection[key] = key === 'url' ? _recurse(subCollection[key], true) : _recurse(subCollection[key]);
-      });
-    } else if (typeof subCollection === 'string') {
-      return subCollection.replace(/\{([A-Za-z0-9_]*)\}/g, (match, inner) => _replacer(match, inner, variableMap, uriEncode));
-    }
-    return subCollection;
-  };
-
-  return _recurse(bodyData);
-};
