@@ -23,8 +23,8 @@ At a very high level, you can think of the whole Voiceflow system like code:
 - The frontend creator system allows conversation designers to "write" in a visual programming language, like an IDE. Each of their `diagrams` is like a function/instruction.
 - When they press _Upload_ or _Export_ all their flow `diagrams` are "compiled" into `programs`
 - The `runtime` is like the CPU that reads these `programs` and executes them based on end user input.
-  _ these `programs` can be read through **Local Project Files** or through an **Voiceflow API** where they are hosted with Voiceflow databases
-  _ the runtime handles state management and tracks the user's state at each turn of conversation
+- these `programs` can be read through **Local Project Files** or through an **Voiceflow API** where they are hosted with Voiceflow databases
+- the runtime handles state management and tracks the user's state at each turn of conversation
 
 Where conversational state management differs from traditional code execution is that it is heavily I/O based and always blocked when awaiting user input:
 
@@ -82,10 +82,9 @@ client.setEvent(EventType.handlerDidCatch, (err, runtime) => {
 ```ts
 // incoming webhook request
 const handleRequest = async (userID, versionID, payload) => {
-
-	// retrieve the previous user state
-	const rawState = DB.fetchState(userID);
-	const runtime = client.createRuntime(versionID, rawState, payload);
+  // retrieve the previous user state
+  const rawState = DB.fetchState(userID);
+  const runtime = client.createRuntime(versionID, rawState, payload);
 
   // update the state and generate new runtime (step through the program)
   runtime.update();
