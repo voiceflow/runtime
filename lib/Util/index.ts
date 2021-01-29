@@ -2,9 +2,6 @@ import { Command } from '@voiceflow/api-sdk';
 
 import Stack from '@/lib/Runtime/Stack';
 
-export * from './intent';
-export * from './variable';
-
 export type CommandMatcher<C extends Command = Command> = (command: C, match?: any) => boolean;
 
 // eslint-disable-next-line import/prefer-default-export

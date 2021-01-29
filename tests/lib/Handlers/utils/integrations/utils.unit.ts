@@ -1,7 +1,7 @@
 import { IntegrationType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 
-import { _replacer, deepVariableSubstitution, resultMappings } from '@/lib/Handlers/utils/integrations';
+import { resultMappings } from '@/lib/Handlers/utils/integrations';
 
 describe('handlers integrations utils unit tests', () => {
   describe('resultMappings', () => {
@@ -33,31 +33,6 @@ describe('handlers integrations utils unit tests', () => {
 
     it('ZAPIER', () => {
       expect(resultMappings({ selected_integration: IntegrationType.ZAPIER } as any, null as any)).to.eql({});
-    });
-  });
-
-  describe('_replacer', () => {
-    it('inner not in variablesMap', () => {
-      const match = 'matched';
-      expect(_replacer(match, 'random', {})).to.eql(match);
-    });
-
-    it('uriEncode false', () => {
-      expect(_replacer('', 'foo', { foo: 'bar' })).to.eql('bar');
-    });
-
-    it('uriEncode true', () => {
-      const url = 'https://www.domain.com?q=a b c';
-      expect(_replacer('', 'foo', { foo: url }, true)).to.eql(encodeURI(url));
-    });
-  });
-
-  describe('deepVariableSubstitution', () => {
-    it('works', () => {
-      const bodyData = { url: '{url}', var1: 'val1' };
-      const variableMap = { url: 'www.domain.com?q=a b c' };
-
-      expect(deepVariableSubstitution(bodyData, variableMap)).to.eql({ url: encodeURI(variableMap.url), var1: 'val1' });
     });
   });
 });

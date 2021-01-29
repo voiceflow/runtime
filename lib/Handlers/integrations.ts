@@ -1,3 +1,4 @@
+import { deepVariableSubstitution } from '@voiceflow/common';
 import { IntegrationType, NodeType } from '@voiceflow/general-types';
 import { Node } from '@voiceflow/general-types/build/nodes/integration';
 import axios from 'axios';
@@ -6,7 +7,7 @@ import safeJSONStringify from 'safe-json-stringify';
 
 import { HandlerFactory } from '@/lib/Handler';
 
-import { deepVariableSubstitution, ENDPOINTS_MAP, resultMappings } from './utils/integrations';
+import { ENDPOINTS_MAP, resultMappings } from './utils/integrations';
 
 export type IntegrationsOptions = {
   customAPIEndpoint: string;
