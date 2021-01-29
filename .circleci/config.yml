@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   codecov: codecov/codecov@1.0.2
   sonarcloud: sonarsource/sonarcloud@1.0.2
-  vfcommon: voiceflow/common@0.0.54
+  vfcommon: voiceflow/common@0.0.64
   validate-title: qventus/validate-title@0.0.4
 
 jobs:
@@ -47,6 +47,14 @@ workflows:
       - vfcommon/release:
           requires:
             - build-and-test
+          filters:
+            branches:
+              only: master
+      - vfcommon/generate_technical_documentation:
+          context: dev-test
+          requires:
+            - build-and-test
+            - vfcommon/release
           filters:
             branches:
               only: master
