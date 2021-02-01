@@ -13,7 +13,7 @@ export type IntegrationsOptions = {
   customAPIEndpoint?: string | null;
 };
 
-const IntegrationsHandler: HandlerFactory<Node, IntegrationsOptions | void> = ({ customAPIEndpoint } = {}) => ({
+const APIHandler: HandlerFactory<Node, IntegrationsOptions | void> = ({ customAPIEndpoint } = {}) => ({
   canHandle: (node) => node.type === NodeType.INTEGRATIONS && node.selected_integration === IntegrationType.CUSTOM_API,
   handle: async (node, runtime, variables) => {
     let nextId: string | null = null;
@@ -46,4 +46,4 @@ const IntegrationsHandler: HandlerFactory<Node, IntegrationsOptions | void> = ({
   },
 });
 
-export default IntegrationsHandler;
+export default APIHandler;
