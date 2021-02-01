@@ -1,7 +1,7 @@
 import { IntegrationType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 
-import { resultMappings } from '@/lib/Handlers/utils/integrations';
+import { resultMappings } from '@/lib/Handlers/integrations/utils';
 
 describe('handlers integrations utils unit tests', () => {
   describe('resultMappings', () => {

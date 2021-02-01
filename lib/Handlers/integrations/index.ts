@@ -7,15 +7,16 @@ import safeJSONStringify from 'safe-json-stringify';
 
 import { HandlerFactory } from '@/lib/Handler';
 
-import { ENDPOINTS_MAP, resultMappings } from './utils/integrations';
+import { ENDPOINTS_MAP, resultMappings } from './utils';
 
 export type IntegrationsOptions = {
-  customAPIEndpoint: string;
-  integrationsLambdaEndpoint: string;
+  integrationsEndpoint: string;
 };
 
-const IntegrationsHandler: HandlerFactory<Node, IntegrationsOptions> = ({ customAPIEndpoint, integrationsLambdaEndpoint }) => ({
-  canHandle: (node) => node.type === NodeType.INTEGRATIONS,
+const VALID_INTEGRATIONS = [IntegrationType.ZAPIER, IntegrationType.GOOGLE_SHEETS];
+
+const IntegrationsHandler: HandlerFactory<Node, IntegrationsOptions> = ({ integrationsEndpoint }) => ({
+  canHandle: (node) => node.type === NodeType.INTEGRATIONS && VALID_INTEGRATIONS.includes(node.selected_integration),
   handle: async (node, runtime, variables) => {
     if (!node.selected_integration || !node.selected_action) {
       runtime.trace.debug('no integration or action specified - fail by default');
@@ -29,22 +30,15 @@ const IntegrationsHandler: HandlerFactory<Node, IntegrationsOptions> = ({ custom
 
       const actionBodyData = deepVariableSubstitution(_.cloneDeep(node.action_data), variables.getState());
 
-      const BASE_URL = selectedIntegration === IntegrationType.CUSTOM_API ? customAPIEndpoint : integrationsLambdaEndpoint;
-      const { data } = await axios.post(`${BASE_URL}${ENDPOINTS_MAP[selectedIntegration][selectedAction]}`, actionBodyData);
+      const { data } = await axios.post(`${integrationsEndpoint}${ENDPOINTS_MAP[selectedIntegration][selectedAction]}`, actionBodyData);
 
       // map result data to variables
-      const mappedVariables = resultMappings(node, selectedIntegration === IntegrationType.CUSTOM_API ? data.variables : data);
+      const mappedVariables = resultMappings(node, data);
       // add mapped variables to variables store
       variables.merge(mappedVariables);
 
-      // if custom api returned error http status nextId to fail port, otherwise success
-      if (selectedIntegration === IntegrationType.CUSTOM_API && data.response.status >= 400) {
-        runtime.trace.debug(`action **${node.selected_action}** for integration **${node.selected_integration}** failed or encountered error`);
-        nextId = node.fail_id ?? null;
-      } else {
-        runtime.trace.debug(`action **${node.selected_action}** for integration **${node.selected_integration}** successfully triggered`);
-        nextId = node.success_id ?? null;
-      }
+      runtime.trace.debug(`action **${node.selected_action}** for integration **${node.selected_integration}** successfully triggered`);
+      nextId = node.success_id ?? null;
     } catch (error) {
       runtime.trace.debug(
         `action **${node.selected_action}** for integration **${node.selected_integration}** failed  \n${safeJSONStringify(error.response?.data)}`
