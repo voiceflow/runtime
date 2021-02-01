@@ -10,7 +10,7 @@ import { HandlerFactory } from '@/lib/Handler';
 import { APINodeData, makeAPICall } from './utils';
 
 export type IntegrationsOptions = {
-  customAPIEndpoint?: string;
+  customAPIEndpoint?: string | null;
 };
 
 const IntegrationsHandler: HandlerFactory<Node, IntegrationsOptions | void> = ({ customAPIEndpoint } = {}) => ({
