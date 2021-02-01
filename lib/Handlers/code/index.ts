@@ -5,6 +5,8 @@ import safeJSONStringify from 'safe-json-stringify';
 
 import { HandlerFactory } from '@/lib/Handler';
 
+import { vmExecute } from './utils';
+
 export type CodeOptions = {
   endpoint: string;
 };
@@ -15,22 +17,23 @@ const CodeHandler: HandlerFactory<Node, CodeOptions> = ({ endpoint }) => ({
     try {
       const variablesState = variables.getState();
 
-      const result = await axios.post(endpoint, {
+      const reqData = {
         code: node.code,
         variables: variablesState,
-      });
+      };
+      const data = endpoint ? (await axios.post(endpoint, reqData)).data : vmExecute(reqData);
 
       // debugging changes find variable value differences
-      const changes = _.union(Object.keys(variablesState), Object.keys(result.data)).reduce<string>((acc, variable) => {
-        if (variablesState[variable] !== result.data[variable]) {
-          acc += `\`{${variable}}\`: \`${variablesState[variable]?.toString?.()}\` => \`${result.data[variable]?.toString?.()}\`  \n`;
+      const changes = _.union(Object.keys(variablesState), Object.keys(data)).reduce<string>((acc, variable) => {
+        if (variablesState[variable] !== data[variable]) {
+          acc += `\`{${variable}}\`: \`${variablesState[variable]?.toString?.()}\` => \`${data[variable]?.toString?.()}\`  \n`;
         }
         return acc;
       }, '');
 
       runtime.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`);
 
-      variables.merge(result.data);
+      variables.merge(data);
 
       return node.success_id ?? null;
     } catch (error) {
