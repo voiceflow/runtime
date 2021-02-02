@@ -1,12 +1,9 @@
 import _ from 'lodash';
-import { sync as requireFromUrl } from 'require-from-url';
+import requireFromUrl from 'require-from-url/sync';
 import { VM } from 'vm2';
 
 // eslint-disable-next-line import/prefer-default-export
 export const vmExecute = (data: { code: string; variables: Record<string, any> }) => {
-  process.env = {
-    PATH: process.env.PATH,
-  };
   const keys = _.keys(data.variables);
 
   const vm = new VM({
@@ -29,7 +26,7 @@ export const vmExecute = (data: { code: string; variables: Record<string, any> }
             });
           })();`;
 
-  vm.run(clearContext + data.code, 'utils.js');
+  vm.run(clearContext + data.code);
 
   return keys.reduce<Record<string, any>>((acc, key) => {
     acc[key] = _.get(vm, '_context')[key];

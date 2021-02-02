@@ -1,5 +1,6 @@
 // handlers
 export { default as CodeHandler } from './code';
+export { vmExecute } from './code/utils';
 export { default as EndHandler } from './end';
 export { default as FlowHandler } from './flow';
 export { default as IfHandler } from './if';

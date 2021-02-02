@@ -8,7 +8,7 @@ import { HandlerFactory } from '@/lib/Handler';
 import { vmExecute } from './utils';
 
 export type CodeOptions = {
-  endpoint: string;
+  endpoint: string | null;
 };
 
 const CodeHandler: HandlerFactory<Node, CodeOptions> = ({ endpoint }) => ({
