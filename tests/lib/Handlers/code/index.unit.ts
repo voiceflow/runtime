@@ -4,11 +4,12 @@ import safeJSONStringify from 'safe-json-stringify';
 import sinon from 'sinon';
 
 import CodeHandler from '@/lib/Handlers/code';
+import * as utils from '@/lib/Handlers/code/utils';
 
 describe('codeHandler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
-      const codeHandler = CodeHandler({ endpoint: '' });
+      const codeHandler = CodeHandler();
       expect(codeHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
     });
 
@@ -88,6 +89,32 @@ describe('codeHandler unit tests', () => {
         expect(result).to.eql(null);
         expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: { var1: 1 } }]]);
         expect(runtime.trace.debug.args).to.eql([['evaluating code - no variable changes']]);
+      });
+    });
+
+    describe('no endpoint - local', () => {
+      afterEach(() => {
+        sinon.restore();
+      });
+
+      it('works correctly', async () => {
+        const codeHandler = CodeHandler({ endpoint: null });
+        const vmExecuteStub = sinon.stub(utils, 'vmExecute').returns({ var1: 1.1, var2: 2.2, newVar: 5 });
+
+        const node = { code: 'var1(); var2(); var3();', success_id: 'success-id' };
+        const runtime = { trace: { debug: sinon.stub() } };
+        const variables = {
+          merge: sinon.stub(),
+          getState: sinon.stub().returns({ var1: 1, var2: 2, var3: 3 }),
+        };
+        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
+        expect(result).to.eql(node.success_id);
+        expect(vmExecuteStub.args).to.eql([[{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }]]);
+        expect(runtime.trace.debug.args).to.eql([
+          [
+            'evaluating code - changes:  \n`{var1}`: `1` => `1.1`  \n`{var2}`: `2` => `2.2`  \n`{var3}`: `3` => `undefined`  \n`{newVar}`: `undefined` => `5`  \n',
+          ],
+        ]);
       });
     });
   });
