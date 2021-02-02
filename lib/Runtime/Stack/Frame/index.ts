@@ -47,8 +47,9 @@ class Frame {
   public variables: Store;
 
   constructor(frameState: Options) {
-    if (Object.prototype.hasOwnProperty.call(frameState, 'blockID')) this.nodeID = frameState.blockID;
-    if (Object.prototype.hasOwnProperty.call(frameState, 'nodeID')) this.nodeID = frameState.nodeID;
+    // if nodeID is null make sure it gets set to null, big difference between null and undefined
+    if ('blockID' in frameState) this.nodeID = frameState.blockID;
+    if ('nodeID' in frameState) this.nodeID = frameState.nodeID;
 
     this.programID = frameState.diagramID ?? frameState.programID;
 
