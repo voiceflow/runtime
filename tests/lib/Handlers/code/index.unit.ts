@@ -9,7 +9,7 @@ import * as utils from '@/lib/Handlers/code/utils';
 describe('codeHandler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
-      const codeHandler = CodeHandler({ endpoint: '' });
+      const codeHandler = CodeHandler();
       expect(codeHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
     });
 

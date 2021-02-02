@@ -8,10 +8,10 @@ import { HandlerFactory } from '@/lib/Handler';
 import { vmExecute } from './utils';
 
 export type CodeOptions = {
-  endpoint: string | null;
+  endpoint?: string | null;
 };
 
-const CodeHandler: HandlerFactory<Node, CodeOptions> = ({ endpoint }) => ({
+const CodeHandler: HandlerFactory<Node, CodeOptions | void> = ({ endpoint } = {}) => ({
   canHandle: (node) => !!node.code,
   handle: async (node, runtime, variables) => {
     try {
