@@ -6,6 +6,10 @@ class CreatorDataAPI<P extends Program<any, any>, V extends Version<any>, PJ ext
   implements DataAPI<P, V, PJ> {
   protected client: Client;
 
+  protected vfClient: Voiceflow;
+
+  protected initialAuth: string;
+
   private prototype: boolean;
 
   constructor(
@@ -22,13 +26,19 @@ class CreatorDataAPI<P extends Program<any, any>, V extends Version<any>, PJ ext
     },
     VFClient = Voiceflow
   ) {
-    this.client = new VFClient({ apiEndpoint: endpoint, clientKey }).generateClient({ authorization });
+    this.vfClient = new VFClient({ apiEndpoint: endpoint, clientKey });
+    this.initialAuth = authorization;
+    this.client = this.vfClient.generateClient({ authorization });
 
     this.prototype = prototype;
   }
 
   public init = async () => {
     // no-op
+  };
+
+  public updateAuthorization = (authorization: string) => {
+    this.client = this.vfClient.generateClient({ authorization: authorization || this.initialAuth });
   };
 
   public fetchDisplayById = async (): Promise<null> => {
