@@ -15,12 +15,12 @@ class CreatorDataAPI<P extends Program<any, any>, V extends Version<any>, PJ ext
   constructor(
     {
       endpoint,
-      authorization,
+      authorization = '',
       clientKey = '',
       prototype = true,
     }: {
       endpoint: string;
-      authorization: string;
+      authorization?: string;
       clientKey?: string;
       prototype?: boolean;
     },
@@ -37,8 +37,8 @@ class CreatorDataAPI<P extends Program<any, any>, V extends Version<any>, PJ ext
     // no-op
   };
 
-  public updateAuthorization = (authorization: string) => {
-    this.client = this.vfClient.generateClient({ authorization: authorization || this.initialAuth });
+  public updateAuthorization = (authorization?: string) => {
+    this.client = this.vfClient.generateClient({ authorization: authorization ?? this.initialAuth });
   };
 
   public fetchDisplayById = async (): Promise<null> => {

@@ -31,12 +31,12 @@ describe('creatorDataAPI client unit tests', () => {
       generateClient: generateClientStub,
     });
 
-    const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey', prototype: true };
+    const config = { endpoint: '_endpoint', clientKey: '_clientKey', prototype: true };
 
     const creatorDataAPI = new CreatorDataAPI(config, VF as any);
     creatorDataAPI.updateAuthorization('new auth');
 
-    expect(generateClientStub.firstCall.args).to.eql([{ authorization: config.authorization }]);
+    expect(generateClientStub.firstCall.args).to.eql([{ authorization: '' }]);
     expect(generateClientStub.secondCall.args).to.eql([{ authorization: 'new auth' }]);
   });
 
