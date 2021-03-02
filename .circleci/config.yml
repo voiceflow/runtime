@@ -1,5 +1,13 @@
 version: 2.1
 
+# Reusable YAML chunks
+defaults:
+  autorebase_filters: &autorebase_filters
+    branches:
+      ignore:
+        - /rebase-pull-request-.*/
+        - /cherry-pick-rebase-pull-request-.*/
+
 orbs:
   codecov: codecov/codecov@1.0.2
   sonarcloud: sonarsource/sonarcloud@1.0.2
@@ -31,7 +39,9 @@ workflows:
 
   test-and-release:
     jobs:
-      - build-and-test
+      - build-and-test:
+          filters:
+            <<: *autorebase_filters
       - vfcommon/release:
           requires:
             - build-and-test
