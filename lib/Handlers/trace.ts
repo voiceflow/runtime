@@ -1,35 +1,31 @@
+import { GeneralRequest, RequestType, TraceRequest } from '@voiceflow/general-types/build';
 import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/trace';
 
-import { RequestType } from '@/../general-types/build';
 import { HandlerFactory } from '@/lib/Handler';
+
+const isTraceRequest = (request: GeneralRequest | null): request is TraceRequest => {
+  return request?.type === RequestType.TRACE;
+};
 
 const TraceHandler: HandlerFactory<Node> = () => ({
   canHandle: (node) => !!node._v,
   handle: (node, runtime) => {
     const defaultPath = node.paths[node.defaultPath!]?.nextID || null;
 
-    if (!node.stop) {
-      runtime.trace.addTrace<TraceFrame>({
-        type: node.type,
-        payload: { data: node.data, paths: node.paths },
-      });
+    const request: GeneralRequest | null = runtime.getRequest();
 
-      return defaultPath;
+    if (isTraceRequest(request)) {
+      return node.paths[request.payload.pathIndex!]?.nextID ?? defaultPath;
     }
 
-    const request = runtime.getRequest();
+    runtime.trace.addTrace<TraceFrame>({
+      type: node.type,
+      payload: { data: node.data, paths: node.paths },
+    });
 
-    if (request?.type !== RequestType.TRACE) {
-      runtime.trace.addTrace<TraceFrame>({
-        type: node.type,
-        payload: { data: node.data, paths: node.paths },
-      });
-
-      // quit cycleStack without ending session by stopping on itself
-      return node.id;
-    }
-
-    return node.paths[request.payload.pathIndex]?.nextID ?? defaultPath;
+    // if !stop continue to defaultPath otherwise
+    // quit cycleStack without ending session by stopping on itself
+    return !node.stop ? defaultPath : node.id;
   },
 });
 

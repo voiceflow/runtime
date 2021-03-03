@@ -889,10 +889,10 @@
     eslint-plugin-xss "^0.1.9"
     typescript "^3.9.7"
 
-"@voiceflow/general-types@1.32.0":
-  version "1.32.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.32.0.tgz#dec52b1fdd61889f59d839fd5dbf16cb5037c707"
-  integrity sha512-914Peo2K4hkaajOFTV65IpAKBUMmex6984GFea86PKmvMkWhYpBCMKI/YVmjV3QLLfTEbMGyiO4ybH7Cm/O1Og==
+"@voiceflow/general-types@1.32.1":
+  version "1.32.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.32.1.tgz#cea04164f1941f9b687214c5de02adb7fcbfbaa7"
+  integrity sha512-AZN7X//2C0QHLFN971fOBtRihpm09fG55aCojT+R0Ab3tBhor80haziUYChGvcGLp/OpJ80ahHAKK1Az+IBw3w==
   dependencies:
     "@voiceflow/api-sdk" "1.27.1"
 
