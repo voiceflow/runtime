@@ -1,5 +1,7 @@
 /* eslint-disable no-await-in-loop */
 
+import Handler from '@/lib/Handler';
+import TraceHandler from '@/lib/Handlers/trace';
 import { EventType } from '@/lib/Lifecycle';
 import ProgramModel from '@/lib/Program';
 import Runtime from '@/lib/Runtime';
@@ -29,7 +31,7 @@ const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableSta
       const _node = node; // resolve TS type
 
       try {
-        const handler = runtime.getHandlers().find((h) => h.canHandle(_node, runtime, variableState, program));
+        const handler = [...runtime.getHandlers(), TraceHandler() as Handler].find((h) => h.canHandle(_node, runtime, variableState, program));
 
         if (handler) {
           await runtime.callEvent(EventType.handlerWillHandle, { node, variables: variableState });
