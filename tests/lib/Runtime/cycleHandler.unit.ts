@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
 
+import * as TraceHandler from '@/lib/Handlers/trace';
 import { EventType } from '@/lib/Lifecycle';
 import cycleHandler, * as file from '@/lib/Runtime/cycleHandler';
 
@@ -127,5 +128,27 @@ describe('Runtime cycleHandler unit tests', () => {
     await cycleHandler(runtime as any, program as any, variableState as any);
     expect(runtime.hasEnded.callCount).to.eql(cyclesLimit + 1);
     expect(referenceFrame.setNodeID.args[0]).to.eql(['next-id']);
+  });
+
+  it('matches trace handler', async () => {
+    const cyclesLimit = 1;
+    _.set(file, 'HANDLER_OVERFLOW', cyclesLimit);
+    const nodeID = 'node-id';
+    const output = 'output-node-id';
+    const referenceFrame = { getNodeID: sinon.stub().returns(nodeID), setNodeID: sinon.stub() };
+    const handlers = [{ canHandle: () => false }, { canHandle: () => false }];
+    sinon.stub(TraceHandler, 'default').returns({ canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) });
+    const runtime = {
+      callEvent: sinon.stub(),
+      stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
+      getHandlers: sinon.stub().returns(handlers),
+      hasEnded: sinon.stub().returns(false),
+    };
+    const node = {};
+    const program = { getNode: sinon.stub().returns(node) };
+    const variableState = {};
+
+    await cycleHandler(runtime as any, program as any, variableState as any);
+    expect(referenceFrame.setNodeID.args[0]).to.eql([output]);
   });
 });
