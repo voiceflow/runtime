@@ -2,6 +2,7 @@ import { GeneralRequest, RequestType, TraceRequest } from '@voiceflow/general-ty
 import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/trace';
 
 import { HandlerFactory } from '@/lib/Handler';
+import { Action } from '@/lib/Runtime';
 
 const isTraceRequest = (request: GeneralRequest | null): request is TraceRequest => {
   return request?.type === RequestType.TRACE;
@@ -14,7 +15,11 @@ const TraceHandler: HandlerFactory<Node> = () => ({
 
     const request: GeneralRequest | null = runtime.getRequest();
 
-    if (isTraceRequest(request)) {
+    // process req if not process before (action == REQUEST) and is of type trace
+    if (runtime.getAction() === Action.REQUEST && isTraceRequest(request)) {
+      // request for this turn has been processed, set action to response
+      runtime.setAction(Action.RESPONSE);
+
       return node.paths[request.payload.pathIndex!]?.nextID ?? defaultPath;
     }
 

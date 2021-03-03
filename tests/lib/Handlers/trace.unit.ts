@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import TraceHandler from '@/lib/Handlers/trace';
+import { Action } from '@/lib/Runtime';
 
 describe('traceHandler unit tests', () => {
   const traceHandler = TraceHandler();
@@ -27,7 +28,11 @@ describe('traceHandler unit tests', () => {
             { label: 'port2', nextID: 'two' },
           ],
         };
-        const runtime = { trace: { addTrace: sinon.stub() }, getRequest: sinon.stub().returns(null) };
+        const runtime = {
+          trace: { addTrace: sinon.stub() },
+          getRequest: sinon.stub().returns(null),
+          getAction: sinon.stub().returns(Action.RESPONSE),
+        };
 
         expect(traceHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
         expect(runtime.trace.addTrace.args).to.eql([[{ type: node.type, payload: { data: node.data, paths: node.paths } }]]);
@@ -43,7 +48,11 @@ describe('traceHandler unit tests', () => {
             { label: 'port2', nextID: 'two' },
           ],
         };
-        const runtime = { trace: { addTrace: sinon.stub() }, getRequest: sinon.stub().returns(null) };
+        const runtime = {
+          trace: { addTrace: sinon.stub() },
+          getRequest: sinon.stub().returns(null),
+          getAction: sinon.stub().returns(Action.RESPONSE),
+        };
 
         expect(traceHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
         expect(runtime.trace.addTrace.args).to.eql([[{ type: node.type, payload: { data: node.data, paths: node.paths } }]]);
@@ -59,7 +68,11 @@ describe('traceHandler unit tests', () => {
             { label: 'port2', nextID: 'two' },
           ],
         };
-        const runtime = { trace: { addTrace: sinon.stub() }, getRequest: sinon.stub().returns(null) };
+        const runtime = {
+          trace: { addTrace: sinon.stub() },
+          getRequest: sinon.stub().returns(null),
+          getAction: sinon.stub().returns(Action.RESPONSE),
+        };
 
         expect(traceHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql('two');
         expect(runtime.trace.addTrace.args).to.eql([[{ type: node.type, payload: { data: node.data, paths: node.paths } }]]);
@@ -78,7 +91,11 @@ describe('traceHandler unit tests', () => {
             { label: 'port2', nextID: 'two' },
           ],
         };
-        const runtime = { trace: { addTrace: sinon.stub() }, getRequest: sinon.stub().returns(null) };
+        const runtime = {
+          trace: { addTrace: sinon.stub() },
+          getRequest: sinon.stub().returns(null),
+          getAction: sinon.stub().returns(Action.REQUEST),
+        };
 
         expect(traceHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql('node-id');
         expect(runtime.trace.addTrace.args).to.eql([[{ type: node.type, payload: { data: node.data, paths: node.paths } }]]);
@@ -95,13 +112,38 @@ describe('traceHandler unit tests', () => {
             { label: 'port2', nextID: 'two' },
           ],
         };
-        const runtime = { trace: { addTrace: sinon.stub() }, getRequest: sinon.stub().returns({ type: 'general' }) };
+        const runtime = {
+          trace: { addTrace: sinon.stub() },
+          getRequest: sinon.stub().returns({ type: 'general' }),
+          getAction: sinon.stub().returns(Action.REQUEST),
+        };
 
         expect(traceHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql('node-id');
         expect(runtime.trace.addTrace.args).to.eql([[{ type: node.type, payload: { data: node.data, paths: node.paths } }]]);
       });
 
       describe('trace request', () => {
+        it('no request action', () => {
+          const node = {
+            id: 'node-id',
+            type: 'trace',
+            data: { foo: 'bar' },
+            stop: true,
+            paths: [
+              { label: 'port1', nextID: 'one' },
+              { label: 'port2', nextID: 'two' },
+            ],
+          };
+          const runtime = {
+            trace: { addTrace: sinon.stub() },
+            getRequest: sinon.stub().returns({ type: 'trace' }),
+            getAction: sinon.stub().returns(Action.RESPONSE),
+          };
+
+          expect(traceHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql('node-id');
+          expect(runtime.trace.addTrace.args).to.eql([[{ type: node.type, payload: { data: node.data, paths: node.paths } }]]);
+        });
+
         it('no pathIndex', () => {
           const node = {
             id: 'node-id',
@@ -114,9 +156,14 @@ describe('traceHandler unit tests', () => {
               { label: 'port2', nextID: 'two' },
             ],
           };
-          const runtime = { getRequest: sinon.stub().returns({ type: 'trace', payload: {} }) };
+          const runtime = {
+            getRequest: sinon.stub().returns({ type: 'trace', payload: {} }),
+            getAction: sinon.stub().returns(Action.REQUEST),
+            setAction: sinon.stub(),
+          };
 
           expect(traceHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql('two');
+          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         });
 
         it('wrong path index', () => {
@@ -131,9 +178,14 @@ describe('traceHandler unit tests', () => {
               { label: 'port2', nextID: 'two' },
             ],
           };
-          const runtime = { getRequest: sinon.stub().returns({ type: 'trace', payload: { pathIndex: 5 } }) };
+          const runtime = {
+            getRequest: sinon.stub().returns({ type: 'trace', payload: { pathIndex: 5 } }),
+            getAction: sinon.stub().returns(Action.REQUEST),
+            setAction: sinon.stub(),
+          };
 
           expect(traceHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql('two');
+          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         });
 
         it('with pathIndex', () => {
@@ -148,9 +200,14 @@ describe('traceHandler unit tests', () => {
               { label: 'port2', nextID: 'two' },
             ],
           };
-          const runtime = { getRequest: sinon.stub().returns({ type: 'trace', payload: { pathIndex: 0 } }) };
+          const runtime = {
+            getRequest: sinon.stub().returns({ type: 'trace', payload: { pathIndex: 0 } }),
+            getAction: sinon.stub().returns(Action.REQUEST),
+            setAction: sinon.stub(),
+          };
 
           expect(traceHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql('one');
+          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         });
       });
     });
