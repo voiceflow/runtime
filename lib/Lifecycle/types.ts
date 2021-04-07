@@ -1,5 +1,5 @@
 import { Node } from '@voiceflow/api-sdk';
-import { DebugTrace, TraceFrame } from '@voiceflow/general-types';
+import { TraceFrame, TraceType } from '@voiceflow/general-types';
 
 import Program from '../Program';
 import Runtime from '../Runtime';
@@ -118,7 +118,7 @@ export interface EventMap<TF extends TraceFrame> {
   [EventType.variablesWillUpdate]: BaseEvent;
   [EventType.variablesDidUpdate]: BaseEvent;
 
-  [EventType.traceWillAdd]: TraceWillAddEvent<TF | DebugTrace>;
+  [EventType.traceWillAdd]: TraceWillAddEvent<TF | TraceFrame<TraceType>>;
 }
 
 export type Event<K extends EventType, TF extends TraceFrame = TraceFrame> = EventMap<TF>[K];
