@@ -14,7 +14,7 @@ const EndHandler: HandlerFactory<Node> = () => ({
     }
 
     runtime.turn.set('end', true);
-    runtime.trace.addTrace<TraceFrame>({ type: TraceType.END, payload: undefined });
+    runtime.trace.addTrace<TraceFrame>({ type: TraceType.END });
     runtime.trace.debug('exiting session - saving location/resolving stack');
 
     runtime.end();

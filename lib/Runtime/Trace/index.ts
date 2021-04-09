@@ -9,7 +9,7 @@ export default class Trace {
 
   constructor(private runtime: Runtime) {}
 
-  addTrace<TF extends TraceFrame>(frame: TF | TraceFrame<TraceType, any>) {
+  addTrace<TF extends TraceFrame>(frame: TF) {
     let stop = false;
 
     this.runtime.callEvent(EventType.traceWillAdd, {
