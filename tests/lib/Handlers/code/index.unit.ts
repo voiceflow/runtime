@@ -7,6 +7,10 @@ import CodeHandler from '@/lib/Handlers/code';
 import * as utils from '@/lib/Handlers/code/utils';
 
 describe('codeHandler unit tests', () => {
+  afterEach(() => {
+    sinon.restore();
+  });
+
   describe('canHandle', () => {
     it('false', () => {
       const codeHandler = CodeHandler();
@@ -109,12 +113,38 @@ describe('codeHandler unit tests', () => {
         };
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(node.success_id);
-        expect(vmExecuteStub.args).to.eql([[{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }]]);
+        expect(vmExecuteStub.args).to.eql([[{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }, undefined, undefined]]);
         expect(runtime.trace.debug.args).to.eql([
           [
             'evaluating code - changes:  \n`{var1}`: `1` => `1.1`  \n`{var2}`: `2` => `2.2`  \n`{var3}`: `3` => `undefined`  \n`{newVar}`: `undefined` => `5`  \n',
           ],
         ]);
+      });
+
+      it('exes callbacks', async () => {
+        let res = 0;
+        const callbacks = {
+          setRes: (c: number) => {
+            res = c;
+          },
+          add: (a: number, b: number) => {
+            return a + b;
+          },
+        };
+        const codeHandler = CodeHandler({ endpoint: null, callbacks, safe: false });
+
+        const node = {
+          code: 'const c  = add(a, b); setRes(c);',
+          success_id: 'success-id',
+        };
+        const runtime = { trace: { debug: sinon.stub() } };
+        const variables = {
+          merge: sinon.stub(),
+          getState: sinon.stub().returns({ a: 1, b: 4 }),
+        };
+        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
+        expect(result).to.eql(node.success_id);
+        expect(res).to.eql(5);
       });
     });
   });
