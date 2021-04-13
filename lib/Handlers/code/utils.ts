@@ -3,7 +3,11 @@ import requireFromUrl from 'require-from-url/sync';
 import { VM } from 'vm2';
 
 // eslint-disable-next-line import/prefer-default-export
-export const vmExecute = (data: { code: string; variables: Record<string, any> }, safe = true, callbacks?: Record<string, Function>) => {
+export const vmExecute = (
+  data: { code: string; variables: Record<string, any> },
+  safe = true /* set to false when running in testing env */,
+  callbacks?: Record<string, Function>
+) => {
   const vm = new VM({
     timeout: 1000,
     sandbox: {
