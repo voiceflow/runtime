@@ -1,12 +1,12 @@
+import { NodeType } from '@voiceflow/general-types/build';
 import { Node } from '@voiceflow/general-types/build/nodes/setV2';
 
-import { NodeType } from '@/../general-types/build';
 import { HandlerFactory } from '@/lib/Handler';
 
 import CodeHandler from './code';
 
 export type SetV2Options = {
-  endpoint?: string;
+  endpoint?: string | null;
   safe?: boolean;
 };
 

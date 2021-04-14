@@ -1,3 +1,4 @@
+import { NodeType } from '@voiceflow/general-types';
 import { Node, NodeSet } from '@voiceflow/general-types/build/nodes/set';
 import Promise from 'bluebird';
 
@@ -7,7 +8,7 @@ import { EventType } from '@/lib/Lifecycle';
 import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
 const setHandler: HandlerFactory<Node> = () => ({
-  canHandle: (node) => !!(node.sets && node.sets.length < 21),
+  canHandle: (node: any) => !!(node.type !== NodeType.SET_V2 && node.sets && node.sets.length < 21),
   handle: async (node, runtime, variables) => {
     await Promise.each<NodeSet>(node.sets, async (set) => {
       try {
