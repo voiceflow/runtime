@@ -3,6 +3,7 @@ import { Node } from '@voiceflow/general-types/build/nodes/ifV2';
 
 import { HandlerFactory } from '@/lib/Handler';
 
+import { TurnType } from '../Constants/flags';
 import CodeHandler from './code';
 
 export type IfV2Options = {
@@ -11,7 +12,7 @@ export type IfV2Options = {
 };
 
 const IfV2Handler: HandlerFactory<Node, IfV2Options | void> = ({ endpoint, safe } = {}) => ({
-  canHandle: (node) => node.type === NodeType.IF_V2,
+  canHandle: (node, runtime) => node.type === NodeType.IF_V2 && !(runtime.turn.get<string[]>(TurnType.STOP_TYPES) || []).includes(NodeType.IF_V2),
   handle: async (node, runtime, variables, program) => {
     let outputPortIndex = -1;
     const setOutputPort = function(index: number) {
@@ -20,9 +21,9 @@ const IfV2Handler: HandlerFactory<Node, IfV2Options | void> = ({ endpoint, safe 
     const codeHandler = CodeHandler({ endpoint, callbacks: { setOutputPort }, safe });
 
     let code = '';
-    for (let i = 0; i < node.expressions.length; i++) {
+    for (let i = 0; i < node.payload.expressions.length; i++) {
       code += `
-            if(${node.expressions[i]}) {
+            if(${node.payload.expressions[i]}) {
                 setOutputPort(${i}); 
                 throw(null);
             }
@@ -35,12 +36,12 @@ const IfV2Handler: HandlerFactory<Node, IfV2Options | void> = ({ endpoint, safe 
 
     if (outputPortIndex !== -1) {
       runtime.trace.debug(`condition true - taking path ${outputPortIndex + 1}`);
-      return node.nextIds[outputPortIndex];
+      return node.paths[outputPortIndex].nextID;
     }
 
     runtime.trace.debug('no conditions matched - taking else path');
 
-    return node.elseId || null;
+    return node.payload.elseId || null;
   },
 });
 
