@@ -14,11 +14,13 @@ export type IfV2Options = {
 const IfV2Handler: HandlerFactory<Node, IfV2Options | void> = ({ endpoint, safe } = {}) => ({
   canHandle: (node, runtime) => node.type === NodeType.IF_V2 && !(runtime.turn.get<string[]>(TurnType.STOP_TYPES) || []).includes(NodeType.IF_V2),
   handle: async (node, runtime, variables, program) => {
-    let outputPortIndex = -1;
-    const setOutputPort = function(index: number) {
-      outputPortIndex = index;
+    const VF_VARS = {
+      outputPortIndex: -1,
     };
-    const codeHandler = CodeHandler({ endpoint, callbacks: { setOutputPort }, safe });
+    const setOutputPort = function(index: number) {
+      VF_VARS.outputPortIndex = index;
+    };
+    const codeHandler = CodeHandler({ endpoint, callbacks: { setOutputPort }, safe, VF_VARS });
 
     let code = '';
     for (let i = 0; i < node.payload.expressions.length; i++) {
@@ -34,9 +36,9 @@ const IfV2Handler: HandlerFactory<Node, IfV2Options | void> = ({ endpoint, safe 
 
     await codeHandler.handle({ code: codeTemplate, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: NodeType.CODE }, runtime, variables, program);
 
-    if (outputPortIndex !== -1) {
-      runtime.trace.debug(`condition true - taking path ${outputPortIndex + 1}`);
-      return node.paths[outputPortIndex].nextID;
+    if (VF_VARS.outputPortIndex !== -1) {
+      runtime.trace.debug(`condition true - taking path ${VF_VARS.outputPortIndex + 1}`);
+      return node.paths[VF_VARS.outputPortIndex].nextID;
     }
 
     runtime.trace.debug('no conditions matched - taking else path');

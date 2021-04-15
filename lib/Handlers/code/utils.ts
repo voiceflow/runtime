@@ -6,7 +6,8 @@ import { VM } from 'vm2';
 export const vmExecute = (
   data: { code: string; variables: Record<string, any> },
   safe = true /* set to false when running in testing env */,
-  callbacks?: Record<string, Function>
+  callbacks?: Record<string, Function>,
+  VF_VARS?: Record<string, any>
 ) => {
   const vm = new VM({
     timeout: 1000,
@@ -15,6 +16,7 @@ export const vmExecute = (
       ..._.cloneDeep(data.variables),
       requireFromUrl,
       ...callbacks,
+      VF_VARS,
     },
   });
 
@@ -31,8 +33,11 @@ export const vmExecute = (
 
   vm.run(`${safe ? clearContext : ''} ${data.code}`);
 
-  return Object.keys(data.variables).reduce<Record<string, any>>((acc, key) => {
-    acc[key] = _.get(vm, '_context')[key];
-    return acc;
-  }, {});
+  return {
+    ...Object.keys(data.variables).reduce<Record<string, any>>((acc, key) => {
+      acc[key] = _.get(vm, '_context')[key];
+      return acc;
+    }, {}),
+    VF_VARS,
+  };
 };
