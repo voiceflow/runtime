@@ -45,7 +45,8 @@ describe('codeHandler unit tests', () => {
 
       it('with fail_id', async () => {
         const codeHandler = CodeHandler({ endpoint: 'foo' });
-        const axiosPost = sinon.stub(axios, 'post').throws({});
+        const error = {};
+        const axiosPost = sinon.stub(axios, 'post').throws(error);
 
         const node = { code: 'foo()', fail_id: 'fail-id' };
         const runtime = { trace: { debug: sinon.stub() } };
@@ -53,7 +54,7 @@ describe('codeHandler unit tests', () => {
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(node.fail_id);
         expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: {} }]]);
-        expect(runtime.trace.debug.args).to.eql([['unable to resolve code  \n`undefined`']]);
+        expect(runtime.trace.debug.args).to.eql([[`unable to resolve code  \n\`"${error.toString()}"\``]]);
       });
     });
 

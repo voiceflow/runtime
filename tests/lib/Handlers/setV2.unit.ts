@@ -35,19 +35,19 @@ describe('setV2 handler unit tests', () => {
         ],
       };
       const runtime = { trace: { debug: sinon.stub() } };
-      const variables = { var1: 'val1' };
+      const variables = { var1: 'val1', has: sinon.stub().returns(true) };
       const program = { lines: [] };
 
       expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(null);
 
       expect(CodeHandlerStub.calledOnce).to.eql(true);
-      expect(CodeHandlerStub.args).to.eql([[{ endpoint: undefined, safe: undefined }]]);
+      expect(CodeHandlerStub.args).to.eql([[{ safe: undefined }]]);
 
       expect(codeHandler.handle.args).to.eql([
         [
           {
             code:
-              '\n        let evaluated;\n    \n            evaluated = undefined;\n            a = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = NaN;\n            b = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = (1 + 8)/3;\n            c = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        ',
+              '\n        let evaluated;\n    \n            evaluated = eval(`undefined`);\n            a = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = eval(`NaN`);\n            b = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = eval(`(1 + 8)/3`);\n            c = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        ',
             id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE',
             type: NodeType.CODE,
           },
@@ -59,6 +59,7 @@ describe('setV2 handler unit tests', () => {
     });
 
     it('with nextId', async () => {
+      // todo: test for var that does not exist
       const handler = SetV2Handler({ safe: false });
 
       const node = {
