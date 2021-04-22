@@ -18,8 +18,14 @@ const SetV2Handler: HandlerFactory<Node, SetV2Options | void> = ({ safe } = {}) 
         let evaluated;
     `;
     node.sets.forEach((set) => {
+      if (!set.variable) return;
+      if (!variables.has(set.variable) || !runtime.variables.has(set.variable)) {
+        runtime.variables.set(set.variable, 0);
+        variables.set(set.variable, 0);
+      }
+
       code += `
-            evaluated = ${set.expression};
+            evaluated = eval(\`${set.expression}\`);
             ${set.variable} = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;
         `;
     });
