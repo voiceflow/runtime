@@ -6,14 +6,13 @@ import { HandlerFactory } from '@/lib/Handler';
 import CodeHandler from './code';
 
 export type SetV2Options = {
-  endpoint?: string | null;
   safe?: boolean;
 };
 
-const SetV2Handler: HandlerFactory<Node, SetV2Options | void> = ({ endpoint, safe } = {}) => ({
+const SetV2Handler: HandlerFactory<Node, SetV2Options | void> = ({ safe } = {}) => ({
   canHandle: (node) => node.type === NodeType.SET_V2,
   handle: async (node, runtime, variables, program) => {
-    const codeHandler = CodeHandler({ endpoint, safe });
+    const codeHandler = CodeHandler({ safe });
 
     let code = `
         let evaluated;

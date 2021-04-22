@@ -1,21 +1,27 @@
 import { NodeType } from '@voiceflow/general-types/';
 import { Node } from '@voiceflow/general-types/build/nodes/ifV2';
 
-import { HandlerFactory } from '@/lib/Handler';
+import Handler, { HandlerFactory } from '@/lib/Handler';
 
 import { TurnType } from '../Constants/flags';
 import CodeHandler from './code';
 
 export type IfV2Options = {
-  endpoint?: string | null;
   safe?: boolean;
+  _v1: Handler;
 };
 
 type DebugError = { index: number; expression: string; msg: string };
 
-const IfV2Handler: HandlerFactory<Node, IfV2Options | void> = ({ endpoint, safe } = {}) => ({
-  canHandle: (node, runtime) => node.type === NodeType.IF_V2 && !(runtime.turn.get<string[]>(TurnType.STOP_TYPES) || []).includes(NodeType.IF_V2),
+const IfV2Handler: HandlerFactory<Node, IfV2Options> = ({ _v1, safe }) => ({
+  canHandle: (node) => {
+    return node.type === NodeType.IF_V2;
+  },
   handle: async (node, runtime, variables, program) => {
+    if (runtime.turn.get<string[]>(TurnType.STOP_TYPES)?.includes(NodeType.IF_V2)) {
+      return _v1.handle(node, runtime, variables, program);
+    }
+
     let outputPortIndex = -1;
     const setOutputPort = function(index: number) {
       outputPortIndex = index;
@@ -25,7 +31,7 @@ const IfV2Handler: HandlerFactory<Node, IfV2Options | void> = ({ endpoint, safe 
       debugErrors.push(err);
     };
 
-    const codeHandler = CodeHandler({ endpoint, callbacks: { setOutputPort, addDebugError }, safe });
+    const codeHandler = CodeHandler({ callbacks: { setOutputPort, addDebugError }, safe });
 
     let code = '';
     for (let i = 0; i < node.payload.expressions.length; i++) {
