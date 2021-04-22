@@ -39,7 +39,7 @@ const CodeHandler: HandlerFactory<Node, CodeOptions | void> = ({ endpoint, callb
 
       return node.success_id ?? null;
     } catch (error) {
-      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data)}\``);
+      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data || error.toString())}\``);
 
       return node.fail_id ?? null;
     }
