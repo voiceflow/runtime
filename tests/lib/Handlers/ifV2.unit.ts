@@ -1,7 +1,7 @@
+import { NodeType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { NodeType } from '@/../general-types/build';
 import * as CodeHandler from '@/lib/Handlers/code';
 import IfV2Handler from '@/lib/Handlers/ifV2';
 
