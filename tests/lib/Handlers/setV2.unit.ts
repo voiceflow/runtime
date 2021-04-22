@@ -59,18 +59,19 @@ describe('setV2 handler unit tests', () => {
     });
 
     it('with nextId', async () => {
-      // todo: test for var that does not exist
       const handler = SetV2Handler({ safe: false });
 
       const node = {
         nextId: 'next-id',
         sets: [
           { variable: 'a', expression: 'undefined' },
+          {}, // no variable
           { variable: 'b', expression: 'NaN' },
+          { variable: 'newVar', expression: '1 + 3' },
           { variable: 'c', expression: '(1 + 8)/3' },
         ],
       };
-      const runtime = { trace: { debug: sinon.stub() } };
+      const runtime = { trace: { debug: sinon.stub() }, variables: new Store() };
 
       const variables = new Store();
       variables.set('a', 0);
@@ -80,7 +81,8 @@ describe('setV2 handler unit tests', () => {
       const program = { lines: [] };
 
       expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(node.nextId);
-      expect(variables.getState()).to.eql({ a: undefined, b: undefined, c: 3 });
+      expect(variables.getState()).to.eql({ a: undefined, b: undefined, c: 3, newVar: 4 });
+      expect(runtime.variables.getState()).to.eql({ newVar: 0 });
     });
   });
 });

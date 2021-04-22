@@ -21,6 +21,24 @@ describe('ifV2 handler unit tests', () => {
   });
 
   describe('handle', () => {
+    describe('_v1', () => {
+      it('handles', async () => {
+        const output = 'output';
+        const _v1 = { handle: sinon.stub().resolves(output) };
+        const handler = IfV2Handler({ _v1 } as any);
+        const codeHandler = { handle: sinon.stub() };
+        sinon.stub(CodeHandler, 'default').returns(codeHandler as any);
+
+        const node = { payload: { expressions: [] }, paths: [] };
+        const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns([NodeType.IF_V2]) } };
+        const variables = { var1: 'val1' };
+        const program = { lines: [] };
+
+        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(output);
+        expect(_v1.handle.args).to.eql([[node, runtime, variables, program]]);
+      });
+    });
+
     describe('no match', () => {
       it('with elseId', async () => {
         const handler = IfV2Handler({} as any);
@@ -61,7 +79,7 @@ describe('ifV2 handler unit tests', () => {
         sinon.stub(CodeHandler, 'default').returns(codeHandler as any);
 
         const node = { payload: { expressions: [] }, paths: [] };
-        const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns(null) } };
+        const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns([]) } };
         const variables = { var1: 'val1' };
         const program = { lines: [] };
 
@@ -69,29 +87,27 @@ describe('ifV2 handler unit tests', () => {
       });
     });
 
-    // todo: test _V1
-
     describe('match', () => {
-      // todo: add an invalid expression
       it('works', async () => {
         const handler = IfV2Handler({ safe: false } as any);
 
         const node = {
           payload: {
-            expressions: ['a && b', 'arr.includes(a) && !b', 'a === 3'], // third condition is also true, but we exit early when there's a match
+            expressions: ['a && b', 'a + b)', 'arr.includes(a) && !b', 'a === 3'], // second condition is malformed. forth condition is also true, but we exit early when there's a match
             elseId: 'else-id',
           },
-          paths: [{ nextID: 'first-next' }, { nextID: 'second-next' }, { nextID: 'third-next' }],
+          paths: [{ nextID: 'first-next' }, { nextID: 'second-next' }, { nextID: 'third-next' }, { nextID: 'forth-next' }],
         };
         const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns(null) } };
         const variables = { getState: sinon.stub().returns({ a: 3, b: false, arr: [1, 3, 5] }), merge: sinon.stub() };
         const program = { lines: [] };
 
-        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(node.paths[1].nextID);
+        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(node.paths[2].nextID);
 
         expect(runtime.trace.debug.args).to.eql([
           ['evaluating code - changes:  \n`{arr}`: `1,3,5` => `1,3,5`  \n'],
-          ['condition matched - taking path 2'],
+          [`Error condition 2 - "${node.payload.expressions[1]}": SyntaxError: Unexpected token ')'`],
+          ['condition matched - taking path 3'],
         ]);
       });
     });
