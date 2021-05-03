@@ -880,10 +880,10 @@
     eslint-plugin-xss "^0.1.9"
     typescript "^3.9.7"
 
-"@voiceflow/general-types@1.45.0":
-  version "1.45.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.45.0.tgz#49d67c5068a80427837ded122cba2e30f19a5c85"
-  integrity sha512-ExABwepdWbpckY7BNNbof+TIZ9YixITdHhdibU3Dh+luPxBY8lUOg8G516SH3jzQJflPeOEmVJEy79LY55OVug==
+"@voiceflow/general-types@^1.45.1":
+  version "1.45.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.45.1.tgz#411440a85df2db7902fcb098b11ea764691112ea"
+  integrity sha512-cXfABd+jsQUF2b8Kclk01rXRvHAarGtyzInmZD4vY4nF8cpchegzNZoMoE1iXo7oT3KHFgidiv223lNBgPhabQ==
   dependencies:
     "@voiceflow/api-sdk" "1.30.0"
 

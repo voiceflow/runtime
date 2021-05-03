@@ -11,3 +11,5 @@ export { default as SetHandler } from './set';
 export { default as StartHandler } from './start';
 export { default as NextHandler } from './next';
 export { default as ResetHandler } from './reset';
+export { default as IfV2Handler } from './ifV2';
+export { default as SetV2Handler } from './setV2';

@@ -9,9 +9,11 @@ import { vmExecute } from './utils';
 
 export type CodeOptions = {
   endpoint?: string | null;
+  callbacks?: Record<string, Function>;
+  safe?: boolean;
 };
 
-const CodeHandler: HandlerFactory<Node, CodeOptions | void> = ({ endpoint } = {}) => ({
+const CodeHandler: HandlerFactory<Node, CodeOptions | void> = ({ endpoint, callbacks, safe } = {}) => ({
   canHandle: (node) => !!node.code,
   handle: async (node, runtime, variables) => {
     try {
@@ -21,7 +23,7 @@ const CodeHandler: HandlerFactory<Node, CodeOptions | void> = ({ endpoint } = {}
         code: node.code,
         variables: variablesState,
       };
-      const data = endpoint ? (await axios.post(endpoint, reqData)).data : vmExecute(reqData);
+      const data = endpoint ? (await axios.post(endpoint, reqData)).data : vmExecute(reqData, safe, callbacks);
 
       // debugging changes find variable value differences
       const changes = _.union(Object.keys(variablesState), Object.keys(data)).reduce<string>((acc, variable) => {
@@ -37,7 +39,7 @@ const CodeHandler: HandlerFactory<Node, CodeOptions | void> = ({ endpoint } = {}
 
       return node.success_id ?? null;
     } catch (error) {
-      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data)}\``);
+      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data || error.toString())}\``);
 
       return node.fail_id ?? null;
     }
