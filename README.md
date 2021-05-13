@@ -1,7 +1,7 @@
 # Voiceflow Runtime
 
 [![circleci](https://circleci.com/gh/voiceflow/runtime/tree/master.svg?style=shield)](https://circleci.com/gh/voiceflow/runtime/tree/master)
-[![codecov](https://codecov.io/gh/voiceflow/runtime/branch/master/graph/badge.svg)](https://codecov.io/gh/voiceflow/runtime)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=voiceflow_runtime&metric=coverage)](https://sonarcloud.io/dashboard?id=voiceflow_runtime)
 [![sonar quality gate](https://sonarcloud.io/api/project_badges/measure?project=voiceflow_runtime&metric=alert_status)](https://sonarcloud.io/dashboard?id=voiceflow_runtime)
 
 runtime SDK for executing voiceflow projects and conversational state management across different platforms.
