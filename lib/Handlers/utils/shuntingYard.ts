@@ -1,16 +1,14 @@
 import _ from 'lodash';
 import workerpool from 'workerpool';
 
+const mathJsWorkerPool = workerpool.pool(`${__dirname}/mathJsWorker.js`);
+
 const evalExpression = async (expression: string, variables: Record<string, any> = {}) => {
   const exp = expression.split('\n') as any;
 
   // start js script as dedicated worker
-  const mathJsWorkerPool = workerpool.pool(`${__dirname}/mathJsWorker.js`, { maxWorkers: 1 });
   // evaluate expressions in a separate worker to prevent memory overflow of main thread
-  const result = await mathJsWorkerPool.exec('evaluate', [exp, variables]).timeout(1000);
-  await mathJsWorkerPool.terminate();
-
-  return result;
+  return mathJsWorkerPool.exec('evaluate', [exp, variables]).timeout(1000);
 };
 
 class Stack {
